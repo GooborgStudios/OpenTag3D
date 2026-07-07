@@ -5,7 +5,7 @@ author: Gooborg Studios / OpenTag3D Consortium
 copyright: GNU GPLv3
 copyright_url: "https://www.gnu.org/licenses/gpl-3.0.en.html"
 url: "https://opentag3d.info"
-repository: queengooborg/OpenTag3D
+repository: GooborgStudios/OpenTag3D
 locale: en-US
 theme: minimal-mistakes-jekyll
 plugins:
@@ -32,4 +32,4 @@ footer:
   links:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/queengooborg/OpenTag3D"
+      url: "https://github.com/GooborgStudios/OpenTag3D"

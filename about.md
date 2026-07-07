@@ -27,7 +27,7 @@ What is the benefit of adding RFID chips to filament?
 
 ## Backers
 
-These are companies that are implementing OpenTag3D into their printers, filament, add-ons, etc. If you would like to join this list, please open an [Issue on GitHub](https://github.com/queengooborg/OpenTag3D/issues/new?template=backer.yml).
+These are companies that are implementing OpenTag3D into their printers, filament, add-ons, etc. If you would like to join this list, please open an [Issue on GitHub](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=backer.yml).
 
 <!-- prettier-ignore-start -->
 
