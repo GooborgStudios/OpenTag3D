@@ -26,7 +26,7 @@ feature_row:
     image_path: /assets/images/icons8-request_money.svg
     alt: ""
   - title: "Compact Format, Complete Data"
-    excerpt: "All the critical data a 3D printer needs (such as manufacturer, material, color, print settings, and more) fits neatly within 144 bytes on an NTAG213. For manufacturers who want to include additional details like serial numbers, production data, or extended specifications, the NTAG215 and NTAG216 provide ample extra space without changing compatibility."
+    excerpt: "All the critical data a 3D printer needs (such as manufacturer, material, color, print settings, and more) fits neatly within 144 bytes on an NTAG213. For manufacturers who want to include additional details like serial numbers, production data, or extended specifications, the NTAG215 and NTAG216 provide ample extra space without changing compatibility. Dynamic data, such as current filament price, can also be provided via a web API."
     image_path: /assets/images/icons8-archive.svg
     alt: ""
 ---
