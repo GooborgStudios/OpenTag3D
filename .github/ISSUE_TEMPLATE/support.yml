@@ -47,7 +47,7 @@ body:
     id: additional_info
     attributes:
       label: Additional Information
-      description: Share any relevant notes, social media links, or details about your involvement with OpenTag3D.
+      description: Share any relevant notes, social media links, or details about your current/planned involvement with OpenTag3D.
       placeholder: "Optional details..."
     validations:
       required: false

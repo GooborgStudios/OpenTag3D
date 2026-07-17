@@ -20,7 +20,7 @@ What is the benefit of adding RFID chips to filament?
 - High-Speed Printing
   - **Advanced Filament Data:** Tags can store advanced per-spool printing data, such as printing/bed temps, melt-flow index, retration, and even filament diameter graphs. This would make the transition simpler when using filaments from different brands.
 - HueForge
-  - **Transmission distance + Hex**: Each spool can have a unique TD and color. Saving this data on the spool allows for more accurate tuning, and less math for the consumer
+  - **Transmission distance + Hex Color**: Each spool can have a unique TD and color. Saving this data on the spool allows for more accurate tuning, and less math for the consumer
 - Every Printer
   - **Filament Remaining Estimation:** Using the RFID tag as an encoder, printers can measure how long it takes for one rotation of a spool of filament, and use this to estimate how much filament is remaining.
   - **Print Profiles**: Each spool can contain print/bed temps, as well as other settings like retraction settings. This makes it much easier to use different brands/colors/materials without worrying about creating a bunch of different slicer profiles.
@@ -60,7 +60,7 @@ Want to provide a financial contribution? Donate to the Gooborg Studios' founder
 The OpenTag3D Consortium is a collaborative group of 3D printing companies, hobbyists, RFID experts, and other stakeholders committed to maintaining and evolving the OpenTag3D RFID standard specification. The consortium operates under a structured membership model, ensuring a balance of inclusivity and effective decision-making.
 
 > [!NOTE]
-> Currently, the consortium consists of two members: Gooborg Studios and Polar Filament. As the specification matures, we hope to add more members to the consortium. Please email us if you wish to join!
+> Currently, the consortium consists of two members: Gooborg Studios and Polar Filament. As the specification matures, we hope to add more members to the consortium. Please [email us](#contact) if you wish to join!
 
 ### Voting Members
 
@@ -68,8 +68,8 @@ Voting members play a critical role in the governance of the OpenTag3D standard.
 
 To maintain fairness and inclusivity, the voting seats are divided equally between:
 
-- Industry Representatives: Voting members representing companies and organizations involved in 3D printing, RFID, and related fields.
-- Community Representatives: Voting members from the broader community, including hobbyists, independent developers, and RFID experts.
+- **Industry Representatives**: Voting members representing companies and organizations involved in 3D printing, RFID, and related fields.
+- **Community Representatives**: Voting members from the broader community, including hobbyists, independent developers, and RFID experts.
 
 This balanced structure ensures that no single group dominates decision-making, fostering a standard that reflects the interests of both professional and grassroots contributors.
 
