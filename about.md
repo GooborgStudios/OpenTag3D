@@ -53,6 +53,8 @@ These are companies that are implementing OpenTag3D into their printers, filamen
 
 <!-- prettier-ignore-end -->
 
+Want to provide a financial contribution? Donate to the Gooborg Studios' founder via [Ko-Fi](https://ko-fi.com/queengooborg) or [PayPal](https://paypal.me/VinylDarkscratch)!
+
 ## OpenTag3D Consortium
 
 The OpenTag3D Consortium is a collaborative group of 3D printing companies, hobbyists, RFID experts, and other stakeholders committed to maintaining and evolving the OpenTag3D RFID standard specification. The consortium operates under a structured membership model, ensuring a balance of inclusivity and effective decision-making.

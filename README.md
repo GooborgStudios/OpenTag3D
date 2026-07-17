@@ -20,3 +20,5 @@ The specification is hosted on the [OpenTag3D website](https://opentag3d.info/sp
 OpenTag3D is supported by various companies that are implementing OpenTag3D into their printers, filament, add-ons, etc. See the list of companies [on the About page of the website](https://opentag3d.info/about#supporters).
 
 Want to join the list? [Open an issue here!](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=supporter.yml)
+
+Want to provide a financial contribution? Donate to the Gooborg Studios' founder via [Ko-Fi](https://ko-fi.com/queengooborg) or [PayPal](https://paypal.me/VinylDarkscratch)!
