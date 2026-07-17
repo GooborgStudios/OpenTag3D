@@ -6,3 +6,5 @@ gem "jekyll-gfm-admonitions", group: :jekyll_plugins
 
 # gem "just-the-docs" # Jekyll Theme
 gem "minimal-mistakes-jekyll" # Theme
+
+gem "faraday-retry", "~> 2.4"
