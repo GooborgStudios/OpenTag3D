@@ -122,6 +122,8 @@ When attempting to read an RFID tag, the reader should check for an NDEF record 
 
 The reader should then check the tag version. If the tag version is a newer _minor_ version than the reader expects, display a warning to the user and attempt to parse anyways. If the tag version is a newer _major_ version, the reader should display an error to the user and not attempt to parse the data.
 
+When accessing the web API URL provided by the tag, the reader _must_ set the `Accept` HTTP header to `application/json`. The exception to this is if the reader is attempting to display the webpage to the user, in which the `Accept` HTTP header may be set to either `text/html` or `*/*`.
+
 ## Branding Guidelines
 
 Adding the OpenTag3D logo or any OpenTag3D branding is entirely optional, but is recommended to show that your filament or hardware uses or supports the OpenTag3D specification. With that said, if you decide to include OpenTag3D branding, there are a few guidelines on how to do so.
