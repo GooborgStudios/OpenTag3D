@@ -15,8 +15,8 @@ OpenTag3D defines standards for the following:
 
 The specification is hosted on the [OpenTag3D website](https://opentag3d.info/spec). Alternatively, you may view the raw Markdown file [here](./spec.md).
 
-## Backers
+## Supporters
 
-OpenTag3D is backed by various companies that are implementing OpenTag3D into their printers, filament, add-ons, etc. See the list of companies [on the About page of the website](https://opentag3d.info/about#backers).
+OpenTag3D is supported by various companies that are implementing OpenTag3D into their printers, filament, add-ons, etc. See the list of companies [on the About page of the website](https://opentag3d.info/about#supporters).
 
-Want to join the list? [Open an issue here!](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=backer.yml)
+Want to join the list? [Open an issue here!](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=supporter.yml)

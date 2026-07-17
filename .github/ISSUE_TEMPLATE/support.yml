@@ -1,13 +1,14 @@
-name: Become an OpenTag3D Backer
-description: For companies, organizations, or projects interested in backing the OpenTag3D standard.
-title: "Backer Application: [Company Name]"
+name: State your Support for the OpenTag3D Standard
+description: For companies, organizations, or projects that want to say they support the OpenTag3D standard.
+title: "New Supporter: [Company Name]"
 
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for your interest in becoming an **OpenTag3D Backer**!  
-        Backers are listed on our website, helping promote your commitment to open standards in 3D printing.
+        Thank you for your interest in becoming an **OpenTag3D Supporter**!
+
+        Supporters are companies and projects stating that they support the OpenTag3D standard and intend to implement the standard into the project.  Supporters are listed on our website, promoting your commitment to open standards in 3D printing.
 
         Please fill out the following information as completely as possible.
 
@@ -35,7 +36,8 @@ body:
       options:
         - Filament Manufacturer
         - Printer / Accessory Hardware
-        - Other (please specify below)
+        - Website / Application
+        - Other (please specify in "Additional Information")
     validations:
       required: true
 
@@ -54,5 +56,5 @@ body:
       label: Authorization Confirmation
       description: Please confirm that you are authorized to submit this application on behalf of the company/project.
       options:
-        - label: "I confirm that I am authorized to represent this company/project for the purposes of this application."
+        - label: "I confirm that I am an authorized representative of the company/project."
           required: true

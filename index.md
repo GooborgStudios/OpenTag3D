@@ -44,13 +44,13 @@ OpenTag3D defines standards for the following:
 - **Data Structure** - What data should be stored on the RFID tag, and how that data should be formatted
 - **Web API** - How extended data should be formatted when an optional online spool lookup is requested
 
-OpenTag3D is backed by the following projects/companies:
+OpenTag3D is supported by the following projects/companies:
 
 <!-- prettier-ignore-start -->
 
 <ul>
-  {%- for b in site.data.backers.backers -%}
-    <li><a href="{{ b.url }}">{{ b.name }}</a></li>
+  {%- for s in site.data.supporters.supporters -%}
+    <li><a href="{{ s.url }}">{{ s.name }}</a></li>
   {%- endfor -%}
 </ul>
 

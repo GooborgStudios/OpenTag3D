@@ -2,7 +2,7 @@
 title: About
 layout: single
 toc: true
-description: Learn more about the OpenTag3D spec and its history, backers and consortium.
+description: Learn more about the OpenTag3D spec and its history, supporters and consortium.
 ---
 
 ## History
@@ -25,25 +25,25 @@ What is the benefit of adding RFID chips to filament?
   - **Filament Remaining Estimation:** Using the RFID tag as an encoder, printers can measure how long it takes for one rotation of a spool of filament, and use this to estimate how much filament is remaining.
   - **Print Profiles**: Each spool can contain print/bed temps, as well as other settings like retraction settings. This makes it much easier to use different brands/colors/materials without worrying about creating a bunch of different slicer profiles.
 
-## Backers
+## Supporters
 
-These are companies that are implementing OpenTag3D into their printers, filament, add-ons, etc. If you would like to join this list, please open an [Issue on GitHub](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=backer.yml).
+These are companies that are implementing OpenTag3D into their printers, filament, add-ons, etc., or otherwise supporting the OpenTag3D specification. If you would like to join this list, please open an [Issue on GitHub](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=supporter.yml).
 
 <!-- prettier-ignore-start -->
 
-{%- assign cats = site.data.backers.categories -%}
-{%- assign all = site.data.backers.backers -%}
+{%- assign cats = site.data.supporters.categories -%}
+{%- assign all = site.data.supporters.supporters -%}
 {%- assign category_order = "filament,hardware,software" | split: "," -%}
 
 <ul>
 {%- for cat in category_order -%}
   {%- assign label = cats[cat] -%}
-  {%- assign items = all | where: "category", cat | sort: "backed" -%}
+  {%- assign items = all | where: "category", cat | sort: "since" -%}
   {%- if items.size > 0 -%}
     <li>{{ label }}
       <ul>
-        {%- for b in items -%}
-          <li><a href="{{ b.url }}">{{ b.name }}</a> (Backed {{ b.backed }})</li>
+        {%- for s in items -%}
+          <li><a href="{{ s.url }}">{{ s.name }}</a> (Supporter Since {{ s.since }})</li>
         {%- endfor -%}
       </ul>
     </li>
