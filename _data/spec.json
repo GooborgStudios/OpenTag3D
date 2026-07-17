@@ -1,5 +1,5 @@
 {
-  "version": "1.000",
+  "version": "1.001",
   "mime_type": "application/opentag3d",
   "core": {
     "address_range": { "start": "0x00", "end": "0x6F" },

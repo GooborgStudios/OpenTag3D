@@ -89,6 +89,7 @@ The URL should respond with JSON formatted like the following:
 ```json
 {
   "opentag_version": "{{ site.data.spec.version }}",
+  "has_ui": true,
   "price": {
     "us": "$15.99",
     "eu": "€14.99",
@@ -106,6 +107,8 @@ The URL should respond with JSON formatted like the following:
 ```
 
 The `opentag_version` must be set as the current OpenTag3D version the API has been updated to support.
+
+The `has_ui` field is a boolean field to indicate whether the API URL has a user-friendly UI available. This lets implementers know that they can see a friendly webpage if they access the API URL without using the `application/json` header.
 
 The `price` field should be the current prices for the material and color, separated by country or region. Each country or region should be represented by its two-letter ISO 3166-1 code, including any exceptional reservations such as EU for European Union. A `global` area may be defined as well.
 
