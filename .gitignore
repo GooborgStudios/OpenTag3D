@@ -15,5 +15,4 @@ _site/
 vendor/
 
 # Ignore local HTTPS testing files
-localhost.crt
-localhost.key
+*.pem
