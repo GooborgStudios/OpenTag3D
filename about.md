@@ -11,6 +11,10 @@ The OpenTag3D protocol, initially called "Open 3D-RFID", was originally drafted 
 
 As the OpenTag3D protocol began to reach maturity, it was later moved to its own repository, hosted by Gooborg Studios, where it continues to incubate to this day.
 
+### OpenTag3D vs. OpenPrintTag
+
+In late October 2025, after the announcement and development of OpenTag3D, Prusa announced a new open source standard for 3D printer filament RFID tags called [OpenPrintTag](https://openprinttag.org/). We wrote a [post](/response-to-openprinttag.md) explaining what this meant for OpenTag3D, but in summary, OpenTag3D development will not be discontinuing.
+
 ## Why RFID?
 
 What is the benefit of adding RFID chips to filament?
