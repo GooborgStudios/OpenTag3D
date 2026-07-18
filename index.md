@@ -13,16 +13,16 @@ header:
       url: "/spec"
   announcement: "OpenTag3D has reached a stable point and is now at v1.0!"
   caption: "Placeholder Background by [**morgaannn23**](https://wallpapercave.com/w/wp6945227)"
-excerpt: "An open source standard for 3D printer filament RFID tags. Designed for compatibility between printers, filament manufacturers, and accessories, implementation is simple and low-cost."
+excerpt: "An open source standard for 3D printer filament RFID tags. Designed from the ground up for compatibility between printers, filament manufacturers, and accessories, implementation is simple and low-cost."
 intro:
   - excerpt: "Proprietary locks you in. Open sets you free. — [Tim Berners-Lee](https://www.w3.org/People/Berners-Lee/)"
 feature_row:
   - title: "Open Standard, Open To All"
-    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone, from major manufacturers to individual makers, can build, read, and write compatible tags. Additionally, all of the critical data is 100% offline."
+    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone, from major manufacturers to individual makers, can build, read, and write compatible tags. Additionally, all of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
     image_path: assets/images/icons8-open_source.svg
     alt: ""
   - title: "Low-Cost, Off-the-Shelf Hardware"
-    excerpt: "OpenTag3D uses NTAG213/215/216 NFC tags, the most common and affordable NFC tags on the market. These tags are readable and writable by smartphones, compatible with most off-the-shelf RFID/NFC readers (including low-cost PN532 modules), and require no proprietary hardware."
+    excerpt: "OpenTag3D uses NTAG213/215/216 NFC tags, the most common and affordable NFC tags on the market. These tags are readable and writable by smartphones, compatible with most off-the-shelf RFID/NFC readers (including low-cost PN532 modules), and require no proprietary hardware. This allows everyone, from corporations to hobbyists, to implement the standard into their applications, printers or accessories."
     image_path: /assets/images/icons8-request_money.svg
     alt: ""
   - title: "Compact Format, Complete Data"
