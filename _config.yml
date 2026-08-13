@@ -12,6 +12,10 @@ plugins:
   - jekyll-include-cache
   - jekyll-gfm-admonitions
 
+sass:
+  quiet_deps: true
+  silence_deprecations: ['import']
+
 # Theme settings
 minimal_mistakes_skin: dark
 enable_copy_code_button: true
