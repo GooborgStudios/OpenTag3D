@@ -20,7 +20,7 @@
       },
       {
         "name": "Base Material Name",
-        "id": "material_base",
+        "id": "material",
         "added": "1.000",
         "unit": "string",
         "type": "utf8",
@@ -77,7 +77,6 @@
         "start": "0x4B",
         "length": 4,
         "usage": "display",
-        "channels": ["r", "g", "b", "a"],
         "examples": [[255, 166, 77, 255]],
         "required": true,
         "description": "Primary filament color stored as 4 separate 1-byte integers for red, green, blue and alpha, in the sRGB color space."
@@ -91,7 +90,6 @@
         "start": "0x50",
         "length": 4,
         "usage": "display",
-        "channels": ["r", "g", "b", "a"],
         "examples": [[0, 0, 0, 0]],
         "description": "Second filament color, if the filament is multi-color. Set to transparent black if the filament is single color."
       },
@@ -104,7 +102,6 @@
         "start": "0x54",
         "length": 4,
         "usage": "display",
-        "channels": ["r", "g", "b", "a"],
         "examples": [[0, 0, 0, 0]],
         "description": "Third filament color, if the filament is multi-color. Set to transparent black if the filament is dual color."
       },
@@ -117,13 +114,12 @@
         "start": "0x58",
         "length": 4,
         "usage": "display",
-        "channels": ["r", "g", "b", "a"],
         "examples": [[0, 0, 0, 0]],
         "description": "Fourth filament color, if the filament is multi-color. Set to transparent black if the filament is tri color."
       },
       {
         "name": "Target Diameter",
-        "id": "target_diameter",
+        "id": "diameter",
         "added": "1.000",
         "unit": "mm",
         "type": "int",
@@ -137,7 +133,7 @@
       },
       {
         "name": "Target Weight",
-        "id": "target_weight",
+        "id": "weight",
         "added": "1.000",
         "unit": "g",
         "type": "int",
@@ -210,7 +206,7 @@
     "fields": [
       {
         "name": "Online Data URL",
-        "id": "online_data_url",
+        "id": "data_url",
         "added": "1.000",
         "unit": "string",
         "type": "ascii",
@@ -308,7 +304,7 @@
       },
       {
         "name": "Measured Tolerance",
-        "id": "measured_tolerance",
+        "id": "tolerance",
         "added": "1.000",
         "unit": "µm",
         "type": "int",
@@ -332,7 +328,7 @@
       },
       {
         "name": "Measured Filament Weight",
-        "id": "measured_filament_weight",
+        "id": "measured_weight",
         "added": "1.000",
         "unit": "g",
         "type": "int",
@@ -344,7 +340,7 @@
       },
       {
         "name": "Measured Filament Length",
-        "id": "measured_filament_length",
+        "id": "measured_length",
         "added": "1.000",
         "unit": "m",
         "type": "int",
