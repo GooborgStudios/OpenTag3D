@@ -82,7 +82,7 @@ This memory address starts just outside the range of NTAG213; an SLIX2 or larger
 Sometimes a filament manufacturer may want to include supplemental data for advanced users that doesn't fit or otherwise cannot be stored on the RFID tag itself. One example is a diameter graph, which is too much data to be stored within only 888 bytes of memory. OpenTag3D defines a field for a "web API" URL which can be used to look up this information.
 
 > [!NOTE]
-> The web API will only be used for advanced supplemental data, or data that requires an internet connection to use anyways, and will **NEVER** be used for critical information required by printers in order to print the material properly.
+> The web API will **NEVER** be used for critical information required by printers in order to print the material properly. It will **ONLY** be used for advanced supplemental data, or data that requires an internet connection to utilize.
 
 The "Online Data URL" field should be populated with the URL that responds with the web API data. The URL must return JSON data when the `Accept` HTTP header is set to `application/json`. Implementers are welcome to create a user-friendly UI if the `Accept` header is set to anything else, but it _must_ return JSON format if the client calls for it.
 
@@ -108,7 +108,9 @@ The URL should respond with JSON formatted like the following:
 }
 ```
 
-The `opentag_version` must be set as the current OpenTag3D version the API has been updated to support.
+Except for `opentag_version`, all fields are optional.
+
+The `opentag_version` must be set as the current OpenTag3D version the API has been updated to support. This field is required.
 
 The `has_ui` field is a boolean field to indicate whether the API URL has a user-friendly UI available. This lets implementers know that they can see a friendly webpage if they access the API URL without using the `application/json` header.
 
