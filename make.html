@@ -185,6 +185,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     <button class="btn btn--warning" id="readWebNFC" disabled>
       Read via Web NFC
     </button>
+    <button class="btn btn--warning" id="copyLink">Copy Share Link</button>
     <input
       type="file"
       id="uploadFile"
@@ -233,6 +234,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   };
 
   const urlParams = new URLSearchParams(window.location.search);
+
+  const allFields = [...SPEC.core.fields, ...SPEC.extended.fields];
 
   // --- Utils ---
   const h = (tag, attrs = {}, ...kids) => {
@@ -717,6 +720,35 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       await navigator.clipboard.writeText(bufferToHex(buf));
     };
 
+    document.getElementById("copyLink").onclick = async () => {
+      const newParams = new URLSearchParams();
+      for (const f of allFields) {
+        const v = state.values.get(f.id);
+
+        if (v == null) continue;
+        if (f.id == "tag_version") continue;
+        if (!f.required) {
+          if (v == 0) continue;
+          if (Array.isArray(v) && v.every((vp) => vp == 0)) continue;
+        }
+
+        if (f.type == "rgba") {
+          newParams.set(f.id, "#" + v.map((vp) => hex(vp)).join(""));
+        } else if (f.scaling) {
+          newParams.set(f.id, v * f.scaling);
+        } else {
+          newParams.set(f.id, v);
+        }
+      }
+
+      await navigator.clipboard.writeText(
+        window.location.origin +
+          window.location.pathname +
+          "?" +
+          newParams.toString(),
+      );
+    };
+
     return { buf, rows };
   }
 
@@ -957,7 +989,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       el.dispatchEvent(new Event("input", { bubbles: true }));
     };
 
-    const allFields = [...SPEC.core.fields, ...SPEC.extended.fields];
     for (const f of allFields) {
       const addr = parseHex(f.start);
 
