@@ -350,41 +350,33 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     }
 
     const paramValue = urlParams.get(f.id) || "";
+    if (paramValue) state.values.set(f.id, paramValue);
+
+    const commonParams = {
+      id: f.id,
+      "data-section": section,
+      placeholder,
+      value: paramValue,
+      required: f.required,
+    };
 
     // Generic by type
-    if (f.type === "ascii" || f.type === "utf8") {
-      const inp = h("input", {
-        id: f.id,
-        "data-section": section,
-        type: "text",
-        placeholder,
-        value: paramValue,
-        required: f.required,
-        maxlength: f.length,
-      });
-      inp.addEventListener("input", () => {
-        state.values.set(f.id, inp.value);
-        buildMemory();
-      });
-      return inp;
-    }
     if (f.type === "rgba") {
       const placeholderValue = f.id === "color_1" ? "#FFFFFF" : "#000000";
       const placeholderAlpha = f.id === "color_1" ? 255 : 0;
 
       const row = h("div", { class: "row color-input-row" });
       const color = h("input", {
+        ...commonParams,
         type: "color",
         id: f.id + "_rgb",
-        "data-section": section,
         value: paramValue ? paramValue.substr(0, 7) : placeholderValue,
         placeholder: placeholderValue,
-        required: f.required,
       });
       const alpha = h("input", {
+        ...commonParams,
         type: "number",
         id: f.id + "_a",
-        "data-section": section,
         min: 0,
         max: 255,
         step: 1,
@@ -392,7 +384,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
           ? parseInt(paramValue.substr(7, 2), 16)
           : placeholderAlpha,
         placeholder: placeholderAlpha,
-        required: f.required,
       });
       const out = h("input", {
         type: "hidden",
@@ -423,15 +414,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     if (f.type === "int") {
       const scale = f.scaling || 1;
       const inp = h("input", {
-        id: f.id,
-        "data-section": section,
+        ...commonParams,
         type: "number",
         min: 0,
         max: 255 * length,
         step: scale,
-        value: paramValue,
-        placeholder,
-        required: f.required,
       });
       const sync = () => {
         const val = Math.round(parseFloat(inp.value || "0") / scale);
@@ -451,12 +438,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     if (f.type === "date") {
       const ph = new Date().toISOString().split("T")[0];
       const inp = h("input", {
-        id: f.id,
-        "data-section": section,
+        ...commonParams,
         type: "date",
         placeholder: ph,
-        value: paramValue,
-        required: f.required,
       });
       const sync = () => {
         state.values.set(f.id, inp.value);
@@ -469,13 +453,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     if (f.type === "time") {
       const ph = new Date().toISOString().split("T")[1].split(".")[0];
       const inp = h("input", {
-        id: f.id,
-        "data-section": section,
+        ...commonParams,
         type: "time",
         step: 1,
         placeholder: ph,
-        value: paramValue,
-        required: f.required,
       });
       const sync = () => {
         state.values.set(f.id, inp.value);
@@ -488,12 +469,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     // Text fallback
     const inp = h("input", {
-      id: f.id,
-      "data-section": section,
+      ...commonParams,
       type: "text",
-      placeholder,
-      value: paramValue,
-      required: f.required,
       maxlength: f.length,
     });
     inp.addEventListener("input", () => {
@@ -931,7 +908,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   }
 
   // Decode imported buffer back into the form (reverse the scalings where we can)
-  function loadBufferIntoForm(buf, startAddr) {
+  function loadBufferIntoForm(buf, startAddr, fromHexTextarea = false) {
     const data = new Uint8Array(buf);
     document.getElementById("hexdump").textContent = hexdump(data, startAddr);
 
@@ -1039,12 +1016,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
   // --- Init ---
   window.addEventListener("DOMContentLoaded", () => {
-    renderForm();
-    buildMemory();
-
     window.onerror = (message) => {
       msg("Error: " + message, true);
     };
+
+    renderForm();
+    buildMemory();
 
     document
       .getElementById("exampleBtn")
