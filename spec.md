@@ -39,12 +39,14 @@ NFC NTAG213/215/216 was chosen over MIFARE 1K Classic tags, which is what the Ba
 
 The NFC tags should be placed on the spools as follows:
 
-- The center should be 56.0mm away from the center of the spool (see pic)
+- The center should be roughly 60.0mm away from the center of the spool
+  - The tag may be placed closer or further to the center of the spool, as long as some part of the tag intersects with the 60.0mm radius
 - The tag should never be more than 4.0mm away from the external surface of the spool
   - For spool sides thicker than 4mm, there must be a cutout to embed the tag, or the tag should be fixed to the outside of the spool
 - Two tags should be used, one on each end of the spool, directly across from each other
 
-<img src="./assets/images/TagLocation.png" width="400">
+> [!NOTE]
+> The tag placement had slightly changed in v1.002 from exactly 56.0mm to 60.0mm with an additional tolerance. This was done in order to increase compatibility with spool shapes. This should not be an issue for any existing NFC reader implementations as NFC antennae are powerful enough to pick up a tag much further away.
 
 ## Data Structure Standard
 
