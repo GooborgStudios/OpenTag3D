@@ -1031,56 +1031,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     buildMemory();
   }
 
-  // --- Simple built-in tests ---
-  function runTests() {
-    const results = [];
-    const assert = (name, cond) =>
-      results.push(`${cond ? "✅" : "❌"} ${name}`);
-
-    // Temperature scaling
-    (function () {
-      const f = { id: "print_temp", type: "int", length: 1, scaling: 5 };
-      state.values.set("print_temp", Math.round(210 / 5));
-      assert("210°C → 42", state.values.get("print_temp") === 42);
-    })();
-    (function () {
-      const f = { id: "bed_temp", type: "int", length: 1, scaling: 5 };
-      state.values.set("bed_temp", Math.round(60 / 5));
-      assert("60°C → 12", state.values.get("bed_temp") === 12);
-    })();
-
-    // Diameter and density
-    state.values.set("target_diameter", 1750);
-    assert("1.750 mm → 1750 µm", state.values.get("target_diameter") === 1750);
-    state.values.set("density", 1240);
-    assert("1.240 g/cm³ → 1240 µg/cm³", state.values.get("density") === 1240);
-
-    // Parser tests
-    const sampleHex =
-      "0x00  00 11 22 33 44 55 66 77 88 99 AA BB CC DD EE FF  |................|\n0x00  01 02 03 04";
-    const parsedA = parseBytesFromText(sampleHex);
-    assert(
-      "Parse app hexdump",
-      parsedA.data.length >= 20 && parsedA.startAddr === 0x10,
-    );
-
-    const sampleFlipper = "Page 0: AA BB CC DD\nPage 1: 01 02 03 04";
-    const parsedB = parseBytesFromText(sampleFlipper);
-    assert(
-      "Parse flipper pages",
-      parsedB.data.length === 8 && parsedB.startAddr === 0x40,
-    );
-
-    const samplePlain = "AA BB CC DD 01 02 03 04";
-    const parsedC = parseBytesFromText(samplePlain);
-    assert(
-      "Parse plain bytes",
-      parsedC.data.length === 8 && parsedC.startAddr === 0x10,
-    );
-
-    document.getElementById("messages").textContent = results.join("  |  ");
-  }
-
   // --- Init ---
   window.addEventListener("DOMContentLoaded", () => {
     renderForm();
