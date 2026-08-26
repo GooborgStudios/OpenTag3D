@@ -1062,6 +1062,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     document.getElementById("readWebNFC").disabled = !("NDEFReader" in window);
 
     document.getElementById("resetBtn").addEventListener("click", () => {
+      state.values = new Map();
       renderForm();
       buildMemory();
     });
