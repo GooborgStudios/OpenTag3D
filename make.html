@@ -782,7 +782,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     m.textContent = message;
     m.style.color = isErr ? "var(--error)" : "var(--muted)";
 
-    (isErr ? console.error : console.log)(message);
+    if (message) {
+      (isErr ? console.error : console.log)(message);
+    }
   }
 
   // --- Web NFC export (NDEF) ---
