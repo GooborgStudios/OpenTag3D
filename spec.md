@@ -172,3 +172,10 @@ These are topics that were heavily discussed during the development of OpenTag3D
   - On-demand lookup (via the internet) would require someone to host a database
     - Hosting this data would have costs associated with it, and would also put the control of the entire OpenTag3D format in the hands of a single person/company
   - Rather than representing data as a number (such as "company #123 = Example Company"), the plain-text company name should be used instead
+- NDEF Records vs Direct Writing
+  - In an early version of the spec, it was designed for the bytes to be written directly to the tag instead of using NDEF records
+  - Although NDEF records consume more memory on the tag, the choice to switch to them was made for the following reasons
+    - NDEF records make it possible to store more data on the tag than OpenTag3D, such as a website record, or even another tag format
+    - NDEF records help specify that the data is OpenTag3D data
+    - Web NFC is designed to read and write NDEF records, making it possible to provide a webpage for Android read/write capabilities
+      - iOS does not support Web NFC; if it did then it would also make iOS read/write possible
