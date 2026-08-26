@@ -291,6 +291,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     ];
   }
 
+  function bufferFromText(text) {
+    // https://stackoverflow.com/a/71083193
+    return new Uint8Array(text.match(/../g).map((h) => parseInt(h, 16))).buffer;
+  }
+
   // --- Rendering ---
   function renderForm() {
     const host = document.getElementById("formHost");
@@ -1022,6 +1027,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     renderForm();
     buildMemory();
+
+    const hex = urlParams.get("hex");
+    if (hex) {
+      loadBufferIntoForm(bufferFromText(hex), 0x00);
+    }
+
+    // document.getElementById("hexdump").addEventListener("focusout", (e) => {
+    //   if (e.isTrusted) {
+    //     const buf = bufferFromText(document.getElementById("hexdump"));
+    //     loadBufferIntoForm(buf, 0x00);
+    //   }
+    // });
 
     document
       .getElementById("exampleBtn")
