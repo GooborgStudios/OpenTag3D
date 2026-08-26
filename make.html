@@ -227,6 +227,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     values: new Map(),
   };
 
+  const urlParams = new URLSearchParams(window.location.search);
+
   // --- Utils ---
   const h = (tag, attrs = {}, ...kids) => {
     const el = document.createElement(tag);
@@ -343,12 +345,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     let placeholder = "";
     const firstExample = f.examples?.[0];
     if (firstExample) {
-      if (f.type === "int") {
-        placeholder = firstExample * (f.scaling || 1);
-      } else {
-        placeholder = firstExample || "";
-      }
+      placeholder =
+        f.type === "int" ? firstExample * (f.scaling || 1) : firstExample;
     }
+
+    const paramValue = urlParams.get(f.id) || "";
 
     // Generic by type
     if (f.type === "ascii" || f.type === "utf8") {
@@ -357,6 +358,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         "data-section": section,
         type: "text",
         placeholder,
+        value: paramValue,
         required: f.required,
         maxlength: f.length,
       });
@@ -367,16 +369,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       return inp;
     }
     if (f.type === "rgba") {
-      const initial_value = f.id === "color_1" ? "#FFFFFF" : "#000000";
-      const initial_alpha = f.id === "color_1" ? 255 : 0;
+      const placeholderValue = f.id === "color_1" ? "#FFFFFF" : "#000000";
+      const placeholderAlpha = f.id === "color_1" ? 255 : 0;
 
       const row = h("div", { class: "row color-input-row" });
       const color = h("input", {
         type: "color",
         id: f.id + "_rgb",
         "data-section": section,
-        value: initial_value,
-        placeholder: initial_value,
+        value: paramValue ? paramValue.substr(0, 7) : placeholderValue,
+        placeholder: placeholderValue,
         required: f.required,
       });
       const alpha = h("input", {
@@ -386,8 +388,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         min: 0,
         max: 255,
         step: 1,
-        value: initial_alpha,
-        placeholder: initial_alpha,
+        value: paramValue
+          ? parseInt(paramValue.substr(7, 2), 16)
+          : placeholderAlpha,
+        placeholder: placeholderAlpha,
         required: f.required,
       });
       const out = h("input", {
@@ -425,6 +429,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         min: 0,
         max: 255 * length,
         step: scale,
+        value: paramValue,
         placeholder,
         required: f.required,
       });
@@ -444,6 +449,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         "data-section": section,
         type: "date",
         placeholder: ph,
+        value: paramValue,
         required: f.required,
       });
       const sync = () => {
@@ -462,6 +468,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         type: "time",
         step: 1,
         placeholder: ph,
+        value: paramValue,
         required: f.required,
       });
       const sync = () => {
@@ -479,6 +486,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       "data-section": section,
       type: "text",
       placeholder,
+      value: paramValue,
       required: f.required,
       maxlength: f.length,
     });
