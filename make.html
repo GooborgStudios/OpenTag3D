@@ -440,6 +440,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       };
       inp.addEventListener("input", sync);
       sync();
+      if (scale != 1) {
+        const round = () => {
+          inp.value = Math.round(parseFloat(inp.value || "0") / scale) * scale;
+        };
+        inp.addEventListener("focusout", round);
+      }
       return inp;
     }
     if (f.type === "date") {
@@ -924,7 +930,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     throw new Error("No recognizable hex format found");
   }
 
-  // Decode imported buffer back into the form (reverse the human↔stored scalings where we can).
+  // Decode imported buffer back into the form (reverse the scalings where we can)
   function loadBufferIntoForm(buf, startAddr) {
     const data = new Uint8Array(buf);
     document.getElementById("hexdump").textContent = hexdump(data, startAddr);
