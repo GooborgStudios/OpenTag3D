@@ -197,7 +197,7 @@
         "usage": "operational",
         "scaling": 0.1,
         "examples": [118],
-        "description": "Opaque thickness in millimeters."
+        "description": "Opaque thickness in tens of millimeters Eg. `118` → `11.8`."
       }
     ]
   },
