@@ -176,7 +176,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     <!-- <button class="btn" id="downloadFlipper">Download Flipper .nfc</button> -->
     <!-- <button class="btn" id="downloadMap">Download address map (.csv)</button> -->
     <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
+    <button class="btn" id="copyToClipboard">Copy Hex to Clipboard</button>
+    <br />
     <button class="btn btn--warning" id="loadFileBtn">Load File</button>
+    <button class="btn btn--warning" id="loadClipboardBtn">
+      Load from Clipboard
+    </button>
     <button class="btn btn--warning" id="readWebNFC" disabled>
       Read via Web NFC
     </button>
@@ -292,8 +297,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   }
 
   function bufferFromText(text) {
-    // https://stackoverflow.com/a/71083193
-    return new Uint8Array(text.match(/../g).map((h) => parseInt(h, 16))).buffer;
+    return new Uint8Array(
+      text
+        .replace(/\s/g, "")
+        .match(/../g)
+        .map((h) => parseInt(h, 16)),
+    ).buffer;
   }
 
   // --- Rendering ---
@@ -483,6 +492,19 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       buildMemory();
     });
     return inp;
+  }
+
+  function bufferToHex(buf, startAddr = 0x00) {
+    const output = [];
+    for (let i = startAddr; i < buf.length; i += 16) {
+      const slice = buf.subarray(i, i + 16);
+      const hexs = [...slice].map((b) => hex(b)).join(" ");
+      const ascii = [...slice]
+        .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : "."))
+        .join("");
+      output.push(hexs.padEnd(16 * 3 - 1, " "));
+    }
+    return output.join(" ").trim();
   }
 
   function hexdump(buf, startAddr = 0x00) {
@@ -689,6 +711,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
           msg("Web NFC error: " + e.message, true),
         );
       }
+    };
+
+    document.getElementById("copyToClipboard").onclick = async () => {
+      await navigator.clipboard.writeText(bufferToHex(buf));
     };
 
     return { buf, rows };
@@ -1028,9 +1054,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     renderForm();
     buildMemory();
 
-    const hex = urlParams.get("hex");
-    if (hex) {
-      loadBufferIntoForm(bufferFromText(hex), 0x00);
+    const hexParam = urlParams.get("hex");
+    if (hexParam) {
+      loadBufferIntoForm(bufferFromText(hexParam), 0x00);
     }
 
     // document.getElementById("hexdump").addEventListener("focusout", (e) => {
@@ -1054,6 +1080,22 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .addEventListener("click", () =>
         document.getElementById("uploadFile").click(),
       );
+
+    document
+      .getElementById("loadClipboardBtn")
+      .addEventListener("click", async () => {
+        const clipboard = await navigator.clipboard.readText();
+        try {
+          loadBufferIntoForm(bufferFromText(clipboard), 0x00);
+        } catch (e) {
+          msg(
+            "Clipboard does not appear to be a valid OpenTag3D dump - " +
+              e.message,
+            true,
+          );
+          throw e;
+        }
+      });
 
     document
       .getElementById("uploadFile")
