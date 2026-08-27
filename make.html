@@ -235,7 +235,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       0 0 20px rgba(255, 87, 106, 0.24),
       0 12px 28px rgba(0, 0, 0, 0.3);
   }
-  #webNfcDialog {
+  .app-dialog {
     width: min(26rem, calc(100vw - 2rem));
     padding: 0;
     border: 1px solid var(--line);
@@ -253,11 +253,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       opacity 0.2s ease,
       transform 0.2s ease;
   }
-  #webNfcDialog[open] {
+  .app-dialog[open] {
     opacity: 1;
     transform: translateY(0);
   }
-  #webNfcDialog::backdrop {
+  .app-dialog::backdrop {
     background: rgba(0, 0, 0, 0.65);
     opacity: 0;
     transition:
@@ -265,15 +265,15 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       overlay 0.2s allow-discrete,
       opacity 0.2s ease;
   }
-  #webNfcDialog[open]::backdrop {
+  .app-dialog[open]::backdrop {
     opacity: 1;
   }
   @starting-style {
-    #webNfcDialog[open] {
+    .app-dialog[open] {
       opacity: 0;
       transform: translateY(12px);
     }
-    #webNfcDialog[open]::backdrop {
+    .app-dialog[open]::backdrop {
       opacity: 0;
     }
   }
@@ -286,6 +286,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   }
   .web-nfc-dialog__content p {
     margin: 0 0 16px;
+  }
+  .web-nfc-dialog__content p:last-of-type {
+    margin-bottom: 0;
+  }
+  .web-nfc-dialog__content .flex {
+    margin-top: 16px;
   }
   @keyframes flash-in {
     from {
@@ -340,6 +346,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       <div class="btn-menu__panel">
         <button class="btn" id="downloadBin">Download .bin</button>
         <button class="btn" id="downloadFlipper">Download Flipper .nfc</button>
+        <button class="btn" id="downloadNfcToolsDesktopJson">Download NFC Tools Desktop .json</button>
+        <button class="btn btn--warning" id="downloadNfcToolsMobileJson">Download NFC Tools Mobile .json ⚠️</button>
         <button class="btn" id="copyToClipboard">Copy Hex to Clipboard</button>
         <button class="btn" id="copyLink">Copy Share Link</button>
         <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
@@ -348,7 +356,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     <input
       type="file"
       id="uploadFile"
-      accept=".bin,.nfc,.txt,.hex"
+      accept=".bin,.nfc,.txt,.hex,.json"
       style="display: none"
     />
   </div>
@@ -377,11 +385,42 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   </section>
 </main>
 
-<dialog id="webNfcDialog" aria-labelledby="webNfcDialogTitle">
+<dialog id="webNfcDialog" class="app-dialog" aria-labelledby="webNfcDialogTitle">
   <div class="web-nfc-dialog__content">
     <h2 id="webNfcDialogTitle">Web NFC</h2>
     <p id="webNfcDialogMessage"></p>
     <button class="btn" id="webNfcDialogClose" type="button">Cancel</button>
+  </div>
+</dialog>
+
+<dialog
+  id="nfcToolsMobileWarningDialog"
+  class="app-dialog"
+  aria-labelledby="nfcToolsMobileWarningDialogTitle"
+>
+  <div class="web-nfc-dialog__content">
+    <h2 id="nfcToolsMobileWarningDialogTitle">Warning: NFC Tools Mobile App Bug</h2>
+    <p>
+      The NFC Tools mobile app has a bug where writing a tag from an imported .json profile corrupts any byte value of 128 or higher, garbling your tag data. This happens even with profiles exported by the app itself, so it isn't something we can fix on our end.
+    </p>
+    <p>
+      Until Wakdev fixes this, we recommend using another method to write your tags, such as using the <strong>Flipper Zero</strong> or writing directly via <strong>Web NFC</strong> if your browser supports it.
+    </p>
+    <p>
+      iOS Users: unfortunately, there is currently no way to read or write OpenTag3D tags on iOS, as Apple has not yet implemented Web NFC. You will need to use a different device or platform to write your tags. We are considering developing a native iOS app to support this in the future, but it is not currently available.
+    </p>
+    <div class="flex">
+      <button class="btn" id="nfcToolsMobileWarningDialogClose" type="button">
+        Cancel
+      </button>
+      <button
+        class="btn btn--warning"
+        id="nfcToolsMobileWarningDialogContinue"
+        type="button"
+      >
+        Download anyway
+      </button>
+    </div>
   </div>
 </dialog>
 
@@ -412,6 +451,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   const hexdumpElement = document.getElementById("hexdump");
   const webNfcDialog = document.getElementById("webNfcDialog");
   const webNfcDialogMessage = document.getElementById("webNfcDialogMessage");
+  const nfcToolsMobileWarningDialog = document.getElementById(
+    "nfcToolsMobileWarningDialog",
+  );
   let nfcReadController;
 
   const NFC_INFO = {
@@ -509,6 +551,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   const addrHex = (a) => "0x" + hex(a);
   const parseHex = (s) => (typeof s === "number" ? s : parseInt(s, 16));
   const textEncoder = new TextEncoder();
+  const textDecoder = new TextDecoder();
+  const bytesToBase64 = (bytes) => btoa(String.fromCharCode(...bytes));
+  const base64ToBytes = (b64) =>
+    Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const stringToBase64 = (str) => bytesToBase64(textEncoder.encode(str));
+  const base64ToString = (b64) => textDecoder.decode(base64ToBytes(b64));
+  // NFC Tools mobile's own export mangles payload bytes >= 0x80 by mapping
+  // each byte to the matching Latin-1 code point and then UTF-8-encoding
+  // that string. This reverses that mangling when reading such an export.
+  const mobilePayloadFromBase64 = (b64) =>
+    Uint8Array.from(base64ToString(b64), (c) => c.charCodeAt(0));
+
 
   const packInt = (n, len, be = true) => {
     const value = Math.floor(n || 0);
@@ -1192,7 +1246,153 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     return data.slice(payloadOffset, payloadOffset + payloadLength);
   };
 
+  // Parse an NFC Tools Desktop .json export and pull out our MIME record's payload.
+  const parseNfcToolsDesktopJson = (json) => {
+    const records = Array.isArray(json?.data) ? json.data : [];
+    for (const record of records) {
+      const obj = record?.kRecordObject;
+      if (!obj || !Array.isArray(obj.kPayload)) continue;
+      const type = Array.isArray(obj.kType)
+        ? String.fromCharCode(...obj.kType)
+        : record.kRecordField1;
+      if (type === SPEC.mime_type) {
+        return new Uint8Array(obj.kPayload);
+      }
+    }
+    return null;
+  };
+
+  // Parse an NFC Tools mobile app profile export and pull out our MIME record's payload.
+  // Profiles nest base64-encoded JSON several layers deep: profile.data -> tag fields
+  // (last of which is NDEFMessage) -> NDEF records -> {type, payload} (both base64).
+  const parseNfcToolsMobileJson = (json) => {
+    const profiles = Array.isArray(json?.profiles) ? json.profiles : [];
+    for (const profile of profiles) {
+      if (typeof profile?.data !== "string") continue;
+      const fields = JSON.parse(base64ToString(profile.data));
+      const ndefMessageB64 = fields.find((f) => "NDEFMessage" in f)?.NDEFMessage;
+      if (!ndefMessageB64) continue;
+
+      const records = JSON.parse(base64ToString(ndefMessageB64));
+      for (const rec of records) {
+        if (!rec?.NDEFRecord) continue;
+        const record = JSON.parse(base64ToString(rec.NDEFRecord));
+        const type = base64ToString(record.type || "");
+        if (type === SPEC.mime_type) {
+          return mobilePayloadFromBase64(record.payload || "");
+        }
+      }
+    }
+    return null;
+  };
+
+  const parseNfcToolsJson = (json) => {
+    const payload = Array.isArray(json?.profiles)
+      ? parseNfcToolsMobileJson(json)
+      : parseNfcToolsDesktopJson(json);
+    if (!payload) {
+      throw new Error("No OpenTag3D record found in NFC Tools JSON");
+    }
+    return payload;
+  };
+
+  const describeTag = () => {
+    const manufacturer = tagState.values.get("manufacturer");
+    const material = tagState.values.get("material");
+    const materialMod = tagState.values.get("material_mod");
+    const colorName = tagState.values.get("color_name");
+    const serial = tagState.values.get("serial") || tagState.hash;
+    return `OpenTag3D: ${manufacturer} ${material}${materialMod ? "-" + materialMod : ""} - ${colorName} [${serial}]`;
+  };
+
+  const buildNfcToolsDesktopJson = (buf) => {
+    const payloadBytes = [...new Uint8Array(buf)];
+    const payloadString = String.fromCharCode(...payloadBytes);
+    return JSON.stringify({
+      ntgui_version: 18,
+      data: [
+        {
+          kRecordDescription: describeTag(),
+          kRecordField2: payloadString,
+          kRecordSelection: 9,
+          kRecordField1: SPEC.mime_type,
+          kRecordSize: payloadBytes.length,
+          kRecordObject: {
+            kTnf: 2,
+            kChunked: false,
+            kType: [...textEncoder.encode(SPEC.mime_type)],
+            kId: [],
+            kPayload: payloadBytes,
+          },
+        },
+      ],
+    });
+  };
+
+  // Mirrors the nested base64-JSON structure produced by the NFC Tools mobile app.
+  const NFC_TOOLS_MOBILE_TAG_FIELD_NAMES = [
+    "Identifier",
+    "Tech",
+    "Type",
+    "Iso",
+    "PMm",
+    "ATQA",
+    "SAK",
+    "SystemCode",
+    "NdefStatus",
+    "NdefSize",
+    "NdefMaxSize",
+    "DataFormat",
+    "PlatformName",
+    "PlatformDescription",
+    "Signature",
+    "PasswordStatus",
+    "TagTamperStatus",
+    "HistoricalBytes",
+    "TagAFI",
+    "TagDSFID",
+    "TagLockedOverrideStatus",
+  ];
+
+  const buildNfcToolsMobileJson = (buf) => {
+    // Note: unlike parsing, the mobile app writes the raw base64-decoded bytes
+    // to the tag as-is (it does not reverse the Latin-1/UTF-8 expansion seen
+    // when it exports an already-written tag), so this must stay plain base64.
+    const ndefRecord = stringToBase64(
+      JSON.stringify({
+        identifier: "",
+        type: stringToBase64(SPEC.mime_type),
+        payload: bytesToBase64(new Uint8Array(buf)),
+        format: bytesToBase64([0x02]), // TNF: MIME media type
+      }),
+    );
+    const ndefMessage = stringToBase64(
+      JSON.stringify([{ NDEFRecord: ndefRecord }]),
+    );
+    const tagFields = NFC_TOOLS_MOBILE_TAG_FIELD_NAMES.map((name) => ({
+      [name]: "",
+    }));
+    tagFields.push({ NDEFMessage: ndefMessage });
+
+    return JSON.stringify({
+      type: "nfc-tools-profiles",
+      profiles: [
+        {
+          name: describeTag(),
+          recordsCount: "1",
+          data: stringToBase64(JSON.stringify(tagFields)),
+        },
+      ],
+      version: 1,
+    });
+  };
+
   const loadImportedText = (text) => {
+    const trimmed = text.trim();
+    if (trimmed.startsWith("{")) {
+      loadBufferIntoForm(parseNfcToolsJson(JSON.parse(trimmed)), 0x00);
+      return;
+    }
     const { data, startAddr } = parseBytesFromText(text);
     const payload = extractNdefPayload(data, startAddr);
     loadBufferIntoForm(payload ?? data, payload ? 0x00 : startAddr);
@@ -1362,6 +1562,21 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       nfcReadController = null;
     });
 
+    document
+      .getElementById("nfcToolsMobileWarningDialogClose")
+      .addEventListener("click", () => nfcToolsMobileWarningDialog.close());
+    document
+      .getElementById("nfcToolsMobileWarningDialogContinue")
+      .addEventListener("click", () => {
+        nfcToolsMobileWarningDialog.close();
+        downloadFile(
+          buildNfcToolsMobileJson(tagState.buffer),
+          "application/json",
+          `${tagState.filename}.nfctools-mobile.json`,
+        );
+        msg(`Downloaded ${tagState.filename}.nfctools-mobile.json`);
+      });
+
     const hexParam = urlParams.get("hex");
     if (hexParam) {
       loadBufferIntoForm(bufferFromText(hexParam), 0x00);
@@ -1443,6 +1658,25 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         msg(`Downloaded ${tagState.filename}.nfc`);
       }
     });
+
+    document
+      .getElementById("downloadNfcToolsDesktopJson")
+      .addEventListener("click", () => {
+        if (!checkMissing()) {
+          downloadFile(
+            buildNfcToolsDesktopJson(tagState.buffer),
+            "application/json",
+            `${tagState.filename}.nfctools-desktop.json`,
+          );
+          msg(`Downloaded ${tagState.filename}.nfctools-desktop.json`);
+        }
+      });
+
+    document
+      .getElementById("downloadNfcToolsMobileJson")
+      .addEventListener("click", () => {
+        if (!checkMissing()) nfcToolsMobileWarningDialog.showModal();
+      });
 
     document.getElementById("writeWebNFC").addEventListener("click", () => {
       if (!checkMissing()) {
