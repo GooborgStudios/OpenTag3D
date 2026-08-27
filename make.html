@@ -346,8 +346,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       <div class="btn-menu__panel">
         <button class="btn" id="downloadBin">Download .bin</button>
         <button class="btn" id="downloadFlipper">Download Flipper .nfc</button>
-        <button class="btn" id="downloadNfcToolsDesktopJson">Download NFC Tools Desktop .json</button>
-        <button class="btn btn--warning" id="downloadNfcToolsMobileJson">Download NFC Tools Mobile .json ⚠️</button>
+        <button class="btn" id="downloadNfcToolsDesktopJson">
+          Download NFC Tools Desktop .json
+        </button>
+        <button class="btn btn--warning" id="downloadNfcToolsMobileJson">
+          Download NFC Tools Mobile .json ⚠️
+        </button>
         <button class="btn" id="copyToClipboard">Copy Hex to Clipboard</button>
         <button class="btn" id="copyLink">Copy Share Link</button>
         <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
@@ -385,7 +389,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   </section>
 </main>
 
-<dialog id="webNfcDialog" class="app-dialog" aria-labelledby="webNfcDialogTitle">
+<dialog
+  id="webNfcDialog"
+  class="app-dialog"
+  aria-labelledby="webNfcDialogTitle"
+>
   <div class="web-nfc-dialog__content">
     <h2 id="webNfcDialogTitle">Web NFC</h2>
     <p id="webNfcDialogMessage"></p>
@@ -399,15 +407,28 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   aria-labelledby="nfcToolsMobileWarningDialogTitle"
 >
   <div class="web-nfc-dialog__content">
-    <h2 id="nfcToolsMobileWarningDialogTitle">Warning: NFC Tools Mobile App Bug</h2>
+    <h2 id="nfcToolsMobileWarningDialogTitle">
+      Warning: NFC Tools iOS App Bug
+    </h2>
     <p>
-      The NFC Tools mobile app has a bug where writing a tag from an imported .json profile corrupts any byte value of 128 or higher, garbling your tag data. This happens even with profiles exported by the app itself, so it isn't something we can fix on our end.
+      The NFC Tools iOS app has a bug where writing a tag from an imported .json
+      profile corrupts any byte value of 128 or higher, garbling your tag data.
+      This happens even with profiles exported by the app itself, so it is
+      something that Wakdev must fix.
     </p>
     <p>
-      Until Wakdev fixes this, we recommend using another method to write your tags, such as using the <strong>Flipper Zero</strong> or writing directly via <strong>Web NFC</strong> if your browser supports it.
+      iOS Users: unfortunately, because of this bug, there is currently no way
+      to read or write OpenTag3D tags on iOS, as Apple has not yet implemented
+      Web NFC. You will need to use a different device or platform to write your
+      tags. We are considering developing a native iOS app to support this in
+      the future, but it is not currently available. Please use another device,
+      such as a <strong>Flipper Zero</strong> or
+      <strong>Android device</strong>, in the meantime.
     </p>
     <p>
-      iOS Users: unfortunately, there is currently no way to read or write OpenTag3D tags on iOS, as Apple has not yet implemented Web NFC. You will need to use a different device or platform to write your tags. We are considering developing a native iOS app to support this in the future, but it is not currently available.
+      Android Users: while the bug is not present on the Android version of the
+      app, we recommend using <strong>Web NFC</strong> to read and write your
+      tags.
     </p>
     <div class="flex">
       <button class="btn" id="nfcToolsMobileWarningDialogClose" type="button">
@@ -562,7 +583,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   // that string. This reverses that mangling when reading such an export.
   const mobilePayloadFromBase64 = (b64) =>
     Uint8Array.from(base64ToString(b64), (c) => c.charCodeAt(0));
-
 
   const packInt = (n, len, be = true) => {
     const value = Math.floor(n || 0);
@@ -1270,7 +1290,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     for (const profile of profiles) {
       if (typeof profile?.data !== "string") continue;
       const fields = JSON.parse(base64ToString(profile.data));
-      const ndefMessageB64 = fields.find((f) => "NDEFMessage" in f)?.NDEFMessage;
+      const ndefMessageB64 = fields.find(
+        (f) => "NDEFMessage" in f,
+      )?.NDEFMessage;
       if (!ndefMessageB64) continue;
 
       const records = JSON.parse(base64ToString(ndefMessageB64));
@@ -1511,7 +1533,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     // Dropdown menus: animated opening/closing, close on outside/inside click
     const menus = [...document.querySelectorAll(".btn-menu")];
     const closeMenu = (menu) => {
-      if (!menu.hasAttribute("open") || menu.classList.contains("is-closing")) return;
+      if (!menu.hasAttribute("open") || menu.classList.contains("is-closing"))
+        return;
       menu.classList.remove("is-open");
       menu.classList.add("is-closing");
       setTimeout(() => {
@@ -1532,7 +1555,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       if (summary) {
         summary.addEventListener("click", (e) => {
           e.preventDefault();
-          if (menu.hasAttribute("open") && !menu.classList.contains("is-closing")) {
+          if (
+            menu.hasAttribute("open") &&
+            !menu.classList.contains("is-closing")
+          ) {
             closeMenu(menu);
           } else {
             menus.forEach((other) => other !== menu && closeMenu(other));
@@ -1542,9 +1568,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       }
       menu
         .querySelectorAll(".btn-menu__panel button")
-        .forEach((btn) =>
-          btn.addEventListener("click", () => closeMenu(menu)),
-        );
+        .forEach((btn) => btn.addEventListener("click", () => closeMenu(menu)));
     });
     document.addEventListener("click", (e) => {
       menus.forEach((menu) => {
