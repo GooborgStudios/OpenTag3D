@@ -336,15 +336,19 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     <details class="btn-menu">
       <summary class="btn btn--warning">Import</summary>
       <div class="btn-menu__panel">
+        <button class="btn" id="readWebNFC" disabled>Read via Web NFC</button>
         <button class="btn" id="loadFileBtn">Load File</button>
         <button class="btn" id="loadClipboardBtn">Load from Clipboard</button>
-        <button class="btn" id="readWebNFC" disabled>Read via Web NFC</button>
       </div>
     </details>
     <details class="btn-menu">
       <summary class="btn btn--warning">Export</summary>
       <div class="btn-menu__panel">
-        <button class="btn" id="downloadBin">Download .bin</button>
+        <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
+        <button class="btn" id="downloadBin">Download Raw Data .bin</button>
+        <button class="btn" id="downloadProxmark3Bin">
+          Download Proxmark3 .bin
+        </button>
         <button class="btn" id="downloadFlipper">Download Flipper .nfc</button>
         <button class="btn" id="downloadNfcToolsDesktopJson">
           Download NFC Tools Desktop .json
@@ -354,7 +358,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         </button>
         <button class="btn" id="copyToClipboard">Copy Hex to Clipboard</button>
         <button class="btn" id="copyLink">Copy Share Link</button>
-        <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
       </div>
     </details>
     <input
@@ -482,6 +485,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       pageSize: 4,
       capabilityContainerPage: 3,
       ndefPage: 4,
+      dummyUid: [0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
       types: {
         ntag213: {
           type: "NTAG213",
@@ -1063,32 +1067,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     });
   };
 
-  // --- Flipper Zero export (.nfc minimal dump of user pages) ---
-  const downloadFlipperNfc = (buf, name) => {
-    const header = [
-      "Filetype: Flipper NFC device",
-      "Version: 4",
-      "# Device type can be ISO14443-3A, ISO14443-3B, ISO14443-4A, ISO14443-4B, ISO15693-3, FeliCa, NTAG/Ultralight, Mifare Classic, Mifare Plus, Mifare DESFire, SLIX, ST25TB",
-      "Device type: NTAG/Ultralight",
-      "# UID is common for all formats",
-      "UID: 00 00 00 00 00 00",
-      "# ISO14443-3A specific data",
-      "ATQA: 00 44",
-      "SAK: 00",
-      "# NTAG/Ultralight specific data",
-      "Data format version: 2",
-      "Signature: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
-      "Mifare version: 00 04 04 02 01 00 11 03",
-      "Counter 0: 0",
-      "Tearing 0: 00",
-      "Counter 1: 0",
-      "Tearing 1: 00",
-      "Counter 2: 0",
-      "Tearing 2: 00",
-      "Pages total: 135",
-      "Pages read: 135",
-    ];
-
+  // Builds a full NTAG page dump (Capability Container + NDEF TLV wrapping
+  // our MIME payload), shared by the Flipper and Proxmark3 exporters.
+  const buildNtagPageDump = (buf) => {
     const type = textEncoder.encode(SPEC.mime_type);
     const payload = new Uint8Array(buf);
     const ndefLength =
@@ -1103,16 +1084,15 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       throw new Error("OpenTag3D data does not fit in an NTAG NDEF record");
     }
 
-    header.splice(
-      header.findIndex((line) => line.startsWith("Signature:")),
-      0,
-      `NTAG/Ultralight type: ${tag.type}`,
-    );
-    for (const label of ["Pages total", "Pages read"]) {
-      const index = header.findIndex((line) => line.startsWith(`${label}:`));
-      header[index] = `${label}: ${tag.pageCount}`;
-    }
     const newbuf = new Uint8Array(tag.pageCount * NFC_INFO.ntag.pageSize);
+
+    // Dummy UID (pages 0-2) with valid BCC checksums - readers/tools like
+    // Proxmark3 validate these bytes to detect a well-formed NTAG dump, even
+    // though the real UID is fixed in hardware and can't be written via NDEF.
+    const uid = NFC_INFO.ntag.dummyUid;
+    newbuf.set([uid[0], uid[1], uid[2], 0x88 ^ uid[0] ^ uid[1] ^ uid[2]], 0);
+    newbuf.set([uid[3], uid[4], uid[5], uid[6]], 4);
+    newbuf.set([uid[3] ^ uid[4] ^ uid[5] ^ uid[6], 0x48, 0x00, 0x00], 8);
 
     // Capability Container at page 3.
     newbuf.set(
@@ -1141,6 +1121,47 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     newbuf.set(payload, payloadOffset);
     newbuf[recordOffset + ndefLength] = NFC_INFO.ndef.tlvTerminator;
 
+    return { tag, newbuf };
+  };
+
+  // --- Flipper Zero export (.nfc minimal dump of user pages) ---
+  const downloadFlipperNfc = (buf, name) => {
+    const header = [
+      "Filetype: Flipper NFC device",
+      "Version: 4",
+      "# Device type can be ISO14443-3A, ISO14443-3B, ISO14443-4A, ISO14443-4B, ISO15693-3, FeliCa, NTAG/Ultralight, Mifare Classic, Mifare Plus, Mifare DESFire, SLIX, ST25TB",
+      "Device type: NTAG/Ultralight",
+      "# UID is common for all formats",
+      "UID: 00 00 00 00 00 00",
+      "# ISO14443-3A specific data",
+      "ATQA: 00 44",
+      "SAK: 00",
+      "# NTAG/Ultralight specific data",
+      "Data format version: 2",
+      "Signature: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "Mifare version: 00 04 04 02 01 00 11 03",
+      "Counter 0: 0",
+      "Tearing 0: 00",
+      "Counter 1: 0",
+      "Tearing 1: 00",
+      "Counter 2: 0",
+      "Tearing 2: 00",
+      "Pages total: 135",
+      "Pages read: 135",
+    ];
+
+    const { tag, newbuf } = buildNtagPageDump(buf);
+
+    header.splice(
+      header.findIndex((line) => line.startsWith("Signature:")),
+      0,
+      `NTAG/Ultralight type: ${tag.type}`,
+    );
+    for (const label of ["Pages total", "Pages read"]) {
+      const index = header.findIndex((line) => line.startsWith(`${label}:`));
+      header[index] = `${label}: ${tag.pageCount}`;
+    }
+
     // Build page-aligned dump for user area only (each page = 4 bytes)
     const lines = [];
     for (let off = 0; off < newbuf.length; off += NFC_INFO.ntag.pageSize) {
@@ -1151,6 +1172,42 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     }
     const content = header.concat(lines).join("\n") + "\n";
     downloadFile(content, "text/plain", name);
+  };
+
+  // --- Proxmark3 export (mfu_dump_t .bin: 56-byte header + raw page data) ---
+  // Header layout per RfidResearchGroup/proxmark3 include/mifare.h:
+  // version[8], tbo[2], tbo1[1], pages[1], signature[32], counter_tearing[3][4]
+  const PM3_MFU_HEADER_LENGTH = 56;
+  const PM3_MFU_VERSION = [0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x11, 0x03];
+  const PM3_MFU_PAGES_OFFSET = 11;
+
+  const buildProxmark3Bin = (buf) => {
+    const { tag, newbuf } = buildNtagPageDump(buf);
+    const header = new Uint8Array(PM3_MFU_HEADER_LENGTH);
+    header.set(PM3_MFU_VERSION, 0);
+    // "pages" is the highest page index (page count - 1), not a count.
+    header[PM3_MFU_PAGES_OFFSET] = tag.pageCount - 1;
+    const out = new Uint8Array(PM3_MFU_HEADER_LENGTH + newbuf.length);
+    out.set(header, 0);
+    out.set(newbuf, PM3_MFU_HEADER_LENGTH);
+    return out;
+  };
+
+  const parseProxmark3Bin = (buf) => {
+    const bytes = new Uint8Array(buf);
+    if (bytes.length < PM3_MFU_HEADER_LENGTH) {
+      throw new Error("File is too short to be a Proxmark3 dump");
+    }
+    const pages = bytes[PM3_MFU_PAGES_OFFSET] + 1;
+    const data = bytes.subarray(
+      PM3_MFU_HEADER_LENGTH,
+      PM3_MFU_HEADER_LENGTH + pages * NFC_INFO.ntag.pageSize,
+    );
+    const payload = extractNdefPayload(data, 0x00);
+    if (!payload) {
+      throw new Error("No OpenTag3D record found in Proxmark3 dump");
+    }
+    return payload;
   };
 
   // --- IMPORTERS ---
@@ -1652,7 +1709,13 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         if (!file) return;
         try {
           if (file.name.toLowerCase().endsWith(".bin")) {
-            loadBufferIntoForm(await file.arrayBuffer(), 0x00);
+            const buf = await file.arrayBuffer();
+            // A Proxmark3 dump is just a raw .bin with a 56-byte header, try that first.
+            try {
+              loadBufferIntoForm(parseProxmark3Bin(buf), 0x00);
+            } catch {
+              loadBufferIntoForm(buf, 0x00);
+            }
           } else {
             loadImportedText(await file.text());
           }
@@ -1682,6 +1745,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         msg(`Downloaded ${tagState.filename}.nfc`);
       }
     });
+
+    document
+      .getElementById("downloadProxmark3Bin")
+      .addEventListener("click", () => {
+        if (!checkMissing()) {
+          downloadBin(
+            buildProxmark3Bin(tagState.buffer),
+            `${tagState.filename}.pm3.bin`,
+          );
+          msg(`Downloaded ${tagState.filename}.pm3.bin`);
+        }
+      });
 
     document
       .getElementById("downloadNfcToolsDesktopJson")
