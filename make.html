@@ -1126,18 +1126,22 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
   // --- Flipper Zero export (.nfc minimal dump of user pages) ---
   const downloadFlipperNfc = (buf, name) => {
+    const uid = NFC_INFO.ntag.dummyUid;
+    const { tag, newbuf } = buildNtagPageDump(buf);
+
     const header = [
       "Filetype: Flipper NFC device",
       "Version: 4",
       "# Device type can be ISO14443-3A, ISO14443-3B, ISO14443-4A, ISO14443-4B, ISO15693-3, FeliCa, NTAG/Ultralight, Mifare Classic, Mifare Plus, Mifare DESFire, SLIX, ST25TB",
       "Device type: NTAG/Ultralight",
       "# UID is common for all formats",
-      "UID: 00 00 00 00 00 00",
+      `UID: ${uid.map((p) => hex(p)).join(" ")}`,
       "# ISO14443-3A specific data",
       "ATQA: 00 44",
       "SAK: 00",
       "# NTAG/Ultralight specific data",
       "Data format version: 2",
+      `NTAG/Ultralight type: ${tag.type}`,
       "Signature: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
       "Mifare version: 00 04 04 02 01 00 11 03",
       "Counter 0: 0",
@@ -1146,21 +1150,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       "Tearing 1: 00",
       "Counter 2: 0",
       "Tearing 2: 00",
-      "Pages total: 135",
-      "Pages read: 135",
+      `Pages total: ${tag.pageCount}`,
+      `Pages read: ${tag.pageCount}`,
     ];
-
-    const { tag, newbuf } = buildNtagPageDump(buf);
-
-    header.splice(
-      header.findIndex((line) => line.startsWith("Signature:")),
-      0,
-      `NTAG/Ultralight type: ${tag.type}`,
-    );
-    for (const label of ["Pages total", "Pages read"]) {
-      const index = header.findIndex((line) => line.startsWith(`${label}:`));
-      header[index] = `${label}: ${tag.pageCount}`;
-    }
 
     // Build page-aligned dump for user area only (each page = 4 bytes)
     const lines = [];
