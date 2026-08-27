@@ -152,7 +152,117 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     margin-top: 1em;
   }
   #messages {
-    min-height: 1em;
+    position: fixed;
+    z-index: 1000;
+    bottom: 1rem;
+    right: 1rem;
+    width: min(24rem, calc(100vw - 2rem));
+    display: grid;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .flash-alert {
+    padding: 12px 14px;
+    border: 1px solid #2c5a91;
+    border-radius: 8px;
+    background: #10233b;
+    box-shadow:
+      0 0 20px rgba(64, 144, 255, 0.22),
+      0 12px 28px rgba(0, 0, 0, 0.3);
+    color: #dce9ff;
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0;
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translateY(8px);
+  }
+  .flash-alert.is-visible {
+    animation: flash-in 0.2s ease-out;
+    animation-fill-mode: forwards;
+  }
+  .flash-alert.is-hiding {
+    animation: flash-out 0.2s ease-in forwards;
+  }
+  .flash-alert.is-error {
+    border-color: #9b3d49;
+    background: #3a1720;
+    color: #ffdce0;
+    box-shadow:
+      0 0 20px rgba(255, 87, 106, 0.24),
+      0 12px 28px rgba(0, 0, 0, 0.3);
+  }
+  #webNfcDialog {
+    width: min(26rem, calc(100vw - 2rem));
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--card);
+    color: #dce9ff;
+    box-shadow:
+      0 0 32px rgba(64, 144, 255, 0.2),
+      0 18px 48px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      display 0.2s allow-discrete,
+      overlay 0.2s allow-discrete,
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+  #webNfcDialog[open] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  #webNfcDialog::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+    opacity: 0;
+    transition:
+      display 0.2s allow-discrete,
+      overlay 0.2s allow-discrete,
+      opacity 0.2s ease;
+  }
+  #webNfcDialog[open]::backdrop {
+    opacity: 1;
+  }
+  @starting-style {
+    #webNfcDialog[open] {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    #webNfcDialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+  .web-nfc-dialog__content {
+    padding: 20px;
+  }
+  .web-nfc-dialog__content h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+  }
+  .web-nfc-dialog__content p {
+    margin: 0 0 16px;
+  }
+  @keyframes flash-in {
+    from {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes flash-out {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
   }
 
   @media screen and (max-width: 900px), screen and (max-device-width: 900px) {
@@ -173,8 +283,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 <main>
   <div id="controls">
     <button class="btn" id="downloadBin">Download .bin</button>
-    <!-- <button class="btn" id="downloadFlipper">Download Flipper .nfc</button> -->
-    <!-- <button class="btn" id="downloadMap">Download address map (.csv)</button> -->
+    <button class="btn" id="downloadFlipper">Download Flipper .nfc</button>
     <button class="btn" id="copyToClipboard">Copy Hex to Clipboard</button>
     <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
     <br />
@@ -193,7 +302,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       style="display: none"
     />
   </div>
-  <div id="messages" class="help"></div>
+  <div id="messages" aria-live="polite"></div>
   <details class="scroll" id="hexdumpBox">
     <summary>Show hex dump</summary>
     <pre id="hexdump" class="mono"></pre>
@@ -219,6 +328,14 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   </section>
 </main>
 
+<dialog id="webNfcDialog" aria-labelledby="webNfcDialogTitle">
+  <div class="web-nfc-dialog__content">
+    <h2 id="webNfcDialogTitle">Web NFC</h2>
+    <p id="webNfcDialogMessage"></p>
+    <button class="btn" id="webNfcDialogClose" type="button">Cancel</button>
+  </div>
+</dialog>
+
 <script>
   /* prettier-ignore-start */
 
@@ -229,16 +346,54 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 </script>
 
 <script>
-  const state = {
+  const tagState = {
     values: new Map(),
     buffer: null,
     hash: null,
     filename: "",
   };
 
+  const allFields = [...SPEC.core.fields, ...SPEC.extended.fields];
   const urlParams = new URLSearchParams(window.location.search);
 
-  const allFields = [...SPEC.core.fields, ...SPEC.extended.fields];
+  const inputSynchronizers = new WeakMap();
+  const flashTimeouts = new Map();
+
+  const messagesElement = document.getElementById("messages");
+  const hexdumpElement = document.getElementById("hexdump");
+  const webNfcDialog = document.getElementById("webNfcDialog");
+  const webNfcDialogMessage = document.getElementById("webNfcDialogMessage");
+  let nfcReadController;
+
+  const NFC_INFO = {
+    ntag: {
+      pageSize: 4,
+      capabilityContainerPage: 3,
+      ndefPage: 4,
+      types: {
+        ntag213: {
+          type: "NTAG213",
+          pageCount: 45,
+          userMemoryLength: 0x12 * 8,
+          cc: [0xe1, 0x10, 0x12, 0x00],
+        },
+        ntag215: {
+          type: "NTAG215",
+          pageCount: 135,
+          userMemoryLength: 0x3e * 8,
+          cc: [0xe1, 0x10, 0x3e, 0x00],
+        },
+      },
+    },
+    ndef: {
+      tlvType: 0x03,
+      tlvExtendedLength: 0xff,
+      tlvTerminator: 0xfe,
+      mimeRecordHeader: 0xd2,
+      mimeRecordPrefixLength: 3,
+      extendedTlvPrefixLength: 4,
+    },
+  };
 
   // --- Utils ---
   const h = (tag, attrs = {}, ...kids) => {
@@ -261,33 +416,58 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     return el;
   };
 
-  function msg(message, isErr = false) {
-    const m = document.getElementById("messages");
-    m.textContent = message;
-    m.style.color = isErr ? "var(--error)" : "var(--muted)";
+  const dismissFlashAlert = (alert) => {
+    if (alert.classList.contains("is-hiding")) return;
+    clearTimeout(flashTimeouts.get(alert));
+    flashTimeouts.delete(alert);
+    alert.classList.replace("is-visible", "is-hiding");
+    setTimeout(() => alert.remove(), 200);
+  };
 
-    if (message) {
-      (isErr ? console.error : console.log)(message);
+  const msg = (message, isErr = false) => {
+    const alert = h("div", {
+      class: `flash-alert${isErr ? " is-error" : ""}`,
+      role: isErr ? "alert" : "status",
+    });
+    alert.textContent = message;
+    alert.addEventListener("click", () => dismissFlashAlert(alert));
+    messagesElement.append(alert);
+    requestAnimationFrame(() => alert.classList.add("is-visible"));
+
+    const timeout = isErr ? 8000 : 4000;
+    if (timeout > 0) {
+      flashTimeouts.set(alert, setTimeout(() => dismissFlashAlert(alert), timeout));
     }
-  }
 
-  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+    (isErr ? console.error : console.log)(message);
+  };
+
+  const showWebNfcDialog = (message) => {
+    webNfcDialogMessage.textContent = message;
+    if (!webNfcDialog.open) webNfcDialog.showModal();
+  };
+
+  const finishWebNfcAction = (message, isErr = false) => {
+    if (webNfcDialog.open) webNfcDialog.close();
+    msg(message, isErr);
+  };
+
   const hex = (n, w = 2) =>
     Number(n).toString(16).toUpperCase().padStart(w, "0");
   const addrHex = (a) => "0x" + hex(a);
   const parseHex = (s) => (typeof s === "number" ? s : parseInt(s, 16));
   const textEncoder = new TextEncoder();
 
-  function packInt(n, len, be = true) {
-    n = Math.floor(n || 0);
+  const packInt = (n, len, be = true) => {
+    const value = Math.floor(n || 0);
     const b = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
       const shift = be ? len - 1 - i : i;
-      b[i] = (n >> (8 * shift)) & 0xff;
+      b[i] = (value >> (8 * shift)) & 0xff;
     }
     return b;
-  }
-  function encodeAscii(str, len) {
+  };
+  const encodeAscii = (str, len) => {
     const out = new Uint8Array(len);
     const s = String(str || "");
     for (let i = 0; i < Math.min(len, s.length); i++) {
@@ -296,14 +476,14 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       out[i] = code;
     }
     return out;
-  }
-  function encodeUtf8(str, len) {
+  };
+  const encodeUtf8 = (str, len) => {
     const enc = textEncoder.encode(String(str || ""));
     const out = new Uint8Array(len);
     out.set(enc.subarray(0, len));
     return out;
-  }
-  function rgbaFromHex(hexStr) {
+  };
+  const rgbaFromHex = (hexStr) => {
     const v = String(hexStr || "#00000000").replace("#", "");
     return [
       parseInt(v.slice(0, 2) || "00", 16),
@@ -311,42 +491,66 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       parseInt(v.slice(4, 6) || "00", 16),
       parseInt(v.slice(6, 8) || "00", 16),
     ];
-  }
+  };
 
-  function bufferFromText(text) {
-    return new Uint8Array(
-      text
-        .replace(/\s/g, "")
-        .match(/../g)
-        .map((h) => parseInt(h, 16)),
-    ).buffer;
-  }
+  const bufferFromText = (text) => {
+    const bytes = String(text).replace(/\s/g, "");
+    if (!bytes || bytes.length % 2 || !/^[0-9A-Fa-f]+$/.test(bytes)) {
+      throw new Error("Expected an even number of hexadecimal characters");
+    }
+    return new Uint8Array(bytes.match(/../g).map((h) => parseInt(h, 16)))
+      .buffer;
+  };
 
-  function bufferToHex(buf, startAddr = 0x00) {
+  const formatBytes = (buf, startAddr = 0x00, includeAddresses = false) => {
     const output = [];
-    for (let i = startAddr; i < buf.length; i += 16) {
-      const slice = buf.subarray(i, i + 16);
+    for (let offset = 0; offset < buf.length; offset += 16) {
+      const slice = buf.subarray(offset, offset + 16);
       const hexs = [...slice].map((b) => hex(b)).join(" ");
       const ascii = [...slice]
         .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : "."))
         .join("");
-      output.push(hexs.padEnd(16 * 3 - 1, " "));
+      const line = hexs.padEnd(16 * 3 - 1, " ");
+      output.push(
+        includeAddresses
+          ? `${addrHex(startAddr + offset)}  ${line}  |${ascii}|`
+          : line,
+      );
     }
-    return output.join(" ").trim();
-  }
+    return output.join(includeAddresses ? "\n" : " ").trim();
+  };
+
+  const bufferToHex = (buf) => formatBytes(buf);
+
+  const downloadFile = (contents, type, name) => {
+    const url = URL.createObjectURL(new Blob([contents], { type }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = name;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
 
   // https://stackoverflow.com/a/7616484
-  function generateHash(string) {
+  const generateHash = (string) => {
     let hash = 0;
     for (const char of string) {
       hash = (hash << 5) - hash + char.charCodeAt(0);
       hash |= 0; // Constrain to 32bit integer
     }
     return Math.abs(hash).toString(16);
-  }
+  };
+
+  const checkMissing = () => {
+    if (document.querySelectorAll(".field-row.invalid").length) {
+      msg("Please fill out all required fields first", true);
+      return true;
+    }
+    return false;
+  };
 
   // --- Rendering ---
-  function renderForm() {
+  const renderForm = (includeUrlParams = true) => {
     const host = document.getElementById("formHost");
     host.innerHTML = "";
 
@@ -361,7 +565,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       const box = h("div", { class: `grid section-${sec.id}` });
       host.append(h("h3", { class: `muted section-${sec.id}` }, sec.title));
       for (const f of def.fields) {
-        if (f.id == "tag_version") continue;
+        if (f.id === "tag_version") continue;
         const row = h("div", {
           class: "field-row",
           "data-field": f.id,
@@ -371,7 +575,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         const label = h("label", {}, `${f.name}`);
         if (f.required) label.append(h("span", { class: "text--danger" }, "*"));
         left.append(label);
-        left.append(renderInputForField(f, sec.id));
+        left.append(renderInputForField(f, sec.id, includeUrlParams));
         row.append(left);
         const meta = h(
           "div",
@@ -392,9 +596,27 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       }
       host.append(box);
     }
-  }
+  };
 
-  function renderInputForField(f, section) {
+  const syncInputValue = (input, fieldId, transform = (value) => value) => {
+    const sync = () => {
+      tagState.values.set(fieldId, transform(input.value));
+    };
+    inputSynchronizers.set(input, sync);
+    input.addEventListener("input", () => {
+      sync();
+      buildMemory();
+    });
+    sync();
+  };
+
+  const setInputValue = (input, value) => {
+    if (!input) return;
+    input.value = value;
+    inputSynchronizers.get(input)?.();
+  };
+
+  const renderInputForField = (f, section, includeUrlParams = true) => {
     // Calculate placeholder
     let placeholder = "";
     const firstExample = f.examples?.[0];
@@ -403,8 +625,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         f.type === "int" ? firstExample * (f.scaling || 1) : firstExample;
     }
 
-    const paramValue = urlParams.get(f.id) || "";
-    if (paramValue) state.values.set(f.id, paramValue);
+    const paramValue = includeUrlParams ? urlParams.get(f.id) || "" : "";
+    if (paramValue) tagState.values.set(f.id, paramValue);
 
     const commonParams = {
       id: f.id,
@@ -454,11 +676,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
           linear-gradient(135deg, ${color.value} 0%, ${color.value} 50%, ${hex} 50%, ${hex} 100%),
           url(/assets/images/transparency-grid.jpg)
         `;
-        state.values.set(f.id, rgba);
-        buildMemory();
+        tagState.values.set(f.id, rgba);
       };
-      color.addEventListener("input", update);
-      alpha.addEventListener("input", update);
+      inputSynchronizers.set(color, update);
+      inputSynchronizers.set(alpha, update);
+      color.addEventListener("input", () => {
+        update();
+        buildMemory();
+      });
+      alpha.addEventListener("input", () => {
+        update();
+        buildMemory();
+      });
       update();
       row.append(color, alpha);
       const box = h("div");
@@ -471,17 +700,13 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         ...commonParams,
         type: "number",
         min: 0,
-        max: 255 * length,
+        max: 255 * f.length,
         step: scale,
       });
-      const sync = () => {
-        const val = Math.round(parseFloat(inp.value || "0") / scale);
-        state.values.set(f.id, val);
-        buildMemory();
-      };
-      inp.addEventListener("input", sync);
-      sync();
-      if (scale != 1) {
+      syncInputValue(inp, f.id, (value) =>
+        Math.round(parseFloat(value || "0") / scale),
+      );
+      if (scale !== 1) {
         const round = () => {
           inp.value = Math.round(parseFloat(inp.value || "0") / scale) * scale;
         };
@@ -496,12 +721,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         type: "date",
         placeholder: ph,
       });
-      const sync = () => {
-        state.values.set(f.id, inp.value);
-        buildMemory();
-      };
-      inp.addEventListener("input", sync);
-      sync();
+      syncInputValue(inp, f.id);
       return inp;
     }
     if (f.type === "time") {
@@ -512,12 +732,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         step: 1,
         placeholder: ph,
       });
-      const sync = () => {
-        state.values.set(f.id, inp.value);
-        buildMemory();
-      };
-      inp.addEventListener("input", sync);
-      sync();
+      syncInputValue(inp, f.id);
       return inp;
     }
 
@@ -527,28 +742,14 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       type: "text",
       maxlength: f.length,
     });
-    inp.addEventListener("input", () => {
-      state.values.set(f.id, inp.value);
-      buildMemory();
-    });
+    syncInputValue(inp, f.id);
     return inp;
-  }
+  };
 
-  function hexdump(buf, startAddr = 0x00) {
-    const lines = [];
-    for (let i = startAddr; i < buf.length; i += 16) {
-      const slice = buf.subarray(i, i + 16);
-      const hexs = [...slice].map((b) => hex(b)).join(" ");
-      const ascii = [...slice]
-        .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : "."))
-        .join("");
-      lines.push(`${addrHex(i)}  ${hexs.padEnd(16 * 3 - 1, " ")}  |${ascii}|`);
-    }
-    return lines.join("\n");
-  }
+  const hexdump = (buf, startAddr = 0x00) => formatBytes(buf, startAddr, true);
 
   // --- Building ---
-  function hasExtendedSet() {
+  const hasExtendedSet = () => {
     const els = document.querySelectorAll("[data-section='extended']");
     for (const el of els) {
       if (el.value) {
@@ -556,9 +757,47 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       }
     }
     return false;
-  }
+  };
 
-  function buildMemory() {
+  const encodeFieldValue = (field, value) => {
+    if (field.type === "int" && field.id === "tag_version") {
+      const version =
+        value ?? Math.round(parseFloat(SPEC.version || "0") * 1000);
+      return packInt(version, field.length);
+    }
+    if (field.type === "ascii") {
+      return encodeAscii(String(field.const ?? value ?? ""), field.length);
+    }
+    if (field.type === "utf8") {
+      return encodeUtf8(String(value ?? ""), field.length);
+    }
+    if (field.type === "rgba") {
+      const rgba = Array.isArray(value) ? value : [255, 255, 255, 255];
+      return new Uint8Array(rgba.slice(0, 4));
+    }
+    if (field.type === "int") {
+      return packInt(Number(value || 0), field.length);
+    }
+    if (field.type === "date") {
+      const parts = String(value || "").split("-");
+      const [year = 0, month = 0, day = 0] =
+        parts.length === 3 ? parts.map(Number) : [];
+      return new Uint8Array([...packInt(year, 2), month & 0xff, day & 0xff]);
+    }
+    if (field.type === "time") {
+      const parts = String(value || "00:00:00").split(":");
+      const [hour = 0, minute = 0, second = 0] =
+        parts.length >= 2
+          ? parts.map((part) => Number(part.split(".")[0]))
+          : [];
+      return new Uint8Array([hour & 0xff, minute & 0xff, second & 0xff]);
+    }
+    return typeof value === "number"
+      ? packInt(value, field.length)
+      : encodeUtf8(String(value || ""), field.length);
+  };
+
+  const buildMemory = () => {
     let extended = hasExtendedSet();
 
     const size =
@@ -580,18 +819,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       if (f.type === "int" || f.type === "date" || f.type === "time") {
         if (val === undefined || val === null) return false;
         const n = typeof val === "number" ? val : Number(val);
-        return Number.isFinite(n) && n != 0;
+        return Number.isFinite(n) && n !== 0;
       }
       return val !== undefined && val !== null && String(val).length > 0;
     };
 
-    state.values.set(
+    tagState.values.set(
       "tag_version",
       Math.round(parseFloat(SPEC.version) * 1000),
     );
 
     const missing = fields.filter(
-      (f) => f.required && !isPresent(f, state.values.get(f.id)),
+      (f) => f.required && !isPresent(f, tagState.values.get(f.id)),
     );
 
     // highlight missing rows
@@ -603,8 +842,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       if (row) row.classList.add("invalid");
     }
 
-    const be = true; // big-endian storage for multi-byte ints
-    const push = (f, addr, bytes, note = "") => {
+    const push = (addr, bytes) => {
       if (addr < 0 || addr + bytes.length > buf.length) {
         throw new Error(
           `Address ${addr} is out of range (length is ${buf.length}}`,
@@ -616,107 +854,32 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     for (const f of fields) {
       if (f.type === "-") continue;
       const addr = parseHex(f.start);
-      const val = state.values.get(f.id);
+      const val = tagState.values.get(f.id);
       try {
-        if (f.type === "int" && f.id === "tag_version") {
-          const num =
-            state.values.get("tag_version") ??
-            Math.round(parseFloat(SPEC.version || "0") * 1000);
-          push(
-            f,
-            addr,
-            packInt(num, f.length, be),
-            `version ${SPEC.version ?? "—"}`,
-          );
-        } else if (f.type === "ascii") {
-          const s = (f.const ?? val ?? "") + "";
-          push(f, addr, encodeAscii(s, f.length));
-        } else if (f.type === "utf8") {
-          push(f, addr, encodeUtf8((val ?? "") + "", f.length));
-        } else if (f.type === "rgba") {
-          const rgba = Array.isArray(val) ? val : [255, 255, 255, 255];
-          push(f, addr, new Uint8Array(rgba.slice(0, 4)));
-        } else if (f.type === "int") {
-          const n = Number(val || 0);
-          push(f, addr, packInt(n, f.length, be));
-        } else if (f.type === "date") {
-          const d = (val || "").split("-");
-          let y = 0,
-            m = 0,
-            dd = 0;
-          if (d.length === 3) {
-            y = +d[0];
-            m = +d[1];
-            dd = +d[2];
-          }
-          const bytes = new Uint8Array([
-            ...packInt(y, 2, be),
-            m & 0xff,
-            dd & 0xff,
-          ]);
-          push(f, addr, bytes);
-        } else if (f.type === "time") {
-          const t = (val || "00:00:00").split(":");
-          let hh = 0,
-            mm = 0,
-            ss = 0;
-          if (t.length >= 2) {
-            hh = +t[0];
-            mm = +t[1];
-            ss = +(t[2] || "0").split(".")[0];
-          }
-          const bytes = new Uint8Array([hh & 0xff, mm & 0xff, ss & 0xff]);
-          push(f, addr, bytes);
-        } else {
-          if (typeof val === "number")
-            push(f, addr, packInt(val, f.length, be));
-          else push(f, addr, encodeUtf8(String(val || ""), f.length));
-        }
+        push(addr, encodeFieldValue(f, val));
       } catch (e) {
         throw new Error(`Error packing ${f.name}: ${e.message}`);
       }
     }
 
     // Update hexdump
-    document.getElementById("hexdump").textContent = hexdump(buf);
+    hexdumpElement.textContent = hexdump(buf);
 
-    state.buffer = buf;
-    state.hash = generateHash(buf.toString()).substr(0, 8);
-    state.filename = `OpenTag3D_${state.values.get("manufacturer")}_${state.values.get("material")}${state.values.get("material_mod") ? "-" + state.values.get("material_mod") : ""}_${state.values.get("color_name")}_${state.values.get("serial") || state.hash}`;
-  }
+    tagState.buffer = buf;
+    tagState.hash = generateHash(buf.toString()).substr(0, 8);
+    tagState.filename = `OpenTag3D_${tagState.values.get("manufacturer")}_${tagState.values.get("material")}${tagState.values.get("material_mod") ? "-" + tagState.values.get("material_mod") : ""}_${tagState.values.get("color_name")}_${tagState.values.get("serial") || tagState.hash}`;
+  };
 
-  function downloadBin(buf, name) {
-    const blob = new Blob([buf], { type: "application/octet-stream" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  }
-  // function downloadMap(values, name) {
-  //   // XXX Needs to be rewritten
-  //   const head = ["Field", "ID", "Address", "Length", "Bytes", "Notes"];
-  //   const csv = [head.join(",")]
-  //     .concat(
-  //       rows.map((r) =>
-  //         r.map((x) => `"${String(x).replaceAll('"', '""')}"`).join(","),
-  //       ),
-  //     )
-  //     .join("\n");
-  //   const blob = new Blob([csv], { type: "text/csv" });
-  //   const a = document.createElement("a");
-  //   a.href = URL.createObjectURL(blob);
-  //   a.download = name;
-  //   a.click();
-  //   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  // }
+  const downloadBin = (buf, name) => {
+    downloadFile(buf, "application/octet-stream", name);
+  };
 
   // --- Web NFC export (NDEF) ---
-  async function writeViaWebNFC(buf) {
+  const writeViaWebNFC = async (buf) => {
     if (!("NDEFReader" in window)) {
       throw new Error("Web NFC is not supported in this browser");
     }
-    msg("Waiting to write tag...");
+    showWebNfcDialog("Waiting to write tag...");
     const reader = new NDEFReader();
     await reader.write({
       records: [
@@ -727,41 +890,49 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         },
       ],
     });
-    msg("Wrote NDEF payload to tag");
-  }
+    finishWebNfcAction("Wrote NDEF payload to tag");
+  };
 
-  async function readViaWebNFC() {
+  const readViaWebNFC = async () => {
     if (!("NDEFReader" in window)) {
       throw new Error("Web NFC is not supported in this browser");
     }
 
-    msg("Waiting to read tag...");
-
+    nfcReadController?.abort();
     const controller = new AbortController();
+    nfcReadController = controller;
+    showWebNfcDialog("Waiting to read tag...");
+
     const reader = new NDEFReader();
     await reader.scan({ signal: controller.signal });
-    reader.onreading = (event) => {
+    reader.addEventListener("reading", (event) => {
       controller.abort();
+      if (nfcReadController === controller) nfcReadController = null;
       let found = false;
       for (const record of event.message.records) {
-        if (record.recordType == "mime" && record.mediaType == SPEC.mime_type) {
+        if (
+          record.recordType === "mime" &&
+          record.mediaType === SPEC.mime_type
+        ) {
           found = true;
-          msg("Found and loaded OpenTag3D record");
+          finishWebNfcAction("Found and loaded OpenTag3D record");
           loadBufferIntoForm(record.data.buffer, 0x00);
           break;
         }
       }
       if (!found) {
-        msg("Read tag does not have any OpenTag3D records", true);
+        finishWebNfcAction("Read tag does not have any OpenTag3D records", true);
       }
-    };
-    reader.onreadingerror = (event) => {
-      msg("Error reading tag, try again or try another tag", true);
-    };
-  }
+    });
+    reader.addEventListener("readingerror", () => {
+      controller.abort();
+      if (nfcReadController === controller) nfcReadController = null;
+      finishWebNfcAction("Error reading tag, try again or try another tag", true);
+    });
+  };
 
   // --- Flipper Zero export (.nfc minimal dump of user pages) ---
-  function downloadFlipperNfc(buf, startAddr, name) {
+  const downloadFlipperNfc = (buf, name) => {
     const header = [
       "Filetype: Flipper NFC device",
       "Version: 4",
@@ -774,7 +945,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       "SAK: 00",
       "# NTAG/Ultralight specific data",
       "Data format version: 2",
-      "NTAG/Ultralight type: NTAG215",
       "Signature: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
       "Mifare version: 00 04 04 02 01 00 11 03",
       "Counter 0: 0",
@@ -787,44 +957,73 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       "Pages read: 135",
     ];
 
-    const ndefHeaderBytes = [
-      0x77, 0x48, 0x00, 0x00, 0xe1, 0x11, 0x3e, 0x00, 0x03, 0x90, 0xd2, 0x15,
-      0x78,
-    ];
+    const type = textEncoder.encode(SPEC.mime_type);
+    const payload = new Uint8Array(buf);
+    const ndefLength =
+      NFC_INFO.ndef.mimeRecordPrefixLength + type.length + payload.length;
+    const totalNdefLength = ndefLength + NFC_INFO.ndef.extendedTlvPrefixLength + 1;
+    const tag =
+      totalNdefLength <= NFC_INFO.ntag.types.ntag213.userMemoryLength
+        ? NFC_INFO.ntag.types.ntag213
+        : NFC_INFO.ntag.types.ntag215;
+    if (payload.length > 0xff || totalNdefLength > tag.userMemoryLength) {
+      throw new Error("OpenTag3D data does not fit in an NTAG NDEF record");
+    }
 
-    const offset = 0x08 + ndefHeaderBytes.length + SPEC.mime_type.length;
-    const newbuf = new Uint8Array(offset + buf.length + 1);
-    newbuf.fill(0x00);
-
-    // NDEF header stuff
-    newbuf.set(ndefHeaderBytes, 0x08);
-    newbuf.set(
-      encodeAscii(SPEC.mime_type, SPEC.mime_type.length),
-      0x08 + ndefHeaderBytes.length,
+    header.splice(
+      header.findIndex((line) => line.startsWith("Signature:")),
+      0,
+      `NTAG/Ultralight type: ${tag.type}`,
     );
-    newbuf.set(buf, offset);
+    for (const label of ["Pages total", "Pages read"]) {
+      const index = header.findIndex((line) => line.startsWith(`${label}:`));
+      header[index] = `${label}: ${tag.pageCount}`;
+    }
+    const newbuf = new Uint8Array(tag.pageCount * NFC_INFO.ntag.pageSize);
+
+    // Capability Container at page 3.
+    newbuf.set(
+      tag.cc,
+      NFC_INFO.ntag.capabilityContainerPage * NFC_INFO.ntag.pageSize,
+    );
+
+    // Start the NDEF TLV at page 4, followed by a short MIME record.
+    const ndefOffset = NFC_INFO.ntag.ndefPage * NFC_INFO.ntag.pageSize;
+    newbuf.set(
+      [
+        NFC_INFO.ndef.tlvType,
+        NFC_INFO.ndef.tlvExtendedLength,
+        (ndefLength >> 8) & 0xff,
+        ndefLength & 0xff,
+        NFC_INFO.ndef.mimeRecordHeader,
+        type.length,
+        payload.length,
+      ],
+      ndefOffset,
+    );
+    const recordOffset = ndefOffset + NFC_INFO.ndef.extendedTlvPrefixLength;
+    const payloadOffset =
+      recordOffset + NFC_INFO.ndef.mimeRecordPrefixLength + type.length;
+    newbuf.set(type, recordOffset + NFC_INFO.ndef.mimeRecordPrefixLength);
+    newbuf.set(payload, payloadOffset);
+    newbuf[recordOffset + ndefLength] = NFC_INFO.ndef.tlvTerminator;
 
     // Build page-aligned dump for user area only (each page = 4 bytes)
     const lines = [];
-    for (let off = 0; off < newbuf.length; off += 4) {
-      const page = off / 4; // lower byte for display
-      const slice = newbuf.subarray(off, off + 4);
+    for (let off = 0; off < newbuf.length; off += NFC_INFO.ntag.pageSize) {
+      const page = off / NFC_INFO.ntag.pageSize;
+      const slice = newbuf.subarray(off, off + NFC_INFO.ntag.pageSize);
       const b = [...slice].map((x) => hex(x)).join(" ");
       lines.push(`Page ${page}: ${b}`);
     }
     const content = header.concat(lines).join("\n") + "\n";
-    const blob = new Blob([content], { type: "text/plain" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  }
+    downloadFile(content, "text/plain", name);
+  };
 
   // --- IMPORTERS ---
 
   // Parse our hexdump lines, Flipper "Page XX:" lines, or plain hex bytes.
-  function parseBytesFromText(text) {
+  const parseBytesFromText = (text) => {
     const lines = text
       .split(/\r?\n/)
       .map((l) => l.trim())
@@ -851,13 +1050,13 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         sawAddressed = true;
         continue;
       }
-      // Flipper: "Page 10: AA BB CC DD"
+      // Flipper page labels are decimal: "Page 10: AA BB CC DD"
       m = line.match(
-        /^Page\s+([0-9A-Fa-f]{2}):\s+((?:[0-9A-Fa-f]{2}\s+){0,3}[0-9A-Fa-f]{2})$/,
+        /^Page\s+(\d+):\s+((?:[0-9A-Fa-f]{2}\s+){0,3}[0-9A-Fa-f]{2})$/,
       );
       if (m) {
-        const page = parseInt(m[1], 16);
-        const base = page * 4; // 4 bytes/page
+        const page = parseInt(m[1], 10);
+        const base = page * NFC_INFO.ntag.pageSize;
         const bytes = m[2]
           .trim()
           .split(/\s+/)
@@ -889,19 +1088,60 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .filter(Boolean);
     if (all.length) {
       return {
-        startAddr: 0x10,
+        startAddr: 0x00,
         data: new Uint8Array(all.map((h) => parseInt(h, 16))),
       };
     }
     throw new Error("No recognizable hex format found");
-  }
+  };
+
+  const extractNdefPayload = (data, startAddr) => {
+    const ndefOffset = NFC_INFO.ntag.ndefPage * NFC_INFO.ntag.pageSize - startAddr;
+    if (ndefOffset < 0 || data[ndefOffset] !== NFC_INFO.ndef.tlvType) return null;
+
+    const lengthByte = data[ndefOffset + 1];
+    const lengthOffset =
+      ndefOffset + (lengthByte === NFC_INFO.ndef.tlvExtendedLength ? 2 : 1);
+    const ndefLength =
+      lengthByte === NFC_INFO.ndef.tlvExtendedLength
+        ? (data[lengthOffset] << 8) | data[lengthOffset + 1]
+        : lengthByte;
+    const recordOffset =
+      lengthOffset + (lengthByte === NFC_INFO.ndef.tlvExtendedLength ? 2 : 1);
+    const recordEnd = recordOffset + ndefLength;
+
+    if (recordEnd > data.length || data[recordOffset] !== NFC_INFO.ndef.mimeRecordHeader)
+      return null;
+
+    const typeLength = data[recordOffset + 1];
+    const payloadLength = data[recordOffset + 2];
+    const typeOffset = recordOffset + NFC_INFO.ndef.mimeRecordPrefixLength;
+    const payloadOffset = typeOffset + typeLength;
+    const type = new TextDecoder().decode(
+      data.subarray(typeOffset, payloadOffset),
+    );
+
+    if (
+      type !== SPEC.mime_type ||
+      payloadOffset + payloadLength > recordEnd
+    ) {
+      return null;
+    }
+
+    return data.slice(payloadOffset, payloadOffset + payloadLength);
+  };
+
+  const loadImportedText = (text) => {
+    const { data, startAddr } = parseBytesFromText(text);
+    const payload = extractNdefPayload(data, startAddr);
+    loadBufferIntoForm(payload ?? data, payload ? 0x00 : startAddr);
+  };
 
   // Decode imported buffer back into the form (reverse the scalings where we can)
-  function loadBufferIntoForm(buf, startAddr, fromHexTextarea = false) {
+  const loadBufferIntoForm = (buf, startAddr) => {
     const data = new Uint8Array(buf);
-    document.getElementById("hexdump").textContent = hexdump(data, startAddr);
+    hexdumpElement.textContent = hexdump(data, startAddr);
 
-    const parseHex = (s) => (typeof s === "number" ? s : parseInt(s, 16));
     const read = (addr, len) => {
       const off = addr - startAddr;
       if (off < 0 || off + len > data.length) return new Uint8Array(len);
@@ -911,117 +1151,114 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     const setVal = (id, val) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.value = val;
-      el.dispatchEvent(new Event("input", { bubbles: true }));
+      setInputValue(el, val);
     };
 
     for (const f of allFields) {
-      const addr = parseHex(f.start);
+        const addr = parseHex(f.start);
 
-      if (addr > data.length) {
-        break;
-      }
+        if (addr > data.length) {
+          break;
+        }
 
-      const bytes = read(addr, f.length);
+        const bytes = read(addr, f.length);
 
-      try {
-        if (f.id === "tag_version") {
-          const v = readInt(bytes) / 1000.0;
-          const ev = parseFloat(SPEC.version);
-          if (v != ev) {
-            msg(
-              `Warning: loaded tag version is mismatched (got ${v}, expected ${ev})`,
-              true,
+        try {
+          if (f.id === "tag_version") {
+            const v = readInt(bytes) / 1000.0;
+            const ev = parseFloat(SPEC.version);
+            if (v !== ev) {
+              msg(
+                `Warning: loaded tag version is mismatched (got ${v}, expected ${ev})`,
+                true,
+              );
+            }
+          } else if (f.type === "ascii" || f.type === "utf8") {
+            const s = String.fromCharCode(...bytes).replace(/\u0000+$/, "");
+            setVal(f.id, s);
+          } else if (f.type === "rgba") {
+            const [r = 0, g = 0, b = 0, a = 255] = bytes;
+            const color = document.getElementById(f.id + "_rgb");
+            if (color) {
+              setInputValue(
+                color,
+                "#" +
+                  [r, g, b]
+                    .map((x) => x.toString(16).toUpperCase().padStart(2, "0"))
+                    .join(""),
+              );
+            }
+            const alpha = document.getElementById(f.id + "_a");
+            setInputValue(alpha, a);
+          } else if (f.type === "int") {
+            const n = readInt(bytes);
+
+            const holder = document.getElementById(f.id);
+            const number = holder?.parentElement?.querySelector(
+              'input[type="number"]',
+            );
+            if (number) {
+              setInputValue(number, String(n * (f.scaling || 1)));
+            } else {
+              tagState.values.set(f.id, n);
+            }
+          } else if (f.type === "date") {
+            const y = (bytes[0] << 8) | bytes[1],
+              m = bytes[2],
+              d = bytes[3];
+            setVal(
+              f.id,
+              `${y.toString().padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
+            );
+          } else if (f.type === "time") {
+            const [hh = 0, mm = 0, ss = 0] = bytes;
+            setVal(
+              f.id,
+              `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`,
             );
           }
-        } else if (f.type === "ascii" || f.type === "utf8") {
-          const s = String.fromCharCode(...bytes).replace(/\u0000+$/, "");
-          setVal(f.id, s);
-        } else if (f.type === "rgba") {
-          const [r = 0, g = 0, b = 0, a = 255] = bytes;
-          const color = document.getElementById(f.id + "_rgb");
-          if (color) {
-            color.value =
-              "#" +
-              [r, g, b]
-                .map((x) => x.toString(16).toUpperCase().padStart(2, "0"))
-                .join("");
-            color.dispatchEvent(new Event("input", { bubbles: true }));
-          }
-          const alpha = document.getElementById(f.id + "_a");
-          if (alpha) alpha.value = a;
-          const out = document.getElementById(f.id);
-          if (out) out.value = `[${r},${g},${b},${a}]`;
-          state.values.set(f.id, [r, g, b, a]);
-        } else if (f.type === "int") {
-          const n = readInt(bytes);
-
-          const holder = document.getElementById(f.id);
-          const number = holder?.parentElement?.querySelector(
-            'input[type="number"]',
-          );
-          if (number) {
-            number.value = String(n * (f.scaling || 1));
-            number.dispatchEvent(new Event("input", { bubbles: true }));
-          } else {
-            state.values.set(f.id, n);
-          }
-        } else if (f.type === "date") {
-          const y = (bytes[0] << 8) | bytes[1],
-            m = bytes[2],
-            d = bytes[3];
-          setVal(
-            f.id,
-            `${y.toString().padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
-          );
-        } else if (f.type === "time") {
-          const [hh = 0, mm = 0, ss = 0] = bytes;
-          setVal(
-            f.id,
-            `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`,
-          );
+        } catch {
+          /* be forgiving on decode */
         }
-      } catch {
-        /* be forgiving on decode */
-      }
     }
-  }
+    buildMemory();
+  };
 
-  function fillExamples(extended = false) {
+  const fillExamples = (extended = false) => {
     const inputs = document.querySelectorAll(
       ".field-row input:not([type=hidden])",
     );
     for (const input of inputs) {
       const section = input.dataset["section"];
-      if (section == "core" || (extended && section == "extended")) {
-        input.value = input.placeholder;
-        input.dispatchEvent(new Event("input", { bubbles: true }));
+      if (section === "core" || (extended && section === "extended")) {
+        setInputValue(input, input.placeholder);
       }
     }
-
     buildMemory();
-  }
+    msg(`Filled ${extended ? "all" : "core"} field examples`);
+  };
 
   // --- Init ---
   window.addEventListener("DOMContentLoaded", () => {
-    window.onerror = (message) => {
-      msg("Error: " + message, true);
-    };
+    window.addEventListener("error", (e) => {
+      msg("Error: " + e.message, true);
+    });
 
     renderForm();
     buildMemory();
+
+    document
+      .getElementById("webNfcDialogClose")
+      .addEventListener("click", () => webNfcDialog.close());
+    webNfcDialog.addEventListener("close", () => {
+      nfcReadController?.abort();
+      nfcReadController = null;
+    });
 
     const hexParam = urlParams.get("hex");
     if (hexParam) {
       loadBufferIntoForm(bufferFromText(hexParam), 0x00);
     }
-
-    // document.getElementById("hexdump").addEventListener("focusout", (e) => {
-    //   if (e.isTrusted) {
-    //     const buf = bufferFromText(document.getElementById("hexdump"));
-    //     loadBufferIntoForm(buf, 0x00);
-    //   }
-    // });
 
     document
       .getElementById("exampleBtn")
@@ -1032,9 +1269,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .addEventListener("click", () => fillExamples(true));
 
     document.getElementById("resetBtn").addEventListener("click", () => {
-      state.values = new Map();
-      renderForm();
+      tagState.values = new Map();
+      renderForm(false);
       buildMemory();
+      msg("Form has been reset to defaults");
     });
 
     // Load/import actions
@@ -1049,7 +1287,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .addEventListener("click", async () => {
         const clipboard = await navigator.clipboard.readText();
         try {
-          loadBufferIntoForm(bufferFromText(clipboard), 0x00);
+          loadImportedText(clipboard);
           msg("Loaded data from clipboard");
         } catch (e) {
           msg(
@@ -1064,12 +1302,15 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     document
       .getElementById("uploadFile")
       .addEventListener("change", async (e) => {
-        const f = e.target.files?.[0];
-        if (!f) return;
+        const file = e.target.files?.[0];
+        if (!file) return;
         try {
-          const buf = await f.arrayBuffer();
-          msg("Loaded .bin file");
-          loadBufferIntoForm(buf, 0x00);
+          if (file.name.toLowerCase().endsWith(".bin")) {
+            loadBufferIntoForm(await file.arrayBuffer(), 0x00);
+          } else {
+            loadImportedText(await file.text());
+          }
+          msg(`Loaded ${file.name}`);
         } catch (err) {
           msg("Import error: " + err.message, true);
         } finally {
@@ -1077,47 +1318,53 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         }
       });
 
-    document.getElementById("readWebNFC").onclick = () => {
-      readViaWebNFC();
-    };
+    document.getElementById("readWebNFC").addEventListener("click", () => {
+      readViaWebNFC().catch((e) => finishWebNfcAction(e.message, true));
+    });
 
     // Save/export actions
-    document.getElementById("downloadBin").onclick = () => {
-      downloadBin(state.buffer, `${state.filename}.bin`);
-    };
+    document.getElementById("downloadBin").addEventListener("click", () => {
+      if (!checkMissing()) {
+        downloadBin(tagState.buffer, `${tagState.filename}.bin`);
+        msg(`Downloaded ${tagState.filename}.bin`);
+      }
+    });
 
-    // document.getElementById("downloadMap").onclick = () => {
-    //   downloadMap(state.values, `${state.filename}_map.csv`);
-    // };
+    document.getElementById("downloadFlipper").addEventListener("click", () => {
+      if (!checkMissing()) {
+        downloadFlipperNfc(tagState.buffer, `${tagState.filename}.nfc`);
+        msg(`Downloaded ${tagState.filename}.nfc`);
+      }
+    });
 
-    // document.getElementById("downloadFlipper").onclick = () => {
-    //   downloadFlipperNfc(state.buffer, 0x00, `${state.filename}.nfc`);
-    // };
+    document.getElementById("writeWebNFC").addEventListener("click", () => {
+      if (!checkMissing()) {
+        writeViaWebNFC(tagState.buffer, tagState.tagType).catch((e) =>
+          finishWebNfcAction("Web NFC error: " + e.message, true),
+        );
+      }
+    });
 
-    document.getElementById("writeWebNFC").onclick = () => {
-      writeViaWebNFC(state.buffer, state.tagType).catch((e) =>
-        msg("Web NFC error: " + e.message, true),
-      );
-    };
+    document
+      .getElementById("copyToClipboard")
+      .addEventListener("click", async () => {
+        await navigator.clipboard.writeText(bufferToHex(tagState.buffer));
+        msg("Copied hex dump to clipboard");
+      });
 
-    document.getElementById("copyToClipboard").onclick = async () => {
-      await navigator.clipboard.writeText(bufferToHex(state.buffer));
-      msg("Copied hex dump to clipboard");
-    };
-
-    document.getElementById("copyLink").onclick = async () => {
+    document.getElementById("copyLink").addEventListener("click", async () => {
       const newParams = new URLSearchParams();
       for (const f of allFields) {
-        const v = state.values.get(f.id);
+        const v = tagState.values.get(f.id);
 
         if (v == null) continue;
-        if (f.id == "tag_version") continue;
+        if (f.id === "tag_version") continue;
         if (!f.required) {
-          if (v == 0) continue;
-          if (Array.isArray(v) && v.every((vp) => vp == 0)) continue;
+          if (v === 0) continue;
+          if (Array.isArray(v) && v.every((vp) => vp === 0)) continue;
         }
 
-        if (f.type == "rgba") {
+        if (f.type === "rgba") {
           newParams.set(f.id, "#" + v.map((vp) => hex(vp)).join(""));
         } else if (f.scaling) {
           newParams.set(f.id, v * f.scaling);
@@ -1134,9 +1381,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       );
 
       msg("Copied link to clipboard");
-    };
+    });
 
-    // Enable Web NFC buttons when present
+    // Enable Web NFC buttons when Web NFC is supported
     document.getElementById("writeWebNFC").disabled = !("NDEFReader" in window);
     document.getElementById("readWebNFC").disabled = !("NDEFReader" in window);
   });
