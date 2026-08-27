@@ -175,17 +175,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     <button class="btn" id="downloadBin">Download .bin</button>
     <!-- <button class="btn" id="downloadFlipper">Download Flipper .nfc</button> -->
     <!-- <button class="btn" id="downloadMap">Download address map (.csv)</button> -->
-    <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
     <button class="btn" id="copyToClipboard">Copy Hex to Clipboard</button>
+    <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
     <br />
     <button class="btn btn--warning" id="loadFileBtn">Load File</button>
     <button class="btn btn--warning" id="loadClipboardBtn">
       Load from Clipboard
     </button>
+    <button class="btn btn--warning" id="copyLink">Copy Share Link</button>
     <button class="btn btn--warning" id="readWebNFC" disabled>
       Read via Web NFC
     </button>
-    <button class="btn btn--warning" id="copyLink">Copy Share Link</button>
     <input
       type="file"
       id="uploadFile"
@@ -231,6 +231,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 <script>
   const state = {
     values: new Map(),
+    buffer: null,
+    hash: null,
+    filename: "",
   };
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -257,6 +260,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     for (const k of kids) el.append(k);
     return el;
   };
+
+  function msg(message, isErr = false) {
+    const m = document.getElementById("messages");
+    m.textContent = message;
+    m.style.color = isErr ? "var(--error)" : "var(--muted)";
+
+    if (message) {
+      (isErr ? console.error : console.log)(message);
+    }
+  }
+
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   const hex = (n, w = 2) =>
     Number(n).toString(16).toUpperCase().padStart(w, "0");
@@ -306,6 +320,19 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         .match(/../g)
         .map((h) => parseInt(h, 16)),
     ).buffer;
+  }
+
+  function bufferToHex(buf, startAddr = 0x00) {
+    const output = [];
+    for (let i = startAddr; i < buf.length; i += 16) {
+      const slice = buf.subarray(i, i + 16);
+      const hexs = [...slice].map((b) => hex(b)).join(" ");
+      const ascii = [...slice]
+        .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : "."))
+        .join("");
+      output.push(hexs.padEnd(16 * 3 - 1, " "));
+    }
+    return output.join(" ").trim();
   }
 
   // https://stackoverflow.com/a/7616484
@@ -507,19 +534,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     return inp;
   }
 
-  function bufferToHex(buf, startAddr = 0x00) {
-    const output = [];
-    for (let i = startAddr; i < buf.length; i += 16) {
-      const slice = buf.subarray(i, i + 16);
-      const hexs = [...slice].map((b) => hex(b)).join(" ");
-      const ascii = [...slice]
-        .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : "."))
-        .join("");
-      output.push(hexs.padEnd(16 * 3 - 1, " "));
-    }
-    return output.join(" ").trim();
-  }
-
   function hexdump(buf, startAddr = 0x00) {
     const lines = [];
     for (let i = startAddr; i < buf.length; i += 16) {
@@ -589,29 +603,14 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       if (row) row.classList.add("invalid");
     }
 
-    const rows = [];
     const be = true; // big-endian storage for multi-byte ints
     const push = (f, addr, bytes, note = "") => {
       if (addr < 0 || addr + bytes.length > buf.length) {
-        rows.push([
-          f.name,
-          f.id,
-          addrHex(addr),
-          f.length,
-          "-",
-          `Out of range: ${addr} > ${buf.length}`,
-        ]);
-        return;
+        throw new Error(
+          `Address ${addr} is out of range (length is ${buf.length}}`,
+        );
       }
       buf.set(bytes, addr);
-      rows.push([
-        f.name,
-        f.id,
-        addrHex(addr),
-        bytes.length,
-        [...bytes].map((b) => hex(b)).join(" "),
-        note,
-      ]);
     };
 
     for (const f of fields) {
@@ -674,92 +673,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
           else push(f, addr, encodeUtf8(String(val || ""), f.length));
         }
       } catch (e) {
-        rows.push([
-          f.name,
-          addrHex(addr),
-          f.length,
-          "-",
-          `Error: ${e.message}`,
-        ]);
+        throw new Error(`Error packing ${f.name}: ${e.message}`);
       }
     }
 
     // Update hexdump
     document.getElementById("hexdump").textContent = hexdump(buf);
 
-    const checkMissing = () => {
-      if (missing.length > 0) {
-        msg(
-          `Please fill required fields: ${missing.map((m) => m.name || m.id).join(", ")}`,
-          true,
-        );
-        return true;
-      } else {
-        msg("");
-        return false;
-      }
-    };
-
-    const filename = `OpenTag3D_${state.values.get("manufacturer")}_${state.values.get("material_base")}-${state.values.get("material_mod") || "Pure"}_${state.values.get("color_name")}_${state.values.get("serial") || generateHash(buf.toString()).substr(0, 8)}`;
-
-    // Wire export actions (fresh closures)
-    document.getElementById("downloadBin").onclick = () => {
-      if (!checkMissing()) {
-        downloadBin(buf, `${filename}.bin`);
-      }
-    };
-    // document.getElementById("downloadMap").onclick = () => {
-    //   if (!checkMissing()) {
-    //     downloadMap(rows, `${filename}_map.csv`);
-    //   }
-    // };
-    // document.getElementById("downloadFlipper").onclick = () => {
-    //   if (!checkMissing()) {
-    //     downloadFlipperNfc(buf, start, `${filename}.nfc`);
-    //   }
-    // };
-    document.getElementById("writeWebNFC").onclick = () => {
-      if (!checkMissing()) {
-        writeViaWebNFC(buf, state.tagType).catch((e) =>
-          msg("Web NFC error: " + e.message, true),
-        );
-      }
-    };
-
-    document.getElementById("copyToClipboard").onclick = async () => {
-      await navigator.clipboard.writeText(bufferToHex(buf));
-    };
-
-    document.getElementById("copyLink").onclick = async () => {
-      const newParams = new URLSearchParams();
-      for (const f of allFields) {
-        const v = state.values.get(f.id);
-
-        if (v == null) continue;
-        if (f.id == "tag_version") continue;
-        if (!f.required) {
-          if (v == 0) continue;
-          if (Array.isArray(v) && v.every((vp) => vp == 0)) continue;
-        }
-
-        if (f.type == "rgba") {
-          newParams.set(f.id, "#" + v.map((vp) => hex(vp)).join(""));
-        } else if (f.scaling) {
-          newParams.set(f.id, v * f.scaling);
-        } else {
-          newParams.set(f.id, v);
-        }
-      }
-
-      await navigator.clipboard.writeText(
-        window.location.origin +
-          window.location.pathname +
-          "?" +
-          newParams.toString(),
-      );
-    };
-
-    return { buf, rows };
+    state.buffer = buf;
+    state.hash = generateHash(buf.toString()).substr(0, 8);
+    state.filename = `OpenTag3D_${state.values.get("manufacturer")}_${state.values.get("material")}${state.values.get("material_mod") ? "-" + state.values.get("material_mod") : ""}_${state.values.get("color_name")}_${state.values.get("serial") || state.hash}`;
   }
 
   function downloadBin(buf, name) {
@@ -770,32 +693,23 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
-  function downloadMap(rows, name) {
-    const head = ["Field", "ID", "Address", "Length", "Bytes", "Notes"];
-    const csv = [head.join(",")]
-      .concat(
-        rows.map((r) =>
-          r.map((x) => `"${String(x).replaceAll('"', '""')}"`).join(","),
-        ),
-      )
-      .join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  }
-
-  function msg(message, isErr = false) {
-    const m = document.getElementById("messages");
-    m.textContent = message;
-    m.style.color = isErr ? "var(--error)" : "var(--muted)";
-
-    if (message) {
-      (isErr ? console.error : console.log)(message);
-    }
-  }
+  // function downloadMap(values, name) {
+  //   // XXX Needs to be rewritten
+  //   const head = ["Field", "ID", "Address", "Length", "Bytes", "Notes"];
+  //   const csv = [head.join(",")]
+  //     .concat(
+  //       rows.map((r) =>
+  //         r.map((x) => `"${String(x).replaceAll('"', '""')}"`).join(","),
+  //       ),
+  //     )
+  //     .join("\n");
+  //   const blob = new Blob([csv], { type: "text/csv" });
+  //   const a = document.createElement("a");
+  //   a.href = URL.createObjectURL(blob);
+  //   a.download = name;
+  //   a.click();
+  //   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  // }
 
   // --- Web NFC export (NDEF) ---
   async function writeViaWebNFC(buf) {
@@ -1117,7 +1031,13 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .getElementById("allExampleBtn")
       .addEventListener("click", () => fillExamples(true));
 
-    // File picker
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      state.values = new Map();
+      renderForm();
+      buildMemory();
+    });
+
+    // Load/import actions
     document
       .getElementById("loadFileBtn")
       .addEventListener("click", () =>
@@ -1130,6 +1050,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         const clipboard = await navigator.clipboard.readText();
         try {
           loadBufferIntoForm(bufferFromText(clipboard), 0x00);
+          msg("Loaded data from clipboard");
         } catch (e) {
           msg(
             "Clipboard does not appear to be a valid OpenTag3D dump - " +
@@ -1160,13 +1081,63 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       readViaWebNFC();
     };
 
+    // Save/export actions
+    document.getElementById("downloadBin").onclick = () => {
+      downloadBin(state.buffer, `${state.filename}.bin`);
+    };
+
+    // document.getElementById("downloadMap").onclick = () => {
+    //   downloadMap(state.values, `${state.filename}_map.csv`);
+    // };
+
+    // document.getElementById("downloadFlipper").onclick = () => {
+    //   downloadFlipperNfc(state.buffer, 0x00, `${state.filename}.nfc`);
+    // };
+
+    document.getElementById("writeWebNFC").onclick = () => {
+      writeViaWebNFC(state.buffer, state.tagType).catch((e) =>
+        msg("Web NFC error: " + e.message, true),
+      );
+    };
+
+    document.getElementById("copyToClipboard").onclick = async () => {
+      await navigator.clipboard.writeText(bufferToHex(state.buffer));
+      msg("Copied hex dump to clipboard");
+    };
+
+    document.getElementById("copyLink").onclick = async () => {
+      const newParams = new URLSearchParams();
+      for (const f of allFields) {
+        const v = state.values.get(f.id);
+
+        if (v == null) continue;
+        if (f.id == "tag_version") continue;
+        if (!f.required) {
+          if (v == 0) continue;
+          if (Array.isArray(v) && v.every((vp) => vp == 0)) continue;
+        }
+
+        if (f.type == "rgba") {
+          newParams.set(f.id, "#" + v.map((vp) => hex(vp)).join(""));
+        } else if (f.scaling) {
+          newParams.set(f.id, v * f.scaling);
+        } else {
+          newParams.set(f.id, v);
+        }
+      }
+
+      await navigator.clipboard.writeText(
+        window.location.origin +
+          window.location.pathname +
+          "?" +
+          newParams.toString(),
+      );
+
+      msg("Copied link to clipboard");
+    };
+
+    // Enable Web NFC buttons when present
     document.getElementById("writeWebNFC").disabled = !("NDEFReader" in window);
     document.getElementById("readWebNFC").disabled = !("NDEFReader" in window);
-
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      state.values = new Map();
-      renderForm();
-      buildMemory();
-    });
   });
 </script>
