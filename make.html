@@ -349,12 +349,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         <button class="btn" id="downloadProxmark3Bin">
           Download Proxmark3 .bin
         </button>
-        <button class="btn" id="downloadFlipper">Download Flipper .nfc</button>
+        <button class="btn btn--warning" id="downloadFlipper">
+          Download Flipper .nfc ⚠️<br />
+          <small>Emulation only</small>
+        </button>
         <button class="btn" id="downloadNfcToolsDesktopJson">
           Download NFC Tools Desktop .json
         </button>
         <button class="btn btn--warning" id="downloadNfcToolsMobileJson">
-          Download NFC Tools Mobile .json ⚠️
+          Download NFC Tools Mobile .json ⚠️<br />
+          <small>Non-functional on iOS</small>
         </button>
         <button class="btn" id="copyToClipboard">Copy Hex to Clipboard</button>
         <button class="btn" id="copyLink">Copy Share Link</button>
@@ -425,8 +429,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       Web NFC. You will need to use a different device or platform to write your
       tags. We are considering developing a native iOS app to support this in
       the future, but it is not currently available. Please use another device,
-      such as a <strong>Flipper Zero</strong> or
-      <strong>Android device</strong>, in the meantime.
+      such as a <strong>Proxmark3</strong> or <strong>Android device</strong>,
+      in the meantime.
     </p>
     <p>
       Android Users: while the bug is not present on the Android version of the
@@ -440,6 +444,40 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       <button
         class="btn btn--warning"
         id="nfcToolsMobileWarningDialogContinue"
+        type="button"
+      >
+        Download anyway
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<dialog
+  id="flipperZeroWarningDialog"
+  class="app-dialog"
+  aria-labelledby="flipperZeroWarningDialogTitle"
+>
+  <div class="web-nfc-dialog__content">
+    <h2 id="flipperZeroWarningDialogTitle">
+      Warning: Flipper Zero Cannot Write File
+    </h2>
+    <p>
+      At this time, the Flipper Zero will not be able to write this file. It
+      appears to be a data construction issue on our end. While this can still
+      be used for emulation, write support will come at a later date.
+    </p>
+    <p>
+      If you're looking to write the tag data to an actual tag, we recommend
+      using another device, such as a <strong>Proxmark3</strong> or
+      <strong>Android device</strong>, in the meantime.
+    </p>
+    <div class="flex">
+      <button class="btn" id="flipperZeroWarningDialogClose" type="button">
+        Cancel
+      </button>
+      <button
+        class="btn btn--warning"
+        id="flipperZeroWarningDialogContinue"
         type="button"
       >
         Download anyway
@@ -477,6 +515,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   const webNfcDialogMessage = document.getElementById("webNfcDialogMessage");
   const nfcToolsMobileWarningDialog = document.getElementById(
     "nfcToolsMobileWarningDialog",
+  );
+  const flipperZeroWarningDialog = document.getElementById(
+    "flipperZeroWarningDialog",
   );
   let nfcReadController;
 
@@ -1650,6 +1691,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         msg(`Downloaded ${tagState.filename}.nfctools-mobile.json`);
       });
 
+    document
+      .getElementById("flipperZeroWarningDialogClose")
+      .addEventListener("click", () => flipperZeroWarningDialog.close());
+    document
+      .getElementById("flipperZeroWarningDialogContinue")
+      .addEventListener("click", () => {
+        flipperZeroWarningDialog.close();
+        downloadFlipperNfc(tagState.buffer, `${tagState.filename}.nfc`);
+        msg(`Downloaded ${tagState.filename}.nfc`);
+      });
+
     const hexParam = urlParams.get("hex");
     if (hexParam) {
       loadBufferIntoForm(bufferFromText(hexParam), 0x00);
@@ -1732,10 +1784,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     });
 
     document.getElementById("downloadFlipper").addEventListener("click", () => {
-      if (!checkMissing()) {
-        downloadFlipperNfc(tagState.buffer, `${tagState.filename}.nfc`);
-        msg(`Downloaded ${tagState.filename}.nfc`);
-      }
+      if (!checkMissing()) flipperZeroWarningDialog.showModal();
     });
 
     document
