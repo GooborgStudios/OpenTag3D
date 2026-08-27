@@ -179,3 +179,14 @@ These are topics that were heavily discussed during the development of OpenTag3D
     - NDEF records help specify that the data is OpenTag3D data
     - Web NFC is designed to read and write NDEF records, making it possible to provide a webpage for Android read/write capabilities
       - iOS does not support Web NFC; if it did then it would also make iOS read/write possible
+
+## Changelog
+
+- 1.003
+  - Made all fields (except for `opentag_version`) in the web API optional
+- 1.002
+  - Adjusted tag placement guidelines to allow more flexibility
+- 1.001
+  - Add `has_ui` field to web API
+- 1.000
+  - Initial release
