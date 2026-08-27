@@ -176,6 +176,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     border: 1px solid var(--line);
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+  .btn-menu.is-open .btn-menu__panel {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
   }
   .btn-menu__panel button {
     width: 100%;
@@ -1297,23 +1308,49 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     renderForm();
     buildMemory();
 
-    // Dropdown menus: close others when one opens, and close on outside/inside click
+    // Dropdown menus: animated opening/closing, close on outside/inside click
     const menus = [...document.querySelectorAll(".btn-menu")];
-    menus.forEach((menu) => {
-      menu.addEventListener("toggle", () => {
-        if (menu.open) {
-          menus.forEach((other) => other !== menu && (other.open = false));
-        }
+    const closeMenu = (menu) => {
+      if (!menu.hasAttribute("open") || menu.classList.contains("is-closing")) return;
+      menu.classList.remove("is-open");
+      menu.classList.add("is-closing");
+      setTimeout(() => {
+        menu.removeAttribute("open");
+        menu.classList.remove("is-closing");
+      }, 150);
+    };
+    const openMenu = (menu) => {
+      menu.classList.remove("is-closing");
+      menu.setAttribute("open", "");
+      requestAnimationFrame(() => {
+        menu.classList.add("is-open");
       });
+    };
+
+    menus.forEach((menu) => {
+      const summary = menu.querySelector("summary");
+      if (summary) {
+        summary.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (menu.hasAttribute("open") && !menu.classList.contains("is-closing")) {
+            closeMenu(menu);
+          } else {
+            menus.forEach((other) => other !== menu && closeMenu(other));
+            openMenu(menu);
+          }
+        });
+      }
       menu
         .querySelectorAll(".btn-menu__panel button")
         .forEach((btn) =>
-          btn.addEventListener("click", () => (menu.open = false)),
+          btn.addEventListener("click", () => closeMenu(menu)),
         );
     });
     document.addEventListener("click", (e) => {
       menus.forEach((menu) => {
-        if (menu.open && !menu.contains(e.target)) menu.open = false;
+        if (menu.hasAttribute("open") && !menu.contains(e.target)) {
+          closeMenu(menu);
+        }
       });
     });
 
