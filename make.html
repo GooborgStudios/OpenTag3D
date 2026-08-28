@@ -1917,12 +1917,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         if (v == null) continue;
         if (f.id === "tag_version") continue;
         if (!f.required) {
-          if (v === 0) continue;
+          if (!v) continue;
           if (Array.isArray(v) && v.every((vp) => vp === 0)) continue;
         }
 
         if (f.type === "rgba") {
-          newParams.set(f.id, "#" + v.map((vp) => hex(vp)).join(""));
+          newParams.set(f.id, v.map((vp) => hex(vp)).join(""));
         } else if (f.scaling) {
           newParams.set(f.id, v * f.scaling);
         } else {
