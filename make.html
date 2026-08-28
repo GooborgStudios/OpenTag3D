@@ -250,6 +250,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       opacity 0.2s ease,
       transform 0.2s ease;
   }
+  .app-dialog.app-dialog-wide {
+    width: 100%;
+  }
   .app-dialog[open] {
     opacity: 1;
     transform: translateY(0);
@@ -361,6 +364,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         <button class="btn" id="copyLink">Copy Share Link</button>
       </div>
     </details>
+    <button class="btn btn--info" id="helpButton">Help</button>
     <input
       type="file"
       id="uploadFile"
@@ -483,6 +487,83 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   </div>
 </dialog>
 
+<dialog
+  id="helpDialog"
+  class="app-dialog app-dialog-wide"
+  aria-labelledby="helpDialogTitle"
+>
+  <div class="web-nfc-dialog__content">
+    <h2 id="helpDialogTitle">How to Use</h2>
+    <p>
+      This utility is designed to help you create OpenTag3D tag data to be
+      written onto RFID tags, which can then be written directly with Web NFC
+      (on Android) or via a number of tools.
+    </p>
+    <h3>Generating Tag Data</h3>
+    <p>
+      To write tag data, simply fill out all of the applicable fields on the
+      form. Fields with a red asterisk next to their name are required fields
+      and must be filled out. All other fields are optional.
+    </p>
+    <p>
+      You can also import existing tag data, either by reading it via Web NFC
+      (on Android) or loading a previously exported file.
+    </p>
+    <h3>Exporting Tag Data</h3>
+    <p>
+      Once you have filled out all of the fields, you can export the tag data to
+      be written to a real tag in a few ways:
+    </p>
+    <ul>
+      <li>Direct Write via Web NFC</li>
+      <li>Proxmark3-Ready .bin</li>
+      <li>Flipper Zero .nfc (work-in-progress)</li>
+      <li>NFC Tools for Desktop</li>
+      <li>NFC Tools for Mobile (non-functional pending app bug fix)</li>
+    </ul>
+    <p>
+      If you're not sure which format to use, the easiest way to write tags is
+      to use Web NFC (on Android).
+    </p>
+    <h4>Write via Web NFC</h4>
+    <p>
+      To write tag data via Web NFC, simply press the button and then hold an
+      NFC tag up to the phone's RFID antenna. The antenna is usually placed next
+      to the back camera, but may be in the center of the phone on some models.
+      Once the tag is detected, the writing process will start. Hold the tag in
+      place until the writing process is finished.
+    </p>
+    <h4>Write via Proxmark3</h4>
+    <p>
+      To write tag data via a Proxmark3, download the Proxmark3 .bin file. Then,
+      in a terminal, launch <code>pm3</code> and run
+      <code>hf mfu restore -f [/path/to/file.bin]</code>.
+    </p>
+    <h4>Write via Flipper Zero</h4>
+    <p>
+      Currently, the Flipper Zero implementation is non-functional due to a bug
+      on our end. This is being worked on.
+    </p>
+    <h4>Write via NFC Tools Desktop</h4>
+    <p>
+      To write tag data via NFC Tools for Desktop, download the NFC Tools
+      Desktop .json. Then, in the app, go to Write > More > Open and load the
+      .json file. Click the Write button once you've got a tag on your NFC
+      reader.
+    </p>
+    <h4>Write via NFC Tools Mobile</h4>
+    <p>
+      The NFC Tools iOS app has a bug where writing a tag from an imported .json
+      profile corrupts any byte value of 128 or higher, garbling your tag data.
+      This happens even with profiles exported by the app itself, so it is
+      something that Wakdev must fix.
+    </p>
+    <div class="flex">
+      <button class="btn" id="helpDialogClose" type="button">Close</button>
+    </div>
+  </div>
+</dialog>
+
 <script>
   /* prettier-ignore-start */
 
@@ -516,6 +597,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   const flipperZeroWarningDialog = document.getElementById(
     "flipperZeroWarningDialog",
   );
+  const helpDialog = document.getElementById("helpDialog");
+
   let nfcReadController;
 
   const NFC_INFO = {
@@ -1687,6 +1770,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         msg(`Downloaded ${tagState.filename}.nfc`);
       });
 
+    document
+      .getElementById("helpDialogClose")
+      .addEventListener("click", () => helpDialog.close());
+
     const hexParam = urlParams.get("hex");
     if (hexParam) {
       loadBufferIntoForm(bufferFromText(hexParam), 0x00);
@@ -1848,6 +1935,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
       msg("Copied link to clipboard");
     });
+
+    document
+      .getElementById("helpButton")
+      .addEventListener("click", () => helpDialog.showModal());
 
     // Enable Web NFC buttons when Web NFC is supported
     document.getElementById("writeWebNFC").disabled = !("NDEFReader" in window);
