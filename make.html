@@ -62,7 +62,14 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     gap: 12px;
   }
   .color-input-row {
-    grid-template-columns: 1fr 4em;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    margin-bottom: 0.5em;
+    border-radius: 12px;
+  }
+  .color-input-row input {
+    margin-bottom: 0;
+    background: #00000099;
+    font-size: 50%;
   }
   .help {
     font-size: 12px;
@@ -809,29 +816,27 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     // Generic by type
     if (f.type === "rgba") {
-      const placeholderValue = f.id === "color_1" ? "#FFFFFF" : "#000000";
-      const placeholderAlpha = f.id === "color_1" ? 255 : 0;
+      const placeholderValue = f.id === "color_1" ? 255 : 0;
 
       const row = h("div", { class: "row color-input-row" });
-      const color = h("input", {
-        ...commonParams,
-        type: "color",
-        id: f.id + "_rgb",
-        value: paramValue ? paramValue.substr(0, 7) : placeholderValue,
-        placeholder: placeholderValue,
-      });
-      const alpha = h("input", {
-        ...commonParams,
-        type: "number",
-        id: f.id + "_a",
-        min: 0,
-        max: 255,
-        step: 1,
-        value: paramValue
-          ? parseInt(paramValue.substr(7, 2), 16)
-          : placeholderAlpha,
-        placeholder: placeholderAlpha,
-      });
+      const els = {};
+
+      for (const channel of ["red", "green", "blue", "alpha"]) {
+        els[channel] = h("input", {
+          ...commonParams,
+          type: "number",
+          id: f.id + "_" + channel.substr(0, 1),
+          min: 0,
+          max: 255,
+          step: 1,
+          value: paramValue
+            ? parseInt(paramValue.substr(1, 2), 16)
+            : placeholderValue,
+          placeholder: placeholderValue,
+          "data-channel": channel,
+        });
+      }
+
       const out = h("input", {
         type: "hidden",
         id: f.id,
@@ -839,28 +844,35 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         readonly: true,
       });
       const update = () => {
-        const alphaValue = parseInt(alpha.value || "255", 10);
-        const hex = color.value + alphaValue.toString(16).padStart(2, "0");
-        const rgba = rgbaFromHex(hex);
-        out.value = `[${rgba.join(",")}]`;
-        color.style.backgroundImage = `
-          linear-gradient(135deg, ${color.value} 0%, ${color.value} 50%, ${hex} 50%, ${hex} 100%),
+        const redValue = parseInt(els["red"].value || "255", 10);
+        const greenValue = parseInt(els["green"].value || "255", 10);
+        const blueValue = parseInt(els["blue"].value || "255", 10);
+        const alphaValue = parseInt(els["alpha"].value || "255", 10);
+
+        const rgb =
+          "#" +
+          redValue.toString(16).padStart(2, "0") +
+          greenValue.toString(16).padStart(2, "0") +
+          blueValue.toString(16).padStart(2, "0");
+        const rgba = rgb + alphaValue.toString(16).padStart(2, "0");
+
+        row.style.backgroundImage = `
+          linear-gradient(135deg, ${rgb} 0%, ${rgb} 50%, ${rgba} 50%, ${rgba} 100%),
           url(/assets/images/transparency-grid.jpg)
         `;
-        tagState.values.set(f.id, rgba);
+
+        out.value = `[${redValue},${greenValue},${blueValue},${alphaValue}]`;
+        tagState.values.set(f.id, rgbaFromHex(rgba));
       };
-      inputSynchronizers.set(color, update);
-      inputSynchronizers.set(alpha, update);
-      color.addEventListener("input", () => {
-        update();
-        buildMemory();
-      });
-      alpha.addEventListener("input", () => {
-        update();
-        buildMemory();
-      });
+      for (const el of Object.values(els)) {
+        inputSynchronizers.set(el, update);
+        el.addEventListener("input", () => {
+          update();
+          buildMemory();
+        });
+        row.append(el);
+      }
       update();
-      row.append(color, alpha);
       const box = h("div");
       box.append(row, out);
       return box;
