@@ -599,7 +599,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   );
   const helpDialog = document.getElementById("helpDialog");
 
-  let nfcReadController;
+  let nfcController;
 
   const NFC_INFO = {
     ntag: {
@@ -1118,18 +1118,38 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     if (!("NDEFReader" in window)) {
       throw new Error("Web NFC is not supported in this browser");
     }
+
+    nfcController?.abort();
+    const controller = new AbortController();
+    nfcController = controller;
     showWebNfcDialog("Waiting to write tag...");
+
     const reader = new NDEFReader();
-    await reader.write({
-      records: [
-        {
-          recordType: "mime",
-          mediaType: "{{ site.data.spec.mime_type }}",
-          data: buf,
-        },
-      ],
-    });
-    finishWebNfcAction("Wrote NDEF payload to tag");
+    await reader.scan({ signal: controller.signal });
+    reader.addEventListener(
+      "reading",
+      async (event) => {
+        webNfcDialogMessage.textContent = "Writing to tag...";
+        controller.abort();
+        if (nfcController === controller) nfcController = null;
+        await reader.write(
+          {
+            records: [
+              {
+                recordType: "mime",
+                mediaType: "{{ site.data.spec.mime_type }}",
+                data: buf,
+              },
+            ],
+          },
+          {
+            overwrite: true,
+          },
+        );
+        finishWebNfcAction("Wrote NDEF payload to tag");
+      },
+      { once: true },
+    );
   };
 
   const readViaWebNFC = async () => {
@@ -1137,16 +1157,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       throw new Error("Web NFC is not supported in this browser");
     }
 
-    nfcReadController?.abort();
+    nfcController?.abort();
     const controller = new AbortController();
-    nfcReadController = controller;
+    nfcController = controller;
     showWebNfcDialog("Waiting to read tag...");
 
     const reader = new NDEFReader();
     await reader.scan({ signal: controller.signal });
     reader.addEventListener("reading", (event) => {
+      webNfcDialogMessage.textContent = "Reading tag...";
       controller.abort();
-      if (nfcReadController === controller) nfcReadController = null;
+      if (nfcController === controller) nfcController = null;
       let found = false;
       for (const record of event.message.records) {
         if (
@@ -1168,7 +1189,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     });
     reader.addEventListener("readingerror", () => {
       controller.abort();
-      if (nfcReadController === controller) nfcReadController = null;
+      if (nfcController === controller) nfcController = null;
       finishWebNfcAction(
         "Error reading tag, try again or try another tag",
         true,
@@ -1740,8 +1761,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .getElementById("webNfcDialogClose")
       .addEventListener("click", () => webNfcDialog.close());
     webNfcDialog.addEventListener("close", () => {
-      nfcReadController?.abort();
-      nfcReadController = null;
+      nfcController?.abort();
+      nfcController = null;
     });
 
     document
