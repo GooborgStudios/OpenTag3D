@@ -71,6 +71,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     background: #00000099;
     font-size: 50%;
   }
+  .color-input-row input[data-channel="hex"] {
+    grid-column: 1 / 5;
+  }
   .help {
     font-size: 12px;
     color: var(--muted);
@@ -670,6 +673,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       parseInt(v.slice(6, 8) || "00", 16),
     ];
   };
+  const fixHexRgba = (inputValue) => {
+    let value = inputValue;
+    if (!value.startsWith("#")) {
+      value = "#" + value;
+    }
+    if (value.length < 9) {
+      value = value.padEnd(9, "00");
+    }
+    return value.toUpperCase();
+  };
 
   const bufferFromText = (text) => {
     const bytes = String(text).replace(/\s/g, "");
@@ -794,6 +807,116 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     inputSynchronizers.get(input)?.();
   };
 
+  const renderColorInput = (f, section, commonParams, paramValue) => {
+    const placeholderValue = f.id === "color_1" ? 255 : 0;
+
+    const row = h("div", { class: "row color-input-row" });
+    const els = {};
+
+    let i = 1;
+    for (const channel of ["red", "green", "blue", "alpha"]) {
+      els[channel] = h("input", {
+        ...commonParams,
+        type: "number",
+        id: f.id + "_" + channel.substr(0, 1),
+        min: 0,
+        max: 255,
+        step: 1,
+        value: paramValue
+          ? parseInt(fixHexRgba(paramValue).substr(i, 2), 16)
+          : placeholderValue,
+        placeholder: placeholderValue,
+        "data-channel": channel,
+      });
+      i += 2;
+    }
+
+    const hexInput = h("input", {
+      ...commonParams,
+      type: "text",
+      id: f.id + "_hex",
+      value:
+        paramValue ||
+        "#" +
+          hex(placeholderValue) +
+          hex(placeholderValue) +
+          hex(placeholderValue) +
+          hex(placeholderValue),
+      "data-channel": "hex",
+    });
+
+    const out = h("input", {
+      type: "hidden",
+      id: f.id,
+      "data-section": section,
+      readonly: true,
+    });
+    const updateFromChannels = () => {
+      const redValue = parseInt(els["red"].value || "255", 10);
+      const greenValue = parseInt(els["green"].value || "255", 10);
+      const blueValue = parseInt(els["blue"].value || "255", 10);
+      const alphaValue = parseInt(els["alpha"].value || "255", 10);
+
+      const rgb =
+        "#" +
+        redValue.toString(16).padStart(2, "0") +
+        greenValue.toString(16).padStart(2, "0") +
+        blueValue.toString(16).padStart(2, "0");
+      const rgba = rgb + alphaValue.toString(16).padStart(2, "0");
+
+      row.style.backgroundImage = `
+          linear-gradient(135deg, ${rgb} 0%, ${rgb} 50%, ${rgba} 50%, ${rgba} 100%),
+          url(/assets/images/transparency-grid.jpg)
+        `;
+
+      out.value = `[${redValue},${greenValue},${blueValue},${alphaValue}]`;
+      tagState.values.set(f.id, rgbaFromHex(rgba));
+
+      hexInput.value = rgba.toUpperCase();
+    };
+    const updateFromHex = () => {
+      const value = fixHexRgba(hexInput.value);
+      const rgba = rgbaFromHex(value);
+
+      row.style.backgroundImage = `
+          linear-gradient(135deg, ${value.substr(0, 7)} 0%, ${value.substr(0, 7)} 50%, ${value} 50%, ${value} 100%),
+          url(/assets/images/transparency-grid.jpg)
+        `;
+
+      out.value = String(rgba);
+      tagState.values.set(f.id, rgba);
+
+      els["red"].value = rgba[0];
+      els["green"].value = rgba[1];
+      els["blue"].value = rgba[2];
+      els["alpha"].value = rgba[3];
+    };
+
+    for (const el of Object.values(els)) {
+      inputSynchronizers.set(el, updateFromChannels);
+      el.addEventListener("input", () => {
+        updateFromChannels();
+        buildMemory();
+      });
+      row.append(el);
+    }
+    inputSynchronizers.set(hexInput, updateFromHex);
+    hexInput.addEventListener("input", () => {
+      updateFromHex();
+      buildMemory();
+    });
+    hexInput.addEventListener("focusout", () => {
+      hexInput.value = fixHexRgba(hexInput.value);
+    });
+    updateFromChannels();
+
+    row.append(hexInput);
+    const box = h("div");
+    box.append(row, out);
+
+    return box;
+  };
+
   const renderInputForField = (f, section, includeUrlParams = true) => {
     // Calculate placeholder
     let placeholder = "";
@@ -816,66 +939,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     // Generic by type
     if (f.type === "rgba") {
-      const placeholderValue = f.id === "color_1" ? 255 : 0;
-
-      const row = h("div", { class: "row color-input-row" });
-      const els = {};
-
-      for (const channel of ["red", "green", "blue", "alpha"]) {
-        els[channel] = h("input", {
-          ...commonParams,
-          type: "number",
-          id: f.id + "_" + channel.substr(0, 1),
-          min: 0,
-          max: 255,
-          step: 1,
-          value: paramValue
-            ? parseInt(paramValue.substr(1, 2), 16)
-            : placeholderValue,
-          placeholder: placeholderValue,
-          "data-channel": channel,
-        });
-      }
-
-      const out = h("input", {
-        type: "hidden",
-        id: f.id,
-        "data-section": section,
-        readonly: true,
-      });
-      const update = () => {
-        const redValue = parseInt(els["red"].value || "255", 10);
-        const greenValue = parseInt(els["green"].value || "255", 10);
-        const blueValue = parseInt(els["blue"].value || "255", 10);
-        const alphaValue = parseInt(els["alpha"].value || "255", 10);
-
-        const rgb =
-          "#" +
-          redValue.toString(16).padStart(2, "0") +
-          greenValue.toString(16).padStart(2, "0") +
-          blueValue.toString(16).padStart(2, "0");
-        const rgba = rgb + alphaValue.toString(16).padStart(2, "0");
-
-        row.style.backgroundImage = `
-          linear-gradient(135deg, ${rgb} 0%, ${rgb} 50%, ${rgba} 50%, ${rgba} 100%),
-          url(/assets/images/transparency-grid.jpg)
-        `;
-
-        out.value = `[${redValue},${greenValue},${blueValue},${alphaValue}]`;
-        tagState.values.set(f.id, rgbaFromHex(rgba));
-      };
-      for (const el of Object.values(els)) {
-        inputSynchronizers.set(el, update);
-        el.addEventListener("input", () => {
-          update();
-          buildMemory();
-        });
-        row.append(el);
-      }
-      update();
-      const box = h("div");
-      box.append(row, out);
-      return box;
+      return renderColorInput(f, section, commonParams, paramValue);
     }
     if (f.type === "int") {
       const scale = f.scaling || 1;
