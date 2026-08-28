@@ -186,6 +186,7 @@ These are topics that were heavily discussed during the development of OpenTag3D
   - Made all fields (except for `opentag_version`) in the web API optional
 - 1.002
   - Adjusted tag placement guidelines to allow more flexibility
+  - Updated a few IDs for spec fields for better consistency
 - 1.001
   - Add `has_ui` field to web API
 - 1.000
