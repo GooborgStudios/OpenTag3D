@@ -36,6 +36,7 @@ These are companies that are implementing OpenTag3D into their printers, filamen
 <!-- prettier-ignore-start -->
 
 {%- assign cats = site.data.supporters.categories -%}
+{%- assign implstages = site.data.supporters.implstages -%}
 {%- assign all = site.data.supporters.supporters -%}
 {%- assign category_order = "filament,hardware,software" | split: "," -%}
 
@@ -47,7 +48,7 @@ These are companies that are implementing OpenTag3D into their printers, filamen
     <li>{{ label }}
       <ul>
         {%- for s in items -%}
-          <li><a href="{{ s.url }}">{{ s.name }}</a> (Supporter Since {{ s.since }})</li>
+          <li><a href="{{ s.url }}">{{ s.name }}</a> (Supporter Since {{ s.since }}{%- if s.implstage and s.implstage != "unknown" -%}, Status: {{implstages[s.implstage]}}{%- endif -%})</li>
         {%- endfor -%}
       </ul>
     </li>
