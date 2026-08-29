@@ -882,8 +882,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     let placeholder = "";
     const firstExample = f.examples?.[0];
     if (firstExample) {
-      placeholder =
-        f.type === "int" ? firstExample * (f.scaling || 1) : firstExample;
+      if (f.type === "int") {
+        placeholder = firstExample * (f.scaling || 1);
+      } else if (f.type === "rgba") {
+        console.log(firstExample);
+        placeholder =
+          "#" +
+          firstExample
+            .map((x) => x.toString(16).toUpperCase().padStart(2, "0"))
+            .join("");
+      } else {
+        placeholder = firstExample;
+      }
     }
 
     const paramValue = includeUrlParams ? urlParams.get(f.id) || "" : "";
