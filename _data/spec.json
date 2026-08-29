@@ -52,7 +52,7 @@
         "start": "0x1B",
         "length": 16,
         "usage": "display",
-        "examples": ["Polar Filament"],
+        "examples": ["Example Brand", "Polar Filament"],
         "required": true,
         "description": "Name of filament manufacturer. Long names should be abbreviated or truncated."
       },
@@ -65,7 +65,7 @@
         "start": "0x2B",
         "length": 32,
         "usage": "display",
-        "examples": ["White", "Blue", "Electric Watermelon"],
+        "examples": ["Orange", "White", "Blue", "Electric Watermelon"],
         "description": "Color in plain text."
       },
       {
