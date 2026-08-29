@@ -1640,18 +1640,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
           setVal(f.id, s);
         } else if (f.type === "rgba") {
           const [r = 0, g = 0, b = 0, a = 255] = bytes;
-          const color = document.getElementById(f.id + "_rgb");
+          const color = document.getElementById(f.id);
           if (color) {
             setInputValue(
               color,
               "#" +
-                [r, g, b]
+                [r, g, b, a]
                   .map((x) => x.toString(16).toUpperCase().padStart(2, "0"))
                   .join(""),
             );
           }
-          const alpha = document.getElementById(f.id + "_a");
-          setInputValue(alpha, a);
         } else if (f.type === "int") {
           const n = readInt(bytes);
 
