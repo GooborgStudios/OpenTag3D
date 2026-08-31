@@ -6,30 +6,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
 <style>
   :root {
-    --card: #131822;
+    --menu: #131822;
     --muted: #a9b5c9;
     --error: #ff6b6b;
+    --input: #1e232e;
     --input-border: #1e2a3a;
     --accent: #7aa2ff;
     --line: #1f2733;
   }
   * {
     box-sizing: border-box;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.25);
-    padding: 16px;
-    overflow: hidden;
-  }
-  .card h2 {
-    margin: 0;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--line);
-    font-size: 16px;
-    color: #cfe0ff;
   }
   label {
     display: block;
@@ -43,7 +29,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     width: 100%;
     padding: 10px 12px;
     border-radius: 12px;
-    background: #0e1420;
+    background: var(--input);
     border: 1px solid var(--input-border);
     outline: none;
     transition: border-color 0.2s;
@@ -105,6 +91,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     align-items: center;
     flex-wrap: wrap;
   }
+  .flex > div {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
   .muted {
     color: var(--muted);
   }
@@ -116,6 +108,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   .scroll {
     max-height: 420px;
     overflow: auto;
+  }
+  .section {
+    margin-bottom: 2em;
+  }
+  summary.btn {
+    padding: 0.35em 1em;
   }
   pre {
     margin: 0;
@@ -135,18 +133,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   th {
     position: sticky;
     top: 0;
-    background: #0e1420;
+    background: var(--input);
   }
   .field-row {
-    border: 1px dashed #243049;
+    border: 1px dashed rgba(0, 0, 0, 0);
     padding: 10px;
     border-radius: 8px;
     transition: border-color 0.2s;
   }
   .chip {
     display: inline-block;
-    background: #0f1a2b;
-    border: 1px solid #22304a;
+    border: 1px solid #333;
     border-radius: 8px;
     padding: 2px 6px;
     font-size: 12px;
@@ -183,7 +180,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     gap: 4px;
     min-width: 240px;
     padding: 6px;
-    background: var(--card);
+    background: var(--menu);
     border: 1px solid var(--line);
     border-radius: 8px;
     box-shadow: 0 0px 10px rgba(0, 0, 0, 0.35);
@@ -251,7 +248,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     padding: 0;
     border: 1px solid var(--line);
     border-radius: 8px;
-    background: var(--card);
+    background: var(--menu);
     color: #dce9ff;
     box-shadow:
       0 0 32px rgba(64, 144, 255, 0.2),
@@ -346,8 +343,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 <div id="messages" aria-live="polite"></div>
 
 <main>
-  <div id="controls" class="flex">
-    <details class="btn-menu">
+  <div id="controls" class="flex-inner">
+    <details class="btn-menu" role="button">
       <summary class="btn btn--warning">Read / Import</summary>
       <div class="btn-menu__panel">
         <button class="btn" id="readWebNFC" disabled>Read via Web NFC</button>
@@ -355,7 +352,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         <button class="btn" id="loadClipboardBtn">Load from Clipboard</button>
       </div>
     </details>
-    <details class="btn-menu">
+    <details class="btn-menu" role="button">
       <summary class="btn btn--warning">Write / Export</summary>
       <div class="btn-menu__panel">
         <button class="btn" id="writeWebNFC" disabled>Write via Web NFC</button>
@@ -378,6 +375,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         <button class="btn" id="copyLink">Copy Share Link</button>
       </div>
     </details>
+    <details class="btn-menu" role="button">
+      <summary class="btn btn--info">Fill Examples</summary>
+      <div class="btn-menu__panel">
+        <button class="btn btn--info" id="exampleBtn">
+          Fill Examples (Core Only)
+        </button>
+        <button class="btn btn--info" id="allExampleBtn">
+          Fill Examples (All Data)
+        </button>
+      </div>
+    </details>
+    <button class="btn btn--danger" id="resetBtn">Reset</button>
     <button class="btn btn--info" id="helpButton">Help</button>
     <input
       type="file"
@@ -392,23 +401,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   </details>
   <br />
 
-  <section class="card">
-    <div class="pad">
-      <div class="flex">
-        <button class="btn btn--danger" id="resetBtn">Reset form</button>
-        <button class="btn btn--info" id="exampleBtn">
-          Fill placeholders (core only)
-        </button>
-        <button class="btn btn--info" id="allExampleBtn">
-          Fill placeholders (all data)
-        </button>
-      </div>
-      <div class="divider"></div>
-      <div id="formHost">
-        <!-- Dynamic form renders here -->
-      </div>
-    </div>
-  </section>
+  <div id="formHost">
+    <!-- Dynamic form renders here -->
+  </div>
+
+  <br />
 
   <p style="font-size: 50%; opacity: 0.5; text-align: center">
     Unfortunately, this tool was written primarily using AI to expedite the
@@ -457,18 +454,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       app, we recommend using <strong>Web NFC</strong> to read and write your
       tags.
     </p>
-    <div class="flex">
-      <button class="btn" id="nfcToolsMobileWarningDialogClose" type="button">
-        Cancel
-      </button>
-      <button
-        class="btn btn--warning"
-        id="nfcToolsMobileWarningDialogContinue"
-        type="button"
-      >
-        Download anyway
-      </button>
-    </div>
+    <button class="btn" id="nfcToolsMobileWarningDialogClose" type="button">
+      Cancel
+    </button>
+    <button
+      class="btn btn--warning"
+      id="nfcToolsMobileWarningDialogContinue"
+      type="button"
+    >
+      Download anyway
+    </button>
   </div>
 </dialog>
 
@@ -491,18 +486,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       using another device, such as a <strong>Proxmark3</strong> or
       <strong>Android device</strong>, in the meantime.
     </p>
-    <div class="flex">
-      <button class="btn" id="flipperZeroWarningDialogClose" type="button">
-        Cancel
-      </button>
-      <button
-        class="btn btn--warning"
-        id="flipperZeroWarningDialogContinue"
-        type="button"
-      >
-        Download anyway
-      </button>
-    </div>
+    <button class="btn" id="flipperZeroWarningDialogClose" type="button">
+      Cancel
+    </button>
+    <button
+      class="btn btn--warning"
+      id="flipperZeroWarningDialogContinue"
+      type="button"
+    >
+      Download anyway
+    </button>
   </div>
 </dialog>
 
@@ -577,9 +570,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       This happens even with profiles exported by the app itself, so it is
       something that Wakdev must fix.
     </p>
-    <div class="flex">
-      <button class="btn" id="helpDialogClose" type="button">Close</button>
-    </div>
+    <button class="btn" id="helpDialogClose" type="button">Close</button>
   </div>
 </dialog>
 
@@ -846,8 +837,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     for (const sec of sections) {
       const def = SPEC[sec.id];
       if (!def) continue;
-      const box = h("div", { class: `grid section-${sec.id}` });
-      host.append(h("h3", { class: `muted section-${sec.id}` }, sec.title));
+      const box = h("div", { class: `section section-${sec.id}` });
+      box.append(h("h3", { class: `muted section-${sec.id}` }, sec.title));
+      const fields = h("div", { class: `grid section-${sec.id}` });
       for (const f of def.fields) {
         if (f.id === "tag_version") continue;
         const row = h("div", {
@@ -876,8 +868,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         if (f.description) {
           row.append(h("div", { class: "help" }, f.description));
         }
-        box.append(row);
+        fields.append(row);
       }
+      box.append(fields);
       host.append(box);
     }
   };
