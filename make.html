@@ -9,6 +9,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     --card: #131822;
     --muted: #a9b5c9;
     --error: #ff6b6b;
+    --input-border: #1e2a3a;
     --accent: #7aa2ff;
     --line: #1f2733;
   }
@@ -18,8 +19,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   .card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.25);
     padding: 16px;
     overflow: hidden;
   }
@@ -43,14 +44,19 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     padding: 10px 12px;
     border-radius: 12px;
     background: #0e1420;
-    border: 1px solid #1e2a3a;
+    border: 1px solid var(--input-border);
     outline: none;
+    transition: border-color 0.2s;
+  }
+  input:hover,
+  select:hover,
+  textarea:hover {
+    border-color: color-mix(in srgb, var(--input-border), var(--accent));
   }
   input:focus,
   select:focus,
   textarea:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(122, 162, 255, 0.15);
   }
   input[data-unit="RGBA"] {
     background-size: cover;
@@ -134,7 +140,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   .field-row {
     border: 1px dashed #243049;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 8px;
     transition: border-color 0.2s;
   }
   .chip {
@@ -179,8 +185,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     padding: 6px;
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    border-radius: 8px;
+    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.35);
     opacity: 0;
     transform: translateY(-6px) scale(0.97);
     pointer-events: none;
@@ -216,7 +222,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     background: #10233b;
     box-shadow:
       0 0 20px rgba(64, 144, 255, 0.22),
-      0 12px 28px rgba(0, 0, 0, 0.3);
+      0 0px 28px rgba(0, 0, 0, 0.3);
     color: #dce9ff;
     font-size: 14px;
     line-height: 1.4;
@@ -238,7 +244,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     color: #ffdce0;
     box-shadow:
       0 0 20px rgba(255, 87, 106, 0.24),
-      0 12px 28px rgba(0, 0, 0, 0.3);
+      0 0px 28px rgba(0, 0, 0, 0.3);
   }
   .app-dialog {
     width: min(26rem, calc(100vw - 2rem));
@@ -249,7 +255,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     color: #dce9ff;
     box-shadow:
       0 0 32px rgba(64, 144, 255, 0.2),
-      0 18px 48px rgba(0, 0, 0, 0.45);
+      0 0px 48px rgba(0, 0, 0, 0.45);
     opacity: 0;
     transform: translateY(12px);
     transition:
