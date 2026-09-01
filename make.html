@@ -610,17 +610,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       ndefPage: 4,
       dummyUid: [0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
       types: {
-        ntag213: {
-          type: "NTAG213",
-          pageCount: 45,
-          userMemoryLength: 0x12 * 8,
-          cc: [0xe1, 0x10, 0x12, 0x00],
-        },
         ntag215: {
           type: "NTAG215",
           pageCount: 135,
           userMemoryLength: 0x3e * 8,
           cc: [0xe1, 0x10, 0x3e, 0x00],
+        },
+        ntag216: {
+          type: "NTAG216",
+          pageCount: 231,
+          userMemoryLength: 0x6d * 8,
+          cc: [0xe1, 0x10, 0x6d, 0x00],
         },
       },
     },
@@ -1200,9 +1200,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     const totalNdefLength =
       ndefLength + NFC_INFO.ndef.extendedTlvPrefixLength + 1;
     const tag =
-      totalNdefLength <= NFC_INFO.ntag.types.ntag213.userMemoryLength
-        ? NFC_INFO.ntag.types.ntag213
-        : NFC_INFO.ntag.types.ntag215;
+      totalNdefLength <= NFC_INFO.ntag.types.ntag215.userMemoryLength
+        ? NFC_INFO.ntag.types.ntag215
+        : NFC_INFO.ntag.types.ntag216;
     if (payload.length > 0xff || totalNdefLength > tag.userMemoryLength) {
       throw new Error("OpenTag3D data does not fit in an NTAG NDEF record");
     }
