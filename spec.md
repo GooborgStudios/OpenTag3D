@@ -62,10 +62,19 @@ The data is designed to fit within the 504 bytes of writable space on the NTAG21
 
 ### Web API Standard
 
-Sometimes a filament manufacturer may want to include supplemental data for advanced users that doesn't fit or otherwise cannot be stored on the RFID tag itself. One example is a diameter graph, which is too much data to be stored within only 888 bytes of memory. OpenTag3D defines a field for a "web API" URL which can be used to look up this information.
+> [!IMPORTANT]
+> OpenTag3D is designed to work entirely offline. The Web API is optional and may only provide supplemental information; no operational data may be stored exclusively in the Web API. All data required to use the material must remain available on the tag.
 
-> [!NOTE]
-> The web API will **NEVER** be used for critical information required by printers in order to print the material properly. It will **ONLY** be used for advanced supplemental data, or data that requires an internet connection to utilize.
+The Web API complements the data stored on the tag in two ways:
+
+1. **Provide additional resources.** The API can provide assets, data, and links that cannot fit on the tag itself, including:
+   - Product photos
+   - Slicer print profiles
+   - Purchase links and current prices
+   - Advanced manufacturing data, such as diameter and ovality graphs
+2. **Keep tag data up to date.** The API can provide an online copy of the data stored on the tag. A reader can compare the two sources and update the tag when the manufacturer:
+   - Changes its recommended settings
+   - Adds specification data for parameters that were previously left blank
 
 The "Online Data URL" field should be populated with the URL that responds with the web API data. The URL must return JSON data when the `Accept` HTTP header is set to `application/json`. Implementers are welcome to create a user-friendly UI if the `Accept` header is set to anything else, but it _must_ return JSON format if the client calls for it.
 
