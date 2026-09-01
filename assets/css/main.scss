@@ -22,6 +22,12 @@ $sans-serif:
 
 /* Custom CSS */
 
+:root {
+  --primary-color: $primary-color;
+  --input: #1e232e;
+  --input-border: #1e2a3a;
+}
+
 .mono {
   font-family: $monospace;
 }
@@ -69,6 +75,22 @@ $sans-serif:
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+select,
+input {
+  background-color: #111;
+}
+
+input,
+select,
+textarea {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--input);
+  border: 1px solid var(--input-border);
+  outline: none;
+  transition: border-color 0.2s;
 }
 
 /* GFM Alerts */

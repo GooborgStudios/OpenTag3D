@@ -4,13 +4,114 @@ layout: single
 description: Visualize the memory mapping.
 ---
 
-<section
-  aria-labelledby="opentag3d-memory-map-title"
-  data-opentag3d-memory-map
-  data-default-tag="NTAG215"
-  data-spec-url="spec.json"
->
-  <h2 id="opentag3d-memory-map-title">OpenTag3D RFID Memory Map</h2>
+<style>
+  [data-opentag3d-memory-map] [data-memory-map-output] {
+    overflow-x: auto;
+  }
+
+  .opentag3d-memory-map-table {
+    border-collapse: collapse;
+    width: auto;
+    table-layout: auto;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+  }
+
+  .opentag3d-memory-map-table caption {
+    caption-side: top;
+    text-align: left;
+    font-weight: bold;
+    padding-bottom: 6px;
+  }
+
+  .opentag3d-memory-map-table th,
+  .opentag3d-memory-map-table td {
+    padding: 4px 6px;
+  }
+
+  .opentag3d-memory-map-table th {
+    white-space: nowrap;
+  }
+
+  .opentag3d-memory-map-metadata {
+    color: #9eb6d8;
+    background: transparent;
+  }
+
+  .opentag3d-memory-map-address,
+  .opentag3d-memory-map-field {
+    text-align: center;
+  }
+
+  .opentag3d-memory-map-field {
+    max-width: 105px;
+    overflow-wrap: anywhere;
+    background: transparent;
+    color: #ffffff;
+  }
+
+  .opentag3d-memory-map-field--span-2 {
+    max-width: 210px;
+  }
+
+  .opentag3d-memory-map-field--span-3 {
+    max-width: 315px;
+  }
+
+  .opentag3d-memory-map-field--span-4 {
+    max-width: 420px;
+  }
+
+  .opentag3d-memory-map-field--boundary {
+    border-left: 4px solid #475569;
+  }
+
+  .opentag3d-memory-map-field--teal {
+    background: #41afaa;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--blue {
+    background: #466eb4;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--cyan {
+    background: #00a0e1;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--yellow {
+    background: #e6a532;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--orange {
+    background: #d7642c;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--magenta {
+    background: #af4b91;
+    color: #111827;
+  }
+
+  .opentag3d-memory-map-field--system {
+    background: #475569;
+  }
+  .opentag3d-memory-map-field--ndef {
+    background: #3d3d3d;
+  }
+
+  [data-memory-map-overlaps] {
+    background: #fee2e2;
+    border: 2px solid #b91c1c;
+    color: #7f1d1d;
+    margin: 8px 0;
+    padding: 8px 12px;
+  }
+
+  fieldset label input {
+    display: inline;
+  }
+</style>
+
+<section data-opentag3d-memory-map>
   <p>
     This table shows one tag format at a time. Choose a tag to view its physical
     memory, NDEF record, OpenTag3D fields, and reserved areas.
@@ -18,7 +119,7 @@ description: Visualize the memory mapping.
 
   <label for="opentag3d-memory-map-tag"><strong>Tag type:</strong></label>
   <select id="opentag3d-memory-map-tag" data-memory-map-tag>
-    <option value="NTAG215">NTAG215 (Core)</option>
+    <option value="NTAG215" selected>NTAG215 (Core)</option>
     <option value="NTAG216">NTAG216 (Extended)</option>
   </select>
 
@@ -38,27 +139,11 @@ description: Visualize the memory mapping.
     >
   </fieldset>
 
-  <p>
-    <label for="opentag3d-memory-map-spec"
-      ><strong>Specification file:</strong></label
-    >
-    <input
-      id="opentag3d-memory-map-spec"
-      type="file"
-      accept=".json,application/json"
-      data-memory-map-spec-file
-    />
-    <button type="button" data-memory-map-spec-reset disabled>
-      Use default spec</button
-    ><br />
-    <small>Leave blank to use the bundled OpenTag3D specification.</small>
-  </p>
-
   <p data-memory-map-status role="status" aria-live="polite">
     Loading memory map…
   </p>
   <div data-memory-map-overlaps role="alert" aria-live="polite" hidden></div>
-  <div data-memory-map-output style="overflow-x: auto"></div>
+  <div data-memory-map-output></div>
 
   <noscript>JavaScript is required to build the OpenTag3D memory map.</noscript>
 </section>
@@ -100,22 +185,24 @@ description: Visualize the memory mapping.
 
     const COLORS = {
       system: "#475569",
-      ndef: "#e5e7eb",
+      ndef: "#3d3d3d",
       reserved: "transparent",
       control: "#475569",
       unused: "transparent",
       metadata: "transparent",
     };
 
-    const LIGHT_TEXT_BACKGROUNDS = new Set(["#466eb4", "#af4b91", "#475569"]);
-
-    function textColor(background) {
-      return background == "transparent"
-        ? "#ffffff"
-        : LIGHT_TEXT_BACKGROUNDS.has(background.toLowerCase())
-          ? "#000000"
-          : "#111827";
-    }
+    const FIELD_COLOR_CLASSES = {
+      "#41afaa": "opentag3d-memory-map-field--teal",
+      "#466eb4": "opentag3d-memory-map-field--blue",
+      "#00a0e1": "opentag3d-memory-map-field--cyan",
+      "#e6a532": "opentag3d-memory-map-field--yellow",
+      "#d7642c": "opentag3d-memory-map-field--orange",
+      "#af4b91": "opentag3d-memory-map-field--magenta",
+      "#475569": "opentag3d-memory-map-field--system",
+      "#3d3d3d": "opentag3d-memory-map-field--ndef",
+      transparent: "opentag3d-memory-map-field--transparent",
+    };
 
     let cachedSpecPromise = null;
 
@@ -778,18 +865,10 @@ description: Visualize the memory mapping.
       table.setAttribute("border", "1");
       table.setAttribute("cellpadding", "4");
       table.setAttribute("cellspacing", "0");
-      table.style.borderCollapse = "collapse";
-      table.style.width = "auto";
-      table.style.tableLayout = "auto";
-      table.style.fontFamily = "system-ui, sans-serif";
-      table.style.fontSize = "13px";
+      table.className = "opentag3d-memory-map-table";
 
       const caption = document.createElement("caption");
       caption.textContent = `${model.tag.name} ${model.tag.format} memory map`;
-      caption.style.captionSide = "top";
-      caption.style.textAlign = "left";
-      caption.style.fontWeight = "bold";
-      caption.style.paddingBottom = "6px";
       table.append(caption);
 
       const header = table.createTHead().insertRow();
@@ -808,11 +887,8 @@ description: Visualize the memory mapping.
         const cell = document.createElement("th");
         cell.scope = "col";
         cell.textContent = label;
-        cell.style.padding = "4px 6px";
-        cell.style.whiteSpace = "nowrap";
         if (index === 0) {
-          cell.style.color = "#64748b";
-          cell.style.background = COLORS.metadata;
+          cell.classList.add("opentag3d-memory-map-metadata");
         }
         header.append(cell);
       });
@@ -824,10 +900,7 @@ description: Visualize the memory mapping.
         if (model.displayOptions.showRawMemoryAddresses) {
           const rawCell = document.createElement("th");
           rawCell.scope = "row";
-          rawCell.style.color = "#64748b";
-          rawCell.style.background = COLORS.metadata;
-          rawCell.style.whiteSpace = "nowrap";
-          rawCell.style.padding = "4px 6px";
+          rawCell.className = "opentag3d-memory-map-metadata";
           const rawCode = document.createElement("code");
           rawCode.textContent = `0x${hex(row.rawStart)}-0x${hex(row.rawEnd)}`;
           rawCell.append(rawCode, document.createElement("br"));
@@ -838,9 +911,7 @@ description: Visualize the memory mapping.
         }
 
         const addressCell = tableRow.insertCell();
-        addressCell.style.textAlign = "center";
-        addressCell.style.whiteSpace = "nowrap";
-        addressCell.style.padding = "4px 6px";
+        addressCell.className = "opentag3d-memory-map-address";
         row.addresses.forEach((address) =>
           appendAddressLine(addressCell, address),
         );
@@ -849,22 +920,19 @@ description: Visualize the memory mapping.
           const fieldCell = tableRow.insertCell();
           fieldCell.colSpan = field.span;
           fieldCell.textContent = `${field.continued ? "(Cont.) " : ""}${field.name}`;
-          fieldCell.style.background = field.color;
-          fieldCell.style.color = textColor(field.color);
-          fieldCell.style.textAlign = "center";
-          fieldCell.style.padding = "4px 6px";
-          fieldCell.style.maxWidth = `${Math.max(105, field.span * 105)}px`;
-          fieldCell.style.overflowWrap = "anywhere";
+          fieldCell.classList.add(
+            "opentag3d-memory-map-field",
+            FIELD_COLOR_CLASSES[field.color],
+            `opentag3d-memory-map-field--span-${field.span}`,
+          );
           if (field.rangeBoundary) {
-            fieldCell.style.borderLeft = "4px solid #475569";
+            fieldCell.classList.add("opentag3d-memory-map-field--boundary");
             fieldCell.title = `OpenTag3D ${field.rangeBoundary} range begins here`;
           }
         });
 
         const typeCell = tableRow.insertCell();
-        typeCell.style.background = COLORS.metadata;
-        typeCell.style.padding = "4px 6px";
-        typeCell.style.whiteSpace = "nowrap";
+        typeCell.className = "opentag3d-memory-map-metadata";
         typeCell.append(document.createTextNode(row.memoryType.label));
         row.memoryType.details.forEach((detail) => {
           typeCell.append(document.createElement("br"));
@@ -894,12 +962,6 @@ description: Visualize the memory mapping.
       if (!overlaps.length) {
         return;
       }
-
-      container.style.background = "#fee2e2";
-      container.style.border = "2px solid #b91c1c";
-      container.style.color = "#7f1d1d";
-      container.style.margin = "8px 0";
-      container.style.padding = "8px 12px";
 
       const heading = document.createElement("strong");
       heading.textContent = `Memory address overlap${overlaps.length === 1 ? "" : "s"} detected`;
@@ -982,9 +1044,7 @@ description: Visualize the memory mapping.
           const specUrl = widget.dataset.specUrl || "spec.json";
 
           const update = async () => {
-            const tagType = selector
-              ? selector.value
-              : widget.dataset.defaultTag || "NTAG215";
+            const tagType = selector ? selector.value : "NTAG215";
             if (ndefHeaderInput) {
               if (systemMemoryInput?.checked) {
                 ndefHeaderInput.checked = true;
