@@ -142,9 +142,9 @@
         "name": "Barcode",
         "id": "barcode",
         "added": "2.000",
-        "type": "utf8",
+        "type": "int",
         "start": "0x7C",
-        "length": 16,
+        "length": 6,
         "usage": "inventory",
         "description": "The barcode number for the spool. This can be UPC12, UPC13, GS1/GTIN. (Recommended: UPC13)"
       },
