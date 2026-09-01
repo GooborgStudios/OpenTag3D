@@ -11,7 +11,7 @@ header:
   actions:
     - label: "View Spec"
       url: "/spec"
-  announcement: "OpenTag3D has reached a stable point and is now at v1.0!"
+  announcement: "[OpenTag3D v2.0](./articles/v2-already) is on its way soon!"
   caption: "Placeholder Background by [**morgaannn23**](https://wallpapercave.com/w/wp6945227)"
 excerpt: "An open source standard for 3D printer filament RFID tags. Designed from the ground up for compatibility between printers, filament manufacturers, and accessories, implementation is simple and low-cost."
 intro:
