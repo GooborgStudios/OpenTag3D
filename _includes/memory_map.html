@@ -106,14 +106,14 @@
 </style>
 
 <section data-opentag3d-memory-map>
-  <div class="memory-map-options">
-    <label for="opentag3d-memory-map-tag"><strong>Tag type:</strong></label>
-    <select id="opentag3d-memory-map-tag" data-memory-map-tag>
-      <option value="NTAG213" selected>NTAG213 (Core)</option>
-      <option value="NTAG215">NTAG215 (Extended)</option>
-      <option value="NTAG216">NTAG216 (Extended)</option>
-    </select>
+  <label for="opentag3d-memory-map-tag"><strong>Tag type:</strong></label>
+  <select id="opentag3d-memory-map-tag" data-memory-map-tag>
+    <option value="NTAG215" selected>NTAG215</option>
+    <option value="NTAG216">NTAG216</option>
+  </select>
 
+  <fieldset class="memory-map-options">
+    <legend>Display options</legend>
     <label
       ><input type="checkbox" data-memory-map-option="showRawMemoryAddresses" />
       Show raw memory addresses</label
@@ -150,21 +150,10 @@
     "use strict";
 
     const TAGS = {
-      NTAG213: {
-        name: "NTAG213",
-        format: "Core",
-        sections: ["core"],
-        lastPage: 0x2c,
-        userStartPage: 0x04,
-        userEndPage: 0x27,
-        dynamicLockPage: 0x28,
-        configStartPage: 0x29,
-        ndefCapacity: 144,
-      },
       NTAG215: {
         name: "NTAG215",
-        format: "Extended",
-        sections: ["core", "extended"],
+        format: "Core",
+        sections: ["core"],
         lastPage: 0x86,
         userStartPage: 0x04,
         userEndPage: 0x81,
@@ -175,7 +164,7 @@
       NTAG216: {
         name: "NTAG216",
         format: "Extended",
-        sections: ["core", "extended"],
+        sections: ["core"],
         lastPage: 0xe6,
         userStartPage: 0x04,
         userEndPage: 0xe1,
@@ -1065,7 +1054,7 @@
                 const overlapStatus = model.overlaps.length
                   ? ` ${model.overlaps.length} overlap${model.overlaps.length === 1 ? "" : "s"} detected.`
                   : "";
-                status.textContent = `${model.tag.name} ${model.tag.format}: ${model.payloadLength} payload bytes; ${specSource}.${overlapStatus}`;
+                status.textContent = `${model.tag.name}: ${model.payloadLength} payload bytes; ${specSource}.${overlapStatus}`;
               }
             } catch (error) {
               if (status) {
