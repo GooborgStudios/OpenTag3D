@@ -1018,6 +1018,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
   const encodeFieldValue = (field, value) => {
     if (field.type === "int" && field.id === "tag_version") {
+      // Handle alpha versions
+      if (SPEC.version.startsWith("a")) {
+        return packInt(0, field.length);
+      }
       const version =
         value ?? Math.round(parseFloat(SPEC.version || "0") * 1000);
       return packInt(version, field.length);

@@ -11,29 +11,25 @@ Current Version: {{ site.data.spec.version }}
 
 ## Hardware Standard
 
-The OpenTag3D standard is designed to work on any NFC tag that is compliant with the ISO/IEC 14443 Type A communication protocol, is compatible with NDEF Type 2, and has at least 144 bytes of writable capacity. These kinds of tags are plentiful and can be read and written with smartphones and PN532 modules, making them low-cost and easy to integrate.
+The OpenTag3D standard is designed to work on any NFC tag that is compliant with the ISO/IEC 14443 Type A communication protocol, is compatible with NDEF Type 2, and has at least 504 bytes of writable capacity. These kinds of tags are plentiful and can be read and written with smartphones and PN532 modules, making them low-cost and easy to integrate.
 
-In particular, the standard is tailored towards the NTAG213/215/216 13.56MHz NFC chips. These tags are cheap and common, and have plenty of space to store all of the required and optional information. SLIX2 tags were later added as a compliant option.
+In particular, the standard is tailored towards the NTAG215 13.56MHz NFC chips. These tags are cheap and common, and have plenty of space to store all of the required and optional information.
 
-| Tag Type | Capacity  | Usable Capacity | Compatibility   |
-| -------- | --------- | --------------- | --------------- |
-| NTAG213  | 144 bytes | 111 bytes       | Core            |
-| SLIX2    | 320 bytes | 287 bytes       | Core + Extended |
-| NTAG215  | 504 bytes | 471 bytes       | Core + Extended |
-| NTAG216  | 888 bytes | 835 bytes       | Core + Extended |
+| Tag Type | Capacity  | Usable Capacity | Compatibility |
+| -------- | --------- | --------------- | ------------- |
+| NTAG215  | 504 bytes | 471 bytes       | Core          |
+| NTAG216  | 888 bytes | 835 bytes       | Core          |
 
 <img src="./assets/images/ntag-sticker.jpg" width="200">
 
 ### NTAG vs. MIFARE 1K Classic
 
-NFC NTAG213/215/216 was chosen over MIFARE 1K Classic tags, which is what the Bambu Lab AMS uses, for the following reasons:
+The NTAG215 tags were chosen over MIFARE 1K Classic tags, which is what the Bambu Lab AMS uses, for the following reasons:
 
-- Smartphone Support: NTAG213/215/216 can be read from smartphones, while MF1K requires a dedicated reader
+- Cheap and Easy to Source: NTAG215 tags are readily available at a low cost through any online retailer
+- Smartphone Support: NTAG215 tags can be read from smartphones, while MF1K requires a dedicated reader
 - Backwards Compatible: The RFID hardware used for reading MF1K tags typically supports NTAG tags as well
 - Non-Encrypted: MF1K uses 25% of its memory to encrypt the data, which is unsuitable for an open source standard
-
-> [!NOTE]
-> Originally, the NTAG216 was specifically selected as it had more usable memory (888 bytes) than the MF1K (768 bytes). However, it was later determined that the core data required for functionality could be stored within 144 bytes, and extra data could be stored within at little as 320 bytes. So, the NTAG213, SLIX2 and NTAG215 were added as cheaper spec-compliant options.
 
 ## Mechanical Standard
 
@@ -158,7 +154,7 @@ OpenTag3D has both full-size and small logos available:
 These are topics that were heavily discussed during the development of OpenTag3D. Below is a quick summary of each topic, and why we decided to settle on the standards we defined.
 
 - NTAG vs MIFARE 1K Classic
-  - NTAG213/215/216 and SLIX2 tags are easy to source
+  - NTAG215 tags are easy to source
   - NTAG216 has slightly more usable memory than MIFARE tags
     - This was later determined to not be important, as the core data could be fit within significantly less capacity
   - MIFARE 1K Classic uses about 25% of memory to encrypt data, preventing read/write operations, which is not applicable for OpenTag3D because of the open-source nature
@@ -167,8 +163,8 @@ These are topics that were heavily discussed during the development of OpenTag3D
 - JSON vs Memory Map
   - Formats such as JSON (human-readable text) take up considerably more memory than memory mapped
     - For example, defining something like Printing Temperature would be `PrintTemp:225` which is 13 bytes, instead of storing a memory mapped 2-byte number. Tokens could be reduced, but that also defeats the purpose of using JSON in the first place, which is often for readability
-  - NTAG216 tags only have 888 bytes of usable memory, and NTAG213 tags only have 144 bytes, which would be eaten up quickly
-    - With memory mapping, the core data was able to easily fit in 144 bytes
+  - NTAG215 tags only have 504 bytes of usable memory, which would be eaten up quickly
+    - With memory mapping, the essential data was able to easily fit in 144 bytes
 - Lookup Tables
   - OpenTag3D does NOT use lookup tables, which would be too difficult to maintain due to the decentralized nature of this standard
   - Lookup tables can quickly become outdated, which would require regular updates to tag readers to make sure they've downloaded the most recent table
