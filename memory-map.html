@@ -119,7 +119,8 @@ description: Visualize the memory mapping.
 
   <label for="opentag3d-memory-map-tag"><strong>Tag type:</strong></label>
   <select id="opentag3d-memory-map-tag" data-memory-map-tag>
-    <option value="NTAG215" selected>NTAG215 (Core)</option>
+    <option value="NTAG213" selected>NTAG213 (Core)</option>
+    <option value="NTAG215">NTAG215 (Extended)</option>
     <option value="NTAG216">NTAG216 (Extended)</option>
   </select>
 
@@ -161,9 +162,21 @@ description: Visualize the memory mapping.
     "use strict";
 
     const TAGS = {
+      NTAG213: {
+        name: "NTAG213",
+        format: "Core",
+        sections: ["core"],
+        lastPage: 0x2c,
+        userStartPage: 0x04,
+        userEndPage: 0x27,
+        dynamicLockPage: 0x28,
+        configStartPage: 0x29,
+        ndefCapacity: 144,
+      },
       NTAG215: {
         name: "NTAG215",
-        format: "Core",
+        format: "Extended",
+        sections: ["core", "extended"],
         lastPage: 0x86,
         userStartPage: 0x04,
         userEndPage: 0x81,
@@ -174,6 +187,7 @@ description: Visualize the memory mapping.
       NTAG216: {
         name: "NTAG216",
         format: "Extended",
+        sections: ["core", "extended"],
         lastPage: 0xe6,
         userStartPage: 0x04,
         userEndPage: 0xe1,
@@ -227,7 +241,9 @@ description: Visualize the memory mapping.
     function normalizeTagType(tagType) {
       const normalized = String(tagType || "").toUpperCase();
       if (!Object.prototype.hasOwnProperty.call(TAGS, normalized)) {
-        throw new Error("Unsupported tag type. Use NTAG215 or NTAG216.");
+        throw new Error(
+          "Unsupported tag type. Use NTAG213, NTAG215, or NTAG216.",
+        );
       }
       return normalized;
     }
@@ -250,7 +266,7 @@ description: Visualize the memory mapping.
           "The OpenTag3D specification does not define mime_type.",
         );
       }
-      if (!specSections(spec).length) {
+      if (!specSections(spec, null).length) {
         throw new Error(
           "The OpenTag3D specification does not define any fields.",
         );
@@ -258,7 +274,7 @@ description: Visualize the memory mapping.
       return spec;
     }
 
-    function specSections(spec) {
+    function specSections(spec, allowedSections) {
       const sections = [];
       if (Array.isArray(spec?.fields)) {
         sections.push({
@@ -268,6 +284,9 @@ description: Visualize the memory mapping.
         });
       }
       Object.entries(spec || {}).forEach(([name, section]) => {
+        if (allowedSections && !allowedSections.includes(name)) {
+          return;
+        }
         if (
           section &&
           typeof section === "object" &&
@@ -284,7 +303,7 @@ description: Visualize the memory mapping.
     }
 
     function preparePayload(spec, tag) {
-      const sections = specSections(spec);
+      const sections = specSections(spec, tag.sections || null);
       const sourceFields = sections.flatMap((section) => section.fields);
       const fields = sourceFields
         .map((field) => ({
