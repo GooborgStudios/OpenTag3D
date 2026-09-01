@@ -3,6 +3,11 @@
     overflow-x: auto;
   }
 
+  .memory-map-options label {
+    display: inline-block;
+    margin-right: 0.5em;
+  }
+
   .opentag3d-memory-map-table {
     border-collapse: collapse;
     width: auto;
@@ -113,7 +118,7 @@
     <option value="NTAG216">NTAG216 (Extended)</option>
   </select>
 
-  <fieldset>
+  <fieldset class="memory-map-options">
     <legend>Display options</legend>
     <label
       ><input type="checkbox" data-memory-map-option="showRawMemoryAddresses" />
