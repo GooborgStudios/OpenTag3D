@@ -77,6 +77,10 @@ This memory address starts just outside the range of NTAG213; an SLIX2 or larger
 
 {% include spec_table.md set="extended" %}
 
+### Memory Map - Visualization
+
+{% include memory_map.html %}
+
 ### Web API Standard
 
 Sometimes a filament manufacturer may want to include supplemental data for advanced users that doesn't fit or otherwise cannot be stored on the RFID tag itself. One example is a diameter graph, which is too much data to be stored within only 888 bytes of memory. OpenTag3D defines a field for a "web API" URL which can be used to look up this information.
