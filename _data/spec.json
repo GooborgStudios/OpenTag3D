@@ -252,19 +252,6 @@
         "description": "Maximum nozzle temperature, divided by 5."
       },
       {
-        "name": "Transmission Distance (TD)",
-        "id": "td",
-        "added": "1.000",
-        "unit": "mm",
-        "type": "int",
-        "start": "0x9B",
-        "length": 1,
-        "usage": "operational",
-        "scaling": 0.1,
-        "examples": [118],
-        "description": "Opaque thickness in tens of millimeters Eg. `118` → `11.8`."
-      },
-      {
         "name": "Target Bed Temperature",
         "id": "bed_temp",
         "added": "1.000",
@@ -378,6 +365,19 @@
         "usage": "operational",
         "examples": [4, 8, 12],
         "description": "Recommended drying time."
+      },
+      {
+        "name": "Transmission Distance (TD)",
+        "id": "td",
+        "added": "1.000",
+        "unit": "mm",
+        "type": "int",
+        "start": "0xA6",
+        "length": 1,
+        "usage": "operational",
+        "scaling": 0.1,
+        "examples": [118],
+        "description": "Opaque thickness in tens of millimeters Eg. `118` → `11.8`."
       },
       {
         "name": "Density",
