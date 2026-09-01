@@ -379,7 +379,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       <summary class="btn btn--info">Fill Examples</summary>
       <div class="btn-menu__panel">
         <button class="btn btn--info" id="exampleBtn">
-          Fill Examples (Core Only)
+          Fill Examples (Required Only)
         </button>
         <button class="btn btn--info" id="allExampleBtn">
           Fill Examples (All Data)
@@ -591,7 +591,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     filename: "",
   };
 
-  const allFields = [...SPEC.core.fields, ...SPEC.extended.fields];
+  const allFields = SPEC.core.fields;
   const urlParams = new URLSearchParams(window.location.search);
 
   const inputSynchronizers = new WeakMap();
@@ -829,50 +829,37 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     const host = document.getElementById("formHost");
     host.innerHTML = "";
 
-    const sections = [
-      { id: "core", title: "Core" },
-      { id: "extended", title: "Extended" },
-    ];
-
-    for (const sec of sections) {
-      const def = SPEC[sec.id];
-      if (!def) continue;
-      const box = h("div", { class: `section section-${sec.id}` });
-      box.append(h("h3", { class: `muted section-${sec.id}` }, sec.title));
-      const fields = h("div", { class: `grid section-${sec.id}` });
-      for (const f of def.fields) {
-        if (f.id === "tag_version") continue;
-        const row = h("div", {
-          class: "field-row",
-          "data-field": f.id,
-          "data-section": sec.id,
-        });
-        const left = h("div");
-        const label = h("label", {}, `${f.name}`);
-        if (f.required) label.append(h("span", { class: "text--danger" }, "*"));
-        left.append(label);
-        left.append(renderInputForField(f, sec.id, includeUrlParams));
-        row.append(left);
-        const meta = h(
-          "div",
-          { class: "help" },
-          h("span", { class: "chip mono" }, `id:${f.id}`),
-          h("span", { class: "chip mono" }, `addr:${f.start}`),
-          h("span", { class: "chip mono" }, `len:${f.length}`),
-          f.unit && !["string", "version"].includes(f.unit)
-            ? h("span", { class: "chip" }, `unit:${f.unit}`)
-            : "",
-          f.scaling ? h("span", { class: "chip" }, `scaling:${f.scaling}`) : "",
-        );
-        row.append(meta);
-        if (f.description) {
-          row.append(h("div", { class: "help" }, f.description));
-        }
-        fields.append(row);
+    const box = h("div", { class: `grid` });
+    for (const f of allFields) {
+      if (f.id === "tag_version") continue;
+      const row = h("div", {
+        class: "field-row",
+        "data-field": f.id,
+      });
+      const left = h("div");
+      const label = h("label", {}, `${f.name}`);
+      if (f.required) label.append(h("span", { class: "text--danger" }, "*"));
+      left.append(label);
+      left.append(renderInputForField(f, includeUrlParams));
+      row.append(left);
+      const meta = h(
+        "div",
+        { class: "help" },
+        h("span", { class: "chip mono" }, `id:${f.id}`),
+        h("span", { class: "chip mono" }, `addr:${f.start}`),
+        h("span", { class: "chip mono" }, `len:${f.length}`),
+        f.unit && !["string", "version"].includes(f.unit)
+          ? h("span", { class: "chip" }, `unit:${f.unit}`)
+          : "",
+        f.scaling ? h("span", { class: "chip" }, `scaling:${f.scaling}`) : "",
+      );
+      row.append(meta);
+      if (f.description) {
+        row.append(h("div", { class: "help" }, f.description));
       }
-      box.append(fields);
-      host.append(box);
+      box.append(row);
     }
+    host.append(box);
   };
 
   const syncInputValue = (input, fieldId, transform = (value) => value) => {
@@ -893,7 +880,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     inputSynchronizers.get(input)?.();
   };
 
-  const renderInputForField = (f, section, includeUrlParams = true) => {
+  const renderInputForField = (f, includeUrlParams = true) => {
     // Calculate placeholder
     let placeholder = "";
     const firstExample = f.examples?.[0];
@@ -917,11 +904,13 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     const commonParams = {
       id: f.id,
       "data-unit": f.unit,
-      "data-section": section,
       placeholder,
       value: paramValue,
-      required: f.required,
     };
+
+    if (f.required) {
+      commonParams["required"] = true;
+    }
 
     // Generic by type
     if (f.type === "rgba") {
@@ -1014,16 +1003,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   const hexdump = (buf, startAddr = 0x00) => formatBytes(buf, startAddr, true);
 
   // --- Building ---
-  const hasExtendedSet = () => {
-    const els = document.querySelectorAll("[data-section='extended']");
-    for (const el of els) {
-      if (el.value) {
-        return true;
-      }
-    }
-    return false;
-  };
-
   const encodeFieldValue = (field, value) => {
     if (field.type === "int" && field.id === "tag_version") {
       // Handle alpha versions
@@ -1067,17 +1046,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   };
 
   const buildMemory = () => {
-    let extended = hasExtendedSet();
-
-    const size =
-      parseHex(SPEC[extended ? "extended" : "core"].address_range.end) + 1;
+    const size = parseHex(SPEC["core"].address_range.end) + 1;
     const buf = new Uint8Array(size + 1);
     buf.fill(0x00);
-
-    const fields = [];
-    for (const set of extended ? ["core", "extended"] : ["core"]) {
-      fields.push(...SPEC[set].fields.map((f) => ({ set, ...f })));
-    }
 
     // --- required validation helpers ---
     const isPresent = (f, val) => {
@@ -1098,7 +1069,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       Math.round(parseFloat(SPEC.version) * 1000),
     );
 
-    const missing = fields.filter(
+    const missing = allFields.filter(
       (f) => f.required && !isPresent(f, tagState.values.get(f.id)),
     );
 
@@ -1120,7 +1091,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       buf.set(bytes, addr);
     };
 
-    for (const f of fields) {
+    for (const f of allFields) {
       if (f.type === "-") continue;
       const addr = parseHex(f.start);
       const val = tagState.values.get(f.id);
@@ -1714,18 +1685,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     buildMemory();
   };
 
-  const fillExamples = (extended = false) => {
+  const fillExamples = (optional = false) => {
     const inputs = document.querySelectorAll(
       ".field-row input:not([type=hidden])",
     );
     for (const input of inputs) {
-      const section = input.dataset["section"];
-      if (section === "core" || (extended && section === "extended")) {
+      if (optional || input.required) {
+        console.log(optional, input, input.required);
         setInputValue(input, input.placeholder);
       }
     }
     buildMemory();
-    msg(`Filled ${extended ? "all" : "core"} field examples`);
+    msg(`Filled ${optional ? "all" : "required"} field examples`);
   };
 
   // --- Init ---
