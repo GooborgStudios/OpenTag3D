@@ -170,7 +170,11 @@ These are topics that were heavily discussed during the development of OpenTag3D
 ## Changelog
 
 - 2.000
-  -
+  - Drop NTAG213 and SLIX2 as spec compliant options
+  - Drop "Core" and "Extended" terminology; there are no fields for "Extended"
+  - Add `sku`, `barcode`, `chamber_temp` and `nozzle_diameter` fields to memory mapping
+  - Double serial number field size from 16 bytes to 32 bytes
+  - Rearrange all fields' memory mapping
 - 1.003
   - Made all fields (except for `opentag_version`) in the web API optional
 - 1.002
