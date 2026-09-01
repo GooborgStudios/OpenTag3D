@@ -147,6 +147,15 @@ description: Visualize the memory mapping.
 
   <noscript>JavaScript is required to build the OpenTag3D memory map.</noscript>
 </section>
+
+<script>
+  /* prettier-ignore-start */
+
+  // Spec comes from site.data.spec (Jekyll).
+  const SPEC = {{site.data.spec | jsonify}};
+
+  /* prettier-ignore-end */
+</script>
 <script>
   (function (global) {
     "use strict";
@@ -203,8 +212,6 @@ description: Visualize the memory mapping.
       "#3d3d3d": "opentag3d-memory-map-field--ndef",
       transparent: "opentag3d-memory-map-field--transparent",
     };
-
-    let cachedSpecPromise = null;
 
     function hex(value, width = 3) {
       return Number(value).toString(16).toUpperCase().padStart(width, "0");
@@ -274,31 +281,6 @@ description: Visualize the memory mapping.
         }
       });
       return sections;
-    }
-
-    function loadSpec(specUrl = "./spec.json") {
-      const absoluteUrl =
-        typeof document === "undefined"
-          ? specUrl
-          : new URL(specUrl, document.baseURI).toString();
-
-      if (!cachedSpecPromise || cachedSpecPromise.url !== absoluteUrl) {
-        const promise = fetch(absoluteUrl, {
-          headers: { Accept: "application/json" },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                `Unable to load OpenTag3D specification (${response.status}).`,
-              );
-            }
-            return response.json();
-          })
-          .then(validateSpec);
-        promise.url = absoluteUrl;
-        cachedSpecPromise = promise;
-      }
-      return cachedSpecPromise;
     }
 
     function preparePayload(spec, tag) {
@@ -995,7 +977,7 @@ description: Visualize the memory mapping.
       return target;
     }
 
-    async function render(tagType, target, options = {}) {
+    function render(tagType, target, options = {}) {
       if (typeof document === "undefined") {
         throw new Error("Rendering requires a browser document.");
       }
@@ -1003,8 +985,7 @@ description: Visualize the memory mapping.
       if (!container) {
         throw new Error("The memory-map target element was not found.");
       }
-      const spec =
-        options.spec || (await loadSpec(options.specUrl || "spec.json"));
+      const spec = options.spec || SPEC;
       const model = buildRows(spec, tagType, options);
       const table = createTable(model);
       container.replaceChildren(table);
@@ -1041,8 +1022,6 @@ description: Visualize the memory mapping.
             "[data-memory-map-overlaps]",
           );
           const status = widget.querySelector("[data-memory-map-status]");
-          const specUrl = widget.dataset.specUrl || "spec.json";
-
           const update = async () => {
             const tagType = selector ? selector.value : "NTAG215";
             if (ndefHeaderInput) {
@@ -1066,7 +1045,7 @@ description: Visualize the memory mapping.
             try {
               const specOptions = selectedSpecFile
                 ? { spec: JSON.parse(await selectedSpecFile.text()) }
-                : { specUrl };
+                : {};
               const model = await render(tagType, output, {
                 ...specOptions,
                 ...displayOptions,
@@ -1117,7 +1096,6 @@ description: Visualize the memory mapping.
 
     const api = {
       supportedTags: Object.keys(TAGS),
-      loadSpec,
       buildRows,
       render,
     };
