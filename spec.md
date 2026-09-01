@@ -167,10 +167,14 @@ These are topics that were heavily discussed during the development of OpenTag3D
 
 - 2.000
   - Drop NTAG213 and SLIX2 as spec compliant options
-  - Drop "Core" and "Extended" terminology; there are no fields for "Extended"
+  - Drop "Core" and "Extended" terminology, as there are no more fields in the "Extended" space
+    - "Core" is now just the OpenTag3D format
+    - An "Extended" format could be revisited at a later time as the need arises
+  - Rearrange all fields' memory mapping
   - Add `sku`, `barcode`, `chamber_temp` and `nozzle_diameter` fields to memory mapping
   - Double serial number field size from 16 bytes to 32 bytes
-  - Rearrange all fields' memory mapping
+  - Reduce Transmission Distance from 2 bytes to 1 byte
+    - After discussion with filament manufacturers and users, 25.0mm of TD seems to be a reasonable upper limit
 - 1.003
   - Made all fields (except for `opentag_version`) in the web API optional
 - 1.002
