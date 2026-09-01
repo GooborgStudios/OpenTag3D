@@ -14,9 +14,11 @@ We always anticipated that some early lessons might eventually require a break i
 
 ## Why restructure the data format?
 
-As parameters were added, changed, and removed throughout the development of v1.0, existing parameters were intentionally left in place to preserve compatibility. Over time, this created gaps in the memory map and resulted in increasingly fragmented data. Since the changes planned for v2.0 already required breaking backwards compatibility, we took the opportunity to reorganize the existing parameters and make more efficient use of the available space.
+As parameters were added, changed, and removed throughout the development of v1.0, existing parameters were intentionally left in place to preserve compatibility. Over time, this created gaps in the memory map and resulted in increasingly fragmented data.
 
 ![A diagram showing how the memory bytes are structured. There is a large gap between the Material Modifiers and Filament Manufacturer parameters, as well as a byte gap between color 1 and color 2.](../assets/images/v1-memory-map.png)
+
+Since the changes planned for v2.0 already required breaking backwards compatibility, we took the opportunity to reorganize the existing parameters and make more efficient use of the available space.
 
 We felt that if there was any time to fix it, it would be now while implementation is still in early stages, rather than months or years later when OpenTag3D tags are already deployed. Restructuring the data allowed us to improve a couple of existing fields -- such as the Transmission Distance field, which we learned only needed one byte; and the serial number, as filament manufacturers may want more than 16 characters.
 
@@ -26,6 +28,6 @@ Another significant change in v2.0 is that NTAG215, or an equivalent or larger t
 
 ## If v2.0 is coming out now, will v3.0 come out in another half year?
 
-NO!
+NO! We do not plan to release a v3.0 for at least another year or two.
 
 v2.0 is only releasing this quickly because OpenTag3D implementation is still in the very early stages. If implementation was established and v1.0 tags were widely deployed, we would not be releasing v2.0 so soon. In other words, we're trying to get ahead of the ball by making these changes early on, when the timing is just right.
