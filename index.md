@@ -26,7 +26,7 @@ feature_row:
     image_path: /assets/images/icons8-archive.svg
     alt: ""
   - title: "Open Standard, Open To All"
-    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone, from major manufacturers to individual makers, can build, read, and write compatible tags. Additionally, all of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
+    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone can build, read, and write compatible tags. All of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
     image_path: assets/images/icons8-open_source.svg
     alt: ""
 ---
