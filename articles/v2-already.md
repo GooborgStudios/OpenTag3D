@@ -6,7 +6,9 @@ description: Why is v2.0 already coming out, when v1.0 hasn't been around for th
 
 We're excited to announce that v2.0 of OpenTag3D is just around the corner, which introduces a better organized data structure and new inventory fields like SKU and UPC13/GTIN barcode. Of course, reorganizing the data means breaking backwards compatibility, which may seem strange to do so quickly after v1.0 was released.
 
-To summarize, _v1.0 was rushed._ In order to get implementers interested in the standard, a v1.0 release was essential. Filament manufacturers and RFID readers didn't want to implement a standard that could completely change the next day.
+v1.0 was intended to establish a practical proof of concept and get the standard into the hands of early implementers. As adoption has grown, so has the number of people reviewing, testing, and contributing to the specification. v2.0 reflects that broader input and is intended to provide a significantly more stable foundation for the future.
+
+We always anticipated that some early lessons might eventually require a break in backwards compatibility. With adoption accelerating, we believe it is better to make those necessary changes now, while the ecosystem is still relatively young, rather than later when substantially more manufacturers, hardware, and software depend on the existing format.
 
 ## Why restructure the data format?
 
