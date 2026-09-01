@@ -15,10 +15,10 @@ The OpenTag3D standard is designed to work on any NFC tag that is compliant with
 
 In particular, the standard is tailored towards the NTAG215 13.56MHz NFC chips. These tags are cheap and common, and have plenty of space to store all of the required and optional information.
 
-| Tag Type | Capacity  | Usable Capacity | Compatibility |
-| -------- | --------- | --------------- | ------------- |
-| NTAG215  | 504 bytes | 471 bytes       | Core          |
-| NTAG216  | 888 bytes | 835 bytes       | Core          |
+| Tag Type | Capacity  | Usable Capacity |
+| -------- | --------- | --------------- |
+| NTAG215  | 504 bytes | 471 bytes       |
+| NTAG216  | 888 bytes | 835 bytes       |
 
 <img src="./assets/images/ntag-sticker.jpg" width="200">
 
@@ -41,14 +41,9 @@ The NFC tags should be placed on the spools as follows:
   - For spool sides thicker than 4mm, there must be a cutout to embed the tag, or the tag should be fixed to the outside of the spool
 - Two tags should be used, one on each end of the spool, directly across from each other
 
-> [!NOTE]
-> The tag placement had slightly changed in v1.002 from exactly 56.0mm to 60.0mm with an additional tolerance. This was done in order to increase compatibility with spool shapes. This should not be an issue for any existing NFC reader implementations as NFC antennae are powerful enough to pick up a tag much further away.
-
 ## Data Structure Standard
 
 The data is to be stored as a payload within an NDEF record of MIME type `{{ site.data.spec.mime_type }}`. The data must remain unencrypted to be compliant with the spec.
-
-NTAG213 tags have 144 bytes of writable memory, which is the minimum requirement for OpenTag3D Core. SLIX2 tags have 320 bytes of writable memory, which is the minimum requirement for OpenTag3D Extended.
 
 All strings are UTF-8 unless specified otherwise. All integers are unsigned, big endian, unless specified otherwise.
 
@@ -57,21 +52,13 @@ Temperatures are stored in Celsius, divided by 5.
 Below is list of data that will live on the RFID chip. All **REQUIRED** data must be populated to be compliant with the spec.
 
 > [!NOTE]
-> Spec implementers: the memory maps for OpenTag3D Core and Extended are also available in [JSON format](https://opentag3d.info/spec.json).
+> Spec implementers: the memory maps for OpenTag3D are also available in [JSON format](https://opentag3d.info/spec.json).
 
-### Memory Map - OpenTag3D Core
+### Memory Map
 
-This is designed to fit within the 144 bytes of writable space on the NTAG213, the smallest and cheapest variant of compatible tags.
+The data is designed to fit within the 504 bytes of writable space on the NTAG215, the most common NFC tag type around.
 
 {% include spec_table.md set="core" %}
-
-### Memory Map - OpenTag3D Extended
-
-This is additional data that not all manufacturers will implement, typically due to technological restrictions. These fields should be populated if available.
-
-This memory address starts just outside the range of NTAG213; an SLIX2 or larger must be used to store this data.
-
-{% include spec_table.md set="extended" %}
 
 ### Memory Map - Visualization
 
@@ -182,6 +169,8 @@ These are topics that were heavily discussed during the development of OpenTag3D
 
 ## Changelog
 
+- 2.000
+  -
 - 1.003
   - Made all fields (except for `opentag_version`) in the web API optional
 - 1.002

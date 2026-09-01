@@ -506,9 +506,5 @@
         "description": "URL to access online JSON additional parameters. Formatted without `https` to save space."
       }
     ]
-  },
-  "extended": {
-    "address_range": { "start": "0xE0", "end": "0xE1" },
-    "fields": []
   }
 }
