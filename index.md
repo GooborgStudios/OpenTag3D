@@ -22,11 +22,11 @@ feature_row:
     image_path: assets/images/icons8-open_source.svg
     alt: ""
   - title: "Low-Cost, Off-the-Shelf Hardware"
-    excerpt: "OpenTag3D uses NTAG213/215/216 NFC tags, the most common and affordable NFC tags on the market. These tags are readable and writable by smartphones, compatible with most off-the-shelf RFID/NFC readers (including low-cost PN532 modules), and require no proprietary hardware. This allows everyone, from corporations to hobbyists, to implement the standard into their applications, printers or accessories."
+    excerpt: "OpenTag3D uses standard NFC tags (NTAG215/216). These tags are readable and writable by smartphones, compatible with most off-the-shelf RFID/NFC readers (including low-cost PN532 modules), and require no proprietary hardware. This allows everyone, from corporations to hobbyists, to implement the standard into their applications, printers or accessories."
     image_path: /assets/images/icons8-request_money.svg
     alt: ""
   - title: "Compact Format, Complete Data"
-    excerpt: "All the critical data a 3D printer needs (such as manufacturer, material, color, print settings, and more) fits neatly within 144 bytes on an NTAG213. For manufacturers who want to include additional details like serial numbers, production data, or extended specifications, the NTAG215 and NTAG216 provide ample extra space without changing compatibility. Dynamic data, such as current filament price, can also be provided via a web API."
+    excerpt: "All the critical data a 3D printer needs, including manufacturer, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in half a megabyte. Dynamic data, such as current filament price, can also be provided via a web API."
     image_path: /assets/images/icons8-archive.svg
     alt: ""
 ---
