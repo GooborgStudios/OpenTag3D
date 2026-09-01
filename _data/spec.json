@@ -22,7 +22,6 @@
         "name": "Base Material Name",
         "id": "material",
         "added": "1.000",
-        "unit": "string",
         "type": "utf8",
         "start": "0x02",
         "length": 5,
@@ -35,7 +34,6 @@
         "name": "Material Modifiers",
         "id": "material_mod",
         "added": "1.000",
-        "unit": "string",
         "type": "utf8",
         "start": "0x07",
         "length": 5,
@@ -47,7 +45,6 @@
         "name": "Filament Manufacturer",
         "id": "manufacturer",
         "added": "1.000",
-        "unit": "string",
         "type": "utf8",
         "start": "0x0C",
         "length": 16,
@@ -60,7 +57,6 @@
         "name": "Color Name",
         "id": "color_name",
         "added": "1.000",
-        "unit": "string",
         "type": "utf8",
         "start": "0x1C",
         "length": 32,
@@ -136,6 +132,7 @@
         "start": "0x6C",
         "length": 16,
         "usage": "inventory",
+        "examples": ["G00-A01"],
         "description": "Product SKU for the material and color."
       },
       {
@@ -146,6 +143,7 @@
         "start": "0x7C",
         "length": 6,
         "usage": "inventory",
+        "examples": [12345543210],
         "description": "The barcode number for the spool. This can be UPC12, UPC13, GS1/GTIN. (Recommended: UPC13)"
       },
       {
@@ -497,7 +495,6 @@
         "name": "Online Data URL",
         "id": "data_url",
         "added": "1.000",
-        "unit": "string",
         "type": "ascii",
         "start": "0xC0",
         "length": 32,
