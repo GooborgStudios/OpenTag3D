@@ -3,11 +3,6 @@
     overflow-x: auto;
   }
 
-  .memory-map-options label {
-    display: inline-block;
-    margin-right: 0.5em;
-  }
-
   .opentag3d-memory-map-table {
     border-collapse: collapse;
     width: auto;
@@ -105,21 +100,20 @@
     padding: 8px 12px;
   }
 
-  fieldset label input {
+  .memory-map-options label input {
     display: inline;
   }
 </style>
 
 <section data-opentag3d-memory-map>
-  <label for="opentag3d-memory-map-tag"><strong>Tag type:</strong></label>
-  <select id="opentag3d-memory-map-tag" data-memory-map-tag>
-    <option value="NTAG213" selected>NTAG213 (Core)</option>
-    <option value="NTAG215">NTAG215 (Extended)</option>
-    <option value="NTAG216">NTAG216 (Extended)</option>
-  </select>
+  <div class="memory-map-options">
+    <label for="opentag3d-memory-map-tag"><strong>Tag type:</strong></label>
+    <select id="opentag3d-memory-map-tag" data-memory-map-tag>
+      <option value="NTAG213" selected>NTAG213 (Core)</option>
+      <option value="NTAG215">NTAG215 (Extended)</option>
+      <option value="NTAG216">NTAG216 (Extended)</option>
+    </select>
 
-  <fieldset class="memory-map-options">
-    <legend>Display options</legend>
     <label
       ><input type="checkbox" data-memory-map-option="showRawMemoryAddresses" />
       Show raw memory addresses</label
@@ -132,7 +126,7 @@
       ><input type="checkbox" data-memory-map-option="showSystemMemory" /> Show
       system memory</label
     >
-  </fieldset>
+  </div>
 
   <p data-memory-map-status role="status" aria-live="polite">
     Loading memory map…
