@@ -1,0 +1,1116 @@
+<style>
+  [data-opentag3d-memory-map] [data-memory-map-output] {
+    overflow-x: auto;
+  }
+
+  .opentag3d-memory-map-table {
+    border-collapse: collapse;
+    width: auto;
+    table-layout: auto;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+  }
+
+  .opentag3d-memory-map-table caption {
+    caption-side: top;
+    text-align: left;
+    font-weight: bold;
+    padding-bottom: 6px;
+  }
+
+  .opentag3d-memory-map-table th,
+  .opentag3d-memory-map-table td {
+    padding: 4px 6px;
+  }
+
+  .opentag3d-memory-map-table th {
+    white-space: nowrap;
+  }
+
+  .opentag3d-memory-map-metadata {
+    color: #9eb6d8;
+    background: transparent;
+  }
+
+  .opentag3d-memory-map-address,
+  .opentag3d-memory-map-field {
+    text-align: center;
+  }
+
+  .opentag3d-memory-map-field {
+    max-width: 105px;
+    overflow-wrap: anywhere;
+    background: transparent;
+    color: #ffffff;
+  }
+
+  .opentag3d-memory-map-field--span-2 {
+    max-width: 210px;
+  }
+
+  .opentag3d-memory-map-field--span-3 {
+    max-width: 315px;
+  }
+
+  .opentag3d-memory-map-field--span-4 {
+    max-width: 420px;
+  }
+
+  .opentag3d-memory-map-field--boundary {
+    border-left: 4px solid #475569;
+  }
+
+  .opentag3d-memory-map-field--teal {
+    background: #41afaa;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--blue {
+    background: #466eb4;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--cyan {
+    background: #00a0e1;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--yellow {
+    background: #e6a532;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--orange {
+    background: #d7642c;
+    color: #111827;
+  }
+  .opentag3d-memory-map-field--magenta {
+    background: #af4b91;
+    color: #111827;
+  }
+
+  .opentag3d-memory-map-field--system {
+    background: #475569;
+  }
+  .opentag3d-memory-map-field--ndef {
+    background: #3d3d3d;
+  }
+
+  [data-memory-map-overlaps] {
+    background: #fee2e2;
+    border: 2px solid #b91c1c;
+    color: #7f1d1d;
+    margin: 8px 0;
+    padding: 8px 12px;
+  }
+
+  .memory-map-options label input {
+    display: inline;
+  }
+</style>
+
+<section data-opentag3d-memory-map>
+  <label for="opentag3d-memory-map-tag"><strong>Tag type:</strong></label>
+  <select id="opentag3d-memory-map-tag" data-memory-map-tag>
+    <option value="NTAG215" selected>NTAG215</option>
+    <option value="NTAG216">NTAG216</option>
+  </select>
+
+  <fieldset class="memory-map-options">
+    <legend>Display options</legend>
+    <label
+      ><input type="checkbox" data-memory-map-option="showRawMemoryAddresses" />
+      Show raw memory addresses</label
+    >
+    <label
+      ><input type="checkbox" data-memory-map-option="showNdefHeader" /> Show
+      NDEF header</label
+    >
+    <label
+      ><input type="checkbox" data-memory-map-option="showSystemMemory" /> Show
+      system memory</label
+    >
+  </div>
+
+  <p data-memory-map-status role="status" aria-live="polite">
+    Loading memory map…
+  </p>
+  <div data-memory-map-overlaps role="alert" aria-live="polite" hidden></div>
+  <div data-memory-map-output></div>
+
+  <noscript>JavaScript is required to build the OpenTag3D memory map.</noscript>
+</section>
+
+<script>
+  /* prettier-ignore-start */
+
+  // Spec comes from site.data.spec (Jekyll).
+  const SPEC = {{site.data.spec | jsonify}};
+
+  /* prettier-ignore-end */
+</script>
+<script>
+  (function (global) {
+    "use strict";
+
+    const TAGS = {
+      NTAG215: {
+        name: "NTAG215",
+        format: "Core",
+        sections: ["core"],
+        lastPage: 0x86,
+        userStartPage: 0x04,
+        userEndPage: 0x81,
+        dynamicLockPage: 0x82,
+        configStartPage: 0x83,
+        ndefCapacity: 496,
+      },
+      NTAG216: {
+        name: "NTAG216",
+        format: "Extended",
+        sections: ["core"],
+        lastPage: 0xe6,
+        userStartPage: 0x04,
+        userEndPage: 0xe1,
+        dynamicLockPage: 0xe2,
+        configStartPage: 0xe3,
+        ndefCapacity: 872,
+      },
+    };
+
+    const FIELD_COLORS = [
+      "#41afaa",
+      "#466eb4",
+      "#00a0e1",
+      "#e6a532",
+      "#d7642c",
+      "#af4b91",
+    ];
+
+    const COLORS = {
+      system: "#475569",
+      ndef: "#3d3d3d",
+      reserved: "transparent",
+      control: "#475569",
+      unused: "transparent",
+      metadata: "transparent",
+    };
+
+    const FIELD_COLOR_CLASSES = {
+      "#41afaa": "opentag3d-memory-map-field--teal",
+      "#466eb4": "opentag3d-memory-map-field--blue",
+      "#00a0e1": "opentag3d-memory-map-field--cyan",
+      "#e6a532": "opentag3d-memory-map-field--yellow",
+      "#d7642c": "opentag3d-memory-map-field--orange",
+      "#af4b91": "opentag3d-memory-map-field--magenta",
+      "#475569": "opentag3d-memory-map-field--system",
+      "#3d3d3d": "opentag3d-memory-map-field--ndef",
+      transparent: "opentag3d-memory-map-field--transparent",
+    };
+
+    function hex(value, width = 3) {
+      return Number(value).toString(16).toUpperCase().padStart(width, "0");
+    }
+
+    function parseHex(value) {
+      if (typeof value === "number") {
+        return value;
+      }
+      return Number.parseInt(String(value), 16);
+    }
+
+    function normalizeTagType(tagType) {
+      const normalized = String(tagType || "").toUpperCase();
+      if (!Object.prototype.hasOwnProperty.call(TAGS, normalized)) {
+        throw new Error(
+          "Unsupported tag type. Use NTAG213, NTAG215, or NTAG216.",
+        );
+      }
+      return normalized;
+    }
+
+    function normalizeDisplayOptions(options = {}) {
+      const showSystemMemory = options.showSystemMemory === true;
+      return {
+        showRawMemoryAddresses: options.showRawMemoryAddresses === true,
+        showSystemMemory,
+        showNdefHeader: showSystemMemory || options.showNdefHeader === true,
+      };
+    }
+
+    function validateSpec(spec) {
+      if (!spec || typeof spec !== "object") {
+        throw new Error("The OpenTag3D specification is not a JSON object.");
+      }
+      if (typeof spec.mime_type !== "string" || !spec.mime_type) {
+        throw new Error(
+          "The OpenTag3D specification does not define mime_type.",
+        );
+      }
+      if (!specSections(spec, null).length) {
+        throw new Error(
+          "The OpenTag3D specification does not define any fields.",
+        );
+      }
+      return spec;
+    }
+
+    function specSections(spec, allowedSections) {
+      const sections = [];
+      if (Array.isArray(spec?.fields)) {
+        sections.push({
+          name: "payload",
+          fields: spec.fields,
+          addressRange: spec.address_range || null,
+        });
+      }
+      Object.entries(spec || {}).forEach(([name, section]) => {
+        if (allowedSections && !allowedSections.includes(name)) {
+          return;
+        }
+        if (
+          section &&
+          typeof section === "object" &&
+          Array.isArray(section.fields)
+        ) {
+          sections.push({
+            name,
+            fields: section.fields,
+            addressRange: section.address_range || null,
+          });
+        }
+      });
+      return sections;
+    }
+
+    function preparePayload(spec, tag) {
+      const sections = specSections(spec, tag.sections || null);
+      const sourceFields = sections.flatMap((section) => section.fields);
+      const fields = sourceFields
+        .map((field) => ({
+          ...field,
+          startOffset: parseHex(field.start),
+          endOffset: parseHex(field.start) + Number(field.length) - 1,
+        }))
+        .sort((left, right) => left.startOffset - right.startOffset);
+      const rangeEnds = sections
+        .map((section) => section.addressRange?.end)
+        .filter((end) => end !== undefined)
+        .map(parseHex);
+      const fieldEnds = fields.map((field) => field.endOffset);
+      const maximumOffset = Math.max(-1, ...rangeEnds, ...fieldEnds);
+      const payloadLength = maximumOffset + 1;
+      const overlaps = [];
+      fields.forEach((firstField, firstIndex) => {
+        fields.slice(firstIndex + 1).forEach((secondField) => {
+          const overlapStart = Math.max(
+            firstField.startOffset,
+            secondField.startOffset,
+          );
+          const overlapEnd = Math.min(
+            firstField.endOffset,
+            secondField.endOffset,
+          );
+          if (overlapStart <= overlapEnd) {
+            overlaps.push({
+              firstField,
+              secondField,
+              startOffset: overlapStart,
+              endOffset: overlapEnd,
+            });
+          }
+        });
+      });
+      const rangeBoundaries = new Map();
+      sections.forEach((section) => {
+        if (section.addressRange?.start !== undefined) {
+          const start = parseHex(section.addressRange.start);
+          if (start > 0) {
+            rangeBoundaries.set(start, section.name);
+          }
+        }
+      });
+
+      const payload = new Array(payloadLength).fill(null);
+      fields.forEach((field, index) => {
+        if (field.startOffset < 0 || field.endOffset >= payloadLength) {
+          throw new Error(
+            `${field.name} falls outside the ${tag.format} payload.`,
+          );
+        }
+        for (
+          let offset = field.startOffset;
+          offset <= field.endOffset;
+          offset++
+        ) {
+          if (payload[offset]) {
+            continue;
+          }
+          payload[offset] = {
+            key: `field-${field.id || index}`,
+            name: field.name,
+            color: FIELD_COLORS[index % FIELD_COLORS.length],
+            startPayloadOffset: field.startOffset,
+            kind: "user-data",
+          };
+        }
+      });
+
+      let reservedStart = null;
+      for (let offset = 0; offset <= payload.length; offset++) {
+        if (
+          offset < payload.length &&
+          payload[offset] === null &&
+          reservedStart === null
+        ) {
+          reservedStart = offset;
+        }
+        if (
+          (offset === payload.length || payload[offset] !== null) &&
+          reservedStart !== null
+        ) {
+          for (
+            let reservedOffset = reservedStart;
+            reservedOffset < offset;
+            reservedOffset++
+          ) {
+            payload[reservedOffset] = {
+              key: `reserved-${reservedStart}`,
+              name: "Reserved",
+              color: COLORS.reserved,
+              startPayloadOffset: reservedStart,
+              kind: "user-data",
+            };
+          }
+          reservedStart = null;
+        }
+      }
+
+      return { payload, fields, payloadLength, rangeBoundaries, overlaps };
+    }
+
+    function controlConcept(page, byte, tag) {
+      const absoluteByte = page * 4 + byte;
+      if (page === 0x00) {
+        return byte <= 2
+          ? {
+              key: "uid",
+              name: "UID",
+              color: COLORS.system,
+              startAbsolute: 0,
+              kind: "system",
+            }
+          : {
+              key: "bcc0",
+              name: "BCC0",
+              color: COLORS.system,
+              startAbsolute: 3,
+              kind: "system",
+            };
+      }
+      if (page === 0x01) {
+        return {
+          key: "uid",
+          name: "UID",
+          color: COLORS.system,
+          startAbsolute: 0,
+          kind: "system",
+        };
+      }
+      if (page === 0x02) {
+        const concepts = [
+          {
+            key: "bcc1",
+            name: "BCC1",
+            color: COLORS.system,
+            startAbsolute: 8,
+            kind: "system",
+          },
+          {
+            key: "internal",
+            name: "Internal",
+            color: COLORS.system,
+            startAbsolute: 9,
+            kind: "system",
+          },
+          {
+            key: "static-lock",
+            name: "Static Lock Bytes",
+            color: COLORS.control,
+            startAbsolute: 10,
+            kind: "system",
+          },
+          {
+            key: "static-lock",
+            name: "Static Lock Bytes",
+            color: COLORS.control,
+            startAbsolute: 10,
+            kind: "system",
+          },
+        ];
+        return concepts[byte];
+      }
+      if (page === 0x03) {
+        return {
+          key: "capability",
+          name: "Capability Container",
+          color: COLORS.system,
+          startAbsolute: 12,
+          kind: "capability",
+        };
+      }
+      if (page === tag.dynamicLockPage) {
+        return byte <= 2
+          ? {
+              key: "dynamic-lock",
+              name: "Dynamic Lock Bytes",
+              color: COLORS.control,
+              startAbsolute: page * 4,
+              kind: "dynamic-lock",
+            }
+          : {
+              key: "dynamic-rfui",
+              name: "RFUI",
+              color: COLORS.control,
+              startAbsolute: absoluteByte,
+              kind: "dynamic-lock",
+            };
+      }
+      if (page >= tag.configStartPage && page <= tag.lastPage) {
+        const configOffset = page - tag.configStartPage;
+        if (configOffset === 0) {
+          return {
+            key: "cfg0",
+            name: "CFG 0",
+            color: COLORS.control,
+            startAbsolute: page * 4,
+            kind: "configuration",
+          };
+        }
+        if (configOffset === 1) {
+          return {
+            key: "cfg1",
+            name: "CFG 1",
+            color: COLORS.control,
+            startAbsolute: page * 4,
+            kind: "configuration",
+          };
+        }
+        if (configOffset === 2) {
+          return {
+            key: "password",
+            name: "Password",
+            color: COLORS.control,
+            startAbsolute: page * 4,
+            kind: "configuration",
+          };
+        }
+        return byte <= 1
+          ? {
+              key: "pack",
+              name: "PACK",
+              color: COLORS.control,
+              startAbsolute: page * 4,
+              kind: "configuration",
+            }
+          : {
+              key: "config-rfui",
+              name: "RFUI",
+              color: COLORS.control,
+              startAbsolute: page * 4 + 2,
+              kind: "configuration",
+            };
+      }
+      return null;
+    }
+
+    function buildRows(specInput, tagTypeInput, options = {}) {
+      const spec = validateSpec(specInput);
+      const tagType = normalizeTagType(tagTypeInput);
+      const displayOptions = normalizeDisplayOptions(options);
+      const tag = TAGS[tagType];
+      const prepared = preparePayload(spec, tag);
+      const mimeLength = spec.mime_type.length;
+      const ndefHeaderLength = prepared.payloadLength <= 0xff ? 3 : 6;
+      const ndefRecordLength =
+        ndefHeaderLength + mimeLength + prepared.payloadLength;
+      const tlvHeaderLength = ndefRecordLength < 0xff ? 2 : 4;
+      const payloadStart = displayOptions.showNdefHeader
+        ? tlvHeaderLength + ndefHeaderLength + mimeLength
+        : 0;
+      const terminatorOffset = displayOptions.showNdefHeader
+        ? tlvHeaderLength + ndefRecordLength
+        : null;
+      const userStartAbsolute = tag.userStartPage * 4;
+
+      const contentEndOffset = displayOptions.showNdefHeader
+        ? terminatorOffset
+        : prepared.payloadLength - 1;
+      const contentCapacity = displayOptions.showNdefHeader
+        ? tag.ndefCapacity
+        : (tag.userEndPage - tag.userStartPage + 1) * 4;
+      if (contentEndOffset >= contentCapacity) {
+        throw new Error(
+          `${tag.name} does not have enough user memory for the ${tag.format} record.`,
+        );
+      }
+
+      function userConcept(page, byte) {
+        const userOffset = (page - tag.userStartPage) * 4 + byte;
+        const absoluteByte = page * 4 + byte;
+        if (!displayOptions.showNdefHeader) {
+          if (userOffset < prepared.payloadLength) {
+            const payloadConcept = prepared.payload[userOffset];
+            return {
+              ...payloadConcept,
+              startAbsolute:
+                userStartAbsolute + payloadConcept.startPayloadOffset,
+              addressKind: "Payload",
+              addressOffset: userOffset,
+            };
+          }
+          return {
+            key: "unused",
+            name: "Unused",
+            color: COLORS.unused,
+            startAbsolute: userStartAbsolute + prepared.payloadLength,
+            kind: "unused",
+            addressKind: "Payload",
+            addressOffset: userOffset,
+          };
+        }
+        if (userOffset === 0) {
+          return {
+            key: "tlv-type",
+            name: "NDEF TLV Type",
+            color: COLORS.ndef,
+            startAbsolute: absoluteByte,
+            kind: "ndef-header",
+            addressKind: "TLV",
+            addressOffset: 0,
+          };
+        }
+        if (userOffset > 0 && userOffset < tlvHeaderLength) {
+          return {
+            key: "tlv-length",
+            name: "NDEF TLV Length",
+            color: COLORS.ndef,
+            startAbsolute: userStartAbsolute + 1,
+            kind: "ndef-header",
+            addressKind: "TLV",
+            addressOffset: userOffset,
+          };
+        }
+        const ndefOffset = userOffset - tlvHeaderLength;
+        if (ndefOffset === 0) {
+          return {
+            key: "ndef-record-header",
+            name: "NDEF Record Header",
+            color: COLORS.ndef,
+            startAbsolute: absoluteByte,
+            kind: "ndef-header",
+            addressKind: "NDEF",
+            addressOffset: ndefOffset,
+          };
+        }
+        if (ndefOffset === 1) {
+          return {
+            key: "ndef-type-length",
+            name: "NDEF Type Length",
+            color: COLORS.ndef,
+            startAbsolute: absoluteByte,
+            kind: "ndef-header",
+            addressKind: "NDEF",
+            addressOffset: ndefOffset,
+          };
+        }
+        if (ndefOffset >= 2 && ndefOffset < ndefHeaderLength) {
+          return {
+            key: "ndef-payload-length",
+            name: "NDEF Payload Length",
+            color: COLORS.ndef,
+            startAbsolute: userStartAbsolute + tlvHeaderLength + 2,
+            kind: "ndef-header",
+            addressKind: "NDEF",
+            addressOffset: ndefOffset,
+          };
+        }
+        if (ndefOffset >= ndefHeaderLength && userOffset < payloadStart) {
+          return {
+            key: "mime-type",
+            name: "MIME Type",
+            color: COLORS.ndef,
+            startAbsolute:
+              userStartAbsolute + tlvHeaderLength + ndefHeaderLength,
+            kind: "ndef-header",
+            addressKind: "NDEF",
+            addressOffset: ndefOffset,
+          };
+        }
+        if (
+          userOffset >= payloadStart &&
+          userOffset < payloadStart + prepared.payloadLength
+        ) {
+          const payloadOffset = userOffset - payloadStart;
+          const payloadConcept = prepared.payload[payloadOffset];
+          return {
+            ...payloadConcept,
+            startAbsolute:
+              userStartAbsolute +
+              payloadStart +
+              payloadConcept.startPayloadOffset,
+            addressKind: "Payload",
+            addressOffset: payloadOffset,
+          };
+        }
+        if (userOffset === terminatorOffset) {
+          return {
+            key: "ndef-terminator",
+            name: "NDEF TLV Terminator",
+            color: COLORS.ndef,
+            startAbsolute: absoluteByte,
+            kind: "ndef-terminator",
+            addressKind: "TLV Terminator",
+          };
+        }
+        return {
+          key: "unused",
+          name: "Unused",
+          color: COLORS.unused,
+          startAbsolute: userStartAbsolute + terminatorOffset + 1,
+          kind: "unused",
+          addressKind: "Payload",
+          addressOffset: userOffset - payloadStart - 1,
+        };
+      }
+
+      function conceptsForPage(page) {
+        const concepts = [];
+        for (let byte = 0; byte < 4; byte++) {
+          concepts.push(
+            controlConcept(page, byte, tag) || userConcept(page, byte),
+          );
+        }
+        return concepts;
+      }
+
+      function addressLines(concepts) {
+        const groups = [];
+        let currentGroup = null;
+        concepts.forEach((concept) => {
+          if (concept.addressKind !== "Payload") {
+            currentGroup = null;
+            return;
+          }
+          if (currentGroup && currentGroup.end + 1 === concept.addressOffset) {
+            currentGroup.end = concept.addressOffset;
+            return;
+          }
+          currentGroup = {
+            start: concept.addressOffset,
+            end: concept.addressOffset,
+          };
+          groups.push(currentGroup);
+        });
+        return groups;
+      }
+
+      function fieldSegments(concepts, page) {
+        const segments = [];
+        concepts.forEach((concept, byte) => {
+          const previous = segments[segments.length - 1];
+          if (previous && previous.key === concept.key) {
+            previous.span++;
+            return;
+          }
+          segments.push({
+            key: concept.key,
+            name: concept.name,
+            color: concept.color,
+            span: 1,
+            continued: page * 4 + byte > concept.startAbsolute,
+            rangeBoundary:
+              concept.addressKind === "Payload"
+                ? prepared.rangeBoundaries.get(concept.addressOffset) || null
+                : null,
+          });
+        });
+        return segments;
+      }
+
+      function memoryType(concepts, page) {
+        if (page <= 0x02) {
+          return { label: "System", details: [] };
+        }
+        if (page === 0x03) {
+          return { label: "Capability Container", details: [] };
+        }
+        if (page === tag.dynamicLockPage) {
+          return { label: "Dynamic Lock", details: [] };
+        }
+        if (page >= tag.configStartPage) {
+          return { label: "Configuration", details: [] };
+        }
+
+        const kinds = new Set(concepts.map((concept) => concept.kind));
+        let label = "User Data";
+        if (kinds.has("ndef-header") && kinds.has("user-data")) {
+          label = "NDEF Header / User Data";
+        } else if (kinds.has("ndef-header")) {
+          label = "NDEF Header";
+        } else if (kinds.has("user-data") && kinds.has("ndef-terminator")) {
+          label = "User Data / NDEF Terminator";
+        } else if (kinds.has("ndef-terminator") && kinds.has("unused")) {
+          label = "NDEF Terminator / Unused User Memory";
+        } else if (kinds.has("ndef-terminator")) {
+          label = "NDEF Terminator";
+        } else if (kinds.has("unused")) {
+          label = "Unused User Memory";
+        }
+
+        const details = [];
+        const terminatorByte = concepts.findIndex(
+          (concept) => concept.kind === "ndef-terminator",
+        );
+        if (terminatorByte !== -1) {
+          details.push({
+            text: `${tag.format} NDEF Last Byte (Byte ${terminatorByte})`,
+            strong: true,
+          });
+        }
+        if (page === tag.userEndPage) {
+          details.push({
+            text: `${tag.name} Last User Mem Byte (Byte 3)`,
+            strong: true,
+          });
+        }
+        return { label, details };
+      }
+
+      const rows = [];
+      for (let page = 0; page <= tag.lastPage; page++) {
+        const concepts = conceptsForPage(page);
+        const isSystemPage = page < tag.userStartPage || page > tag.userEndPage;
+        const containsDisplayedData = concepts.some((concept) =>
+          ["user-data", "ndef-header", "ndef-terminator"].includes(
+            concept.kind,
+          ),
+        );
+        const isUnusedUserPage =
+          !isSystemPage &&
+          concepts.some((concept) => concept.kind === "unused");
+        if (
+          !containsDisplayedData &&
+          !isUnusedUserPage &&
+          !(displayOptions.showSystemMemory && isSystemPage)
+        ) {
+          continue;
+        }
+        rows.push({
+          page,
+          rawStart: page * 4,
+          rawEnd: page * 4 + 3,
+          addresses: addressLines(concepts),
+          fields: fieldSegments(concepts, page),
+          memoryType: memoryType(concepts, page),
+        });
+      }
+
+      return {
+        tag,
+        tagType,
+        specVersion: spec.version,
+        mimeType: spec.mime_type,
+        payloadLength: prepared.payloadLength,
+        ndefRecordLength,
+        displayOptions,
+        overlaps: prepared.overlaps,
+        rows,
+      };
+    }
+
+    function appendAddressLine(cell, address) {
+      if (cell.childNodes.length) {
+        cell.append(document.createElement("br"));
+      }
+      const code = document.createElement("code");
+      const range =
+        address.start === address.end
+          ? `0x${hex(address.start)}`
+          : `0x${hex(address.start)}-0x${hex(address.end)}`;
+      code.textContent = range;
+      cell.append(code);
+    }
+
+    function createTable(model) {
+      const table = document.createElement("table");
+      table.setAttribute("border", "1");
+      table.setAttribute("cellpadding", "4");
+      table.setAttribute("cellspacing", "0");
+      table.className = "opentag3d-memory-map-table";
+
+      const caption = document.createElement("caption");
+      caption.textContent = `${model.tag.name} ${model.tag.format} memory map`;
+      table.append(caption);
+
+      const header = table.createTHead().insertRow();
+      [
+        "Raw Mem Addr",
+        "OpenTag3D Mem Addr",
+        "Byte 0",
+        "Byte 1",
+        "Byte 2",
+        "Byte 3",
+        "Mem Type",
+      ].forEach((label, index) => {
+        if (index === 0 && !model.displayOptions.showRawMemoryAddresses) {
+          return;
+        }
+        const cell = document.createElement("th");
+        cell.scope = "col";
+        cell.textContent = label;
+        if (index === 0) {
+          cell.classList.add("opentag3d-memory-map-metadata");
+        }
+        header.append(cell);
+      });
+
+      const body = table.createTBody();
+      model.rows.forEach((row) => {
+        const tableRow = body.insertRow();
+
+        if (model.displayOptions.showRawMemoryAddresses) {
+          const rawCell = document.createElement("th");
+          rawCell.scope = "row";
+          rawCell.className = "opentag3d-memory-map-metadata";
+          const rawCode = document.createElement("code");
+          rawCode.textContent = `0x${hex(row.rawStart)}-0x${hex(row.rawEnd)}`;
+          rawCell.append(rawCode, document.createElement("br"));
+          const blockLabel = document.createElement("small");
+          blockLabel.textContent = `Block ${row.page} (0x${hex(row.page, 2)})`;
+          rawCell.append(blockLabel);
+          tableRow.append(rawCell);
+        }
+
+        const addressCell = tableRow.insertCell();
+        addressCell.className = "opentag3d-memory-map-address";
+        row.addresses.forEach((address) =>
+          appendAddressLine(addressCell, address),
+        );
+
+        row.fields.forEach((field) => {
+          const fieldCell = tableRow.insertCell();
+          fieldCell.colSpan = field.span;
+          fieldCell.textContent = `${field.continued ? "(Cont.) " : ""}${field.name}`;
+          fieldCell.classList.add(
+            "opentag3d-memory-map-field",
+            FIELD_COLOR_CLASSES[field.color],
+            `opentag3d-memory-map-field--span-${field.span}`,
+          );
+          if (field.rangeBoundary) {
+            fieldCell.classList.add("opentag3d-memory-map-field--boundary");
+            fieldCell.title = `OpenTag3D ${field.rangeBoundary} range begins here`;
+          }
+        });
+
+        const typeCell = tableRow.insertCell();
+        typeCell.className = "opentag3d-memory-map-metadata";
+        typeCell.append(document.createTextNode(row.memoryType.label));
+        row.memoryType.details.forEach((detail) => {
+          typeCell.append(document.createElement("br"));
+          const detailElement = document.createElement(
+            detail.strong ? "strong" : "small",
+          );
+          detailElement.textContent = detail.text;
+          typeCell.append(detailElement);
+        });
+      });
+
+      return table;
+    }
+
+    function formatAddressRange(start, end) {
+      return start === end
+        ? `0x${hex(start)}`
+        : `0x${hex(start)}-0x${hex(end)}`;
+    }
+
+    function renderOverlapReport(container, overlaps) {
+      if (!container) {
+        return;
+      }
+      container.replaceChildren();
+      container.hidden = overlaps.length === 0;
+      if (!overlaps.length) {
+        return;
+      }
+
+      const heading = document.createElement("strong");
+      heading.textContent = `Memory address overlap${overlaps.length === 1 ? "" : "s"} detected`;
+      container.append(heading);
+
+      const list = document.createElement("ul");
+      overlaps.forEach((overlap) => {
+        const item = document.createElement("li");
+        const firstRange = formatAddressRange(
+          overlap.firstField.startOffset,
+          overlap.firstField.endOffset,
+        );
+        const secondRange = formatAddressRange(
+          overlap.secondField.startOffset,
+          overlap.secondField.endOffset,
+        );
+        const sharedRange = formatAddressRange(
+          overlap.startOffset,
+          overlap.endOffset,
+        );
+        item.textContent = `${overlap.firstField.name} (${firstRange}) and ${overlap.secondField.name} (${secondRange}) overlap at ${sharedRange}.`;
+        list.append(item);
+      });
+      container.append(list);
+    }
+
+    function resolveTarget(target) {
+      if (typeof target === "string") {
+        return document.querySelector(target);
+      }
+      return target;
+    }
+
+    function render(tagType, target, options = {}) {
+      if (typeof document === "undefined") {
+        throw new Error("Rendering requires a browser document.");
+      }
+      const container = resolveTarget(target);
+      if (!container) {
+        throw new Error("The memory-map target element was not found.");
+      }
+      const spec = options.spec || SPEC;
+      const model = buildRows(spec, tagType, options);
+      const table = createTable(model);
+      container.replaceChildren(table);
+      renderOverlapReport(resolveTarget(options.overlapTarget), model.overlaps);
+      return model;
+    }
+
+    function initializeWidgets() {
+      document
+        .querySelectorAll("[data-opentag3d-memory-map]")
+        .forEach((widget) => {
+          if (widget.dataset.memoryMapInitialized === "true") {
+            return;
+          }
+          widget.dataset.memoryMapInitialized = "true";
+          const selector = widget.querySelector("[data-memory-map-tag]");
+          const optionInputs = [
+            ...widget.querySelectorAll("[data-memory-map-option]"),
+          ];
+          const systemMemoryInput = widget.querySelector(
+            '[data-memory-map-option="showSystemMemory"]',
+          );
+          const ndefHeaderInput = widget.querySelector(
+            '[data-memory-map-option="showNdefHeader"]',
+          );
+          const specFileInput = widget.querySelector(
+            "[data-memory-map-spec-file]",
+          );
+          const specResetButton = widget.querySelector(
+            "[data-memory-map-spec-reset]",
+          );
+          const output = widget.querySelector("[data-memory-map-output]");
+          const overlapReport = widget.querySelector(
+            "[data-memory-map-overlaps]",
+          );
+          const status = widget.querySelector("[data-memory-map-status]");
+          const update = async () => {
+            const tagType = selector ? selector.value : "NTAG215";
+            if (ndefHeaderInput) {
+              if (systemMemoryInput?.checked) {
+                ndefHeaderInput.checked = true;
+                ndefHeaderInput.disabled = true;
+              } else {
+                ndefHeaderInput.disabled = false;
+              }
+            }
+            const displayOptions = Object.fromEntries(
+              optionInputs.map((input) => [
+                input.dataset.memoryMapOption,
+                input.checked,
+              ]),
+            );
+            const selectedSpecFile = specFileInput?.files?.[0];
+            if (status) {
+              status.textContent = `Loading ${tagType} memory map…`;
+            }
+            try {
+              const specOptions = selectedSpecFile
+                ? { spec: JSON.parse(await selectedSpecFile.text()) }
+                : {};
+              const model = await render(tagType, output, {
+                ...specOptions,
+                ...displayOptions,
+                overlapTarget: overlapReport,
+              });
+              if (status) {
+                const specSource = selectedSpecFile
+                  ? `${selectedSpecFile.name} spec ${model.specVersion}`
+                  : `local spec ${model.specVersion}`;
+                const overlapStatus = model.overlaps.length
+                  ? ` ${model.overlaps.length} overlap${model.overlaps.length === 1 ? "" : "s"} detected.`
+                  : "";
+                status.textContent = `${model.tag.name}: ${model.payloadLength} payload bytes; ${specSource}.${overlapStatus}`;
+              }
+            } catch (error) {
+              if (status) {
+                status.textContent = error.message;
+              }
+              output.replaceChildren();
+              renderOverlapReport(overlapReport, []);
+            }
+          };
+
+          if (selector) {
+            selector.addEventListener("change", update);
+          }
+          optionInputs.forEach((input) =>
+            input.addEventListener("change", update),
+          );
+          if (specFileInput) {
+            specFileInput.addEventListener("change", () => {
+              if (specResetButton) {
+                specResetButton.disabled = !specFileInput.files?.length;
+              }
+              update();
+            });
+          }
+          if (specResetButton && specFileInput) {
+            specResetButton.addEventListener("click", () => {
+              specFileInput.value = "";
+              specResetButton.disabled = true;
+              update();
+            });
+          }
+          update();
+        });
+    }
+
+    const api = {
+      supportedTags: Object.keys(TAGS),
+      buildRows,
+      render,
+    };
+
+    global.OpenTag3DMemoryMap = api;
+    global.renderOpenTag3dMemoryMap = render;
+
+    if (typeof module !== "undefined" && module.exports) {
+      module.exports = api;
+    }
+
+    if (typeof document !== "undefined") {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeWidgets, {
+          once: true,
+        });
+      } else {
+        initializeWidgets();
+      }
+    }
+  })(typeof window !== "undefined" ? window : globalThis);
+</script>

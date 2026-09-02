@@ -11,7 +11,7 @@ header:
   actions:
     - label: "View Spec"
       url: "/spec"
-  announcement: "[OpenTag3D v2.0](./articles/v2-already) is on its way soon!"
+  announcement: "[OpenTag3D v2.0](./articles/v2-already) is out now!"
   caption: "Placeholder Background by [**morgaannn23**](https://wallpapercave.com/w/wp6945227)"
 excerpt: "An open source standard for 3D printer filament RFID tags. Designed from the ground up for compatibility between printers, filament manufacturers, and accessories, implementation is simple and low-cost."
 intro:
@@ -26,7 +26,7 @@ feature_row:
     image_path: /assets/images/icons8-archive.svg
     alt: ""
   - title: "Open Standard, Open To All"
-    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone, from major manufacturers to individual makers, can build, read, and write compatible tags. Additionally, all of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
+    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone can build, read, and write compatible tags. All of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
     image_path: assets/images/icons8-open_source.svg
     alt: ""
 ---
