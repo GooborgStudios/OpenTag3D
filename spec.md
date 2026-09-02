@@ -64,6 +64,7 @@ The data is designed to fit within the 504 bytes of writable space on the NTAG21
 
 ### Memory Map - Visualization
 {% include memory_map.html %}
+
 ### Web API Standard
 
 > [!IMPORTANT]
