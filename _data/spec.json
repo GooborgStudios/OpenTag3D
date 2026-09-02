@@ -251,6 +251,20 @@
         "description": "Maximum nozzle temperature, divided by 5."
       },
       {
+        "name": "Target Chamber Temperature",
+        "id": "chamber_temp",
+        "added": "1.000",
+        "unit": "ºC",
+        "type": "int",
+        "scaling": 5,
+        "start": "0x93",
+        "length": 1,
+        "usage": "operational",
+        "examples": [12, 16],
+        "required": true,
+        "description": "Recommended chamber temperature in degrees Celsius, divided by 5. For example, `12` = `60°C`."
+      },
+      {
         "name": "Target Bed Temperature",
         "id": "bed_temp",
         "added": "1.000",
@@ -289,20 +303,6 @@
         "usage": "operational",
         "examples": [12],
         "description": "Maximum bed temperature, divided by 5."
-      },
-      {
-        "name": "Target Chamber Temperature",
-        "id": "chamber_temp",
-        "added": "1.000",
-        "unit": "ºC",
-        "type": "int",
-        "scaling": 5,
-        "start": "0x97",
-        "length": 1,
-        "usage": "operational",
-        "examples": [12, 16],
-        "required": true,
-        "description": "Recommended chamber temperature in degrees Celsius, divided by 5. For example, `12` = `60°C`."
       },
       {
         "name": "Target Volumetric Speed",
