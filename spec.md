@@ -15,10 +15,12 @@ The OpenTag3D standard is designed to work on any NFC tag that is compliant with
 
 In particular, the standard is tailored towards the NTAG215 13.56MHz NFC chips. These tags are cheap and common, and have plenty of space to store all of the required and optional information.
 
-| Tag Type | Capacity  | Usable Capacity |
-| -------- | --------- | --------------- |
-| NTAG215  | 504 bytes | 471 bytes       |
-| NTAG216  | 888 bytes | 835 bytes       |
+| Tag Type | Total Onboard Memory | Usable Memory | Maximum OpenTag3D Payload |
+| -------- | -------------------- | ------------- | ------------------------- |
+| NTAG215  | 540 bytes            | 504 bytes     | 471 bytes                 |
+| NTAG216  | 924 bytes            | 888 bytes     | 835 bytes                 |
+
+Usable memory excludes manufacturer data, configuration data, lock bytes, and the capability container. The maximum OpenTag3D payload also accounts for the required NDEF record overhead.
 
 <img src="./assets/images/ntag-sticker.jpg" width="200">
 
@@ -158,12 +160,9 @@ These are topics that were heavily discussed during the development of OpenTag3D
   - NTAG215 tags only have 504 bytes of usable memory, which would be eaten up quickly
     - With memory mapping, the essential data was able to easily fit in 144 bytes
 - Lookup Tables
-  - OpenTag3D does NOT use lookup tables, which would be too difficult to maintain due to the decentralized nature of this standard
-  - Lookup tables can quickly become outdated, which would require regular updates to tag readers to make sure they've downloaded the most recent table
-  - Storing lookup tables consumes more memory on the device that reads tags
-  - On-demand lookup (via the internet) would require someone to host a database
-    - Hosting this data would have costs associated with it, and would also put the control of the entire OpenTag3D format in the hands of a single person/company
-  - Rather than representing data as a number (such as "company #123 = Example Company"), the plain-text company name should be used instead
+  - **They undermine decentralization.** A lookup table requires someone to maintain a central map of IDs to values, such as `1 = PLA`. This would give one organization control over which values receive an entry, contrary to the decentralized purpose of OpenTag3D.
+  - **They complicate implementations.** A printer or other tag reader would need either an internet connection for on-demand lookups or a local copy of every lookup table. These could include lists of all 3D-printing materials and brands. Local tables also consume unnecessary storage and must be kept up to date.
+  - **They are unsuitable for operational data.** A generic label such as `PLA` does not describe how every PLA filament should be used. Formulations vary between brands and products. Values such as print temperature, bed temperature, and maximum volumetric print speed describe the material's operating requirements more accurately than its name alone.
 - NDEF Records vs Direct Writing
   - In an early version of the spec, it was designed for the bytes to be written directly to the tag instead of using NDEF records
   - Although NDEF records consume more memory on the tag, the choice to switch to them was made for the following reasons
