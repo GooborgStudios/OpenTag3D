@@ -4,7 +4,7 @@ layout: single
 description: Why is v2.0 already coming out, when v1.0 hasn't been around for that long?
 ---
 
-We're excited to announce that v2.0 of OpenTag3D is just around the corner, which introduces a better organized data structure and new inventory fields like SKU and UPC13/GTIN barcode, and makes the NTAG215 the minimum requirement for the data. Of course, reorganizing the data means breaking backwards compatibility, which may seem strange to do so quickly after v1.0 was released.
+We're excited to announce that v2.0 of OpenTag3D has just released, which introduces a better organized data structure and new inventory fields like SKU and UPC13/GTIN barcode, and makes the NTAG215 the minimum requirement for the data. Of course, reorganizing the data means breaking backwards compatibility, which may seem strange to do so quickly after v1.0 was released.
 
 ## What's the reason for the v2.0 release?
 
@@ -26,7 +26,7 @@ We felt that if there was any time to fix it, it would be now while implementati
 
 Another significant change in v2.0 is that NTAG215, or an equivalent or larger tag, is now the minimum supported capacity. The standard was designed to fit within the much tighter memory constraints of the NTAG213, which sometimes required compromises in how data was organized and left limited room for future expansion. Increasing the minimum capacity gives the format more freedom to organize data in a clear and intuitive way, while also leaving room for the standard to grow without immediately running into the same memory constraints.
 
-## If v2.0 is coming out now, will v3.0 come out in another half year?
+## If v2.0 is released now, will v3.0 come out in another half year?
 
 NO! We do not plan to release a v3.0 for at least another year or two.
 
