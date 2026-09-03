@@ -64,9 +64,6 @@ Want to provide a financial contribution? Donate to the Gooborg Studios' founder
 
 The OpenTag3D Consortium is a collaborative group of 3D printing companies, hobbyists, RFID experts, and other stakeholders committed to maintaining and evolving the OpenTag3D RFID standard specification. The consortium operates under a structured membership model, ensuring a balance of inclusivity and effective decision-making.
 
-> [!NOTE]
-> Currently, the consortium consists of two members: Gooborg Studios and Polar Filament. As the specification matures, we hope to add more members to the consortium. Please [email us](#contact) if you wish to join!
-
 ### Voting Members
 
 Voting members play a critical role in the governance of the OpenTag3D standard. They have the authority to vote on proposals related to modifying the specification. Their decisions shape the future direction of OpenTag3D, ensuring it meets the needs of the community and industry.
@@ -77,6 +74,22 @@ To maintain fairness and inclusivity, the voting seats are divided equally betwe
 - **Community Representatives**: Voting members from the broader community, including hobbyists, independent developers, and RFID experts.
 
 This balanced structure ensures that no single group dominates decision-making, fostering a standard that reflects the interests of both professional and grassroots contributors.
+
+The current voting members are as follows:
+
+- Industry:
+  - Mitch (Polar Filament) - Filament Manufacturer
+  - Josh (Push Plastic) - Filament Manufacturer
+- Community:
+  - Vinyl Da.i'gyu (Gooborg Studios) - Spec Host/Author
+  - Grant (3D Musketeers) - YouTube Content Creator
+  - Blake770
+  - MadSciSlack
+  - PlayTone
+  - ccatlett1984 (Open Resin Alliance)
+
+> [!NOTE]
+> We are looking for additional members to join the consortium. Please [email us](#contact) if you wish to join!
 
 ### Non-Voting Members
 
