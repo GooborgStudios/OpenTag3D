@@ -15,10 +15,12 @@ The OpenTag3D standard is designed to work on any NFC tag that is compliant with
 
 In particular, the standard is tailored towards the NTAG215 13.56MHz NFC chips. These tags are cheap and common, and have plenty of space to store all of the required and optional information.
 
-| Tag Type | Capacity  | Usable Capacity |
-| -------- | --------- | --------------- |
-| NTAG215  | 504 bytes | 471 bytes       |
-| NTAG216  | 888 bytes | 835 bytes       |
+| Tag Type | Total Onboard Memory | Usable Memory | Maximum OpenTag3D Payload |
+| -------- | -------------------- | ------------- | ------------------------- |
+| NTAG215  | 540 bytes            | 504 bytes     | 471 bytes                 |
+| NTAG216  | 924 bytes            | 888 bytes     | 835 bytes                 |
+
+Usable memory excludes manufacturer data, configuration data, lock bytes, and the capability container. The maximum OpenTag3D payload also accounts for the required NDEF record overhead.
 
 <img src="./assets/images/ntag-sticker.jpg" width="200">
 
@@ -61,15 +63,23 @@ The data is designed to fit within the 504 bytes of writable space on the NTAG21
 {% include spec_table.md set="core" %}
 
 ### Memory Map - Visualization
-
 {% include memory_map.html %}
 
 ### Web API Standard
 
-Sometimes a filament manufacturer may want to include supplemental data for advanced users that doesn't fit or otherwise cannot be stored on the RFID tag itself. One example is a diameter graph, which is too much data to be stored within only 888 bytes of memory. OpenTag3D defines a field for a "web API" URL which can be used to look up this information.
+> [!IMPORTANT]
+> OpenTag3D is designed to work entirely offline. The Web API is optional and may only provide supplemental information; no operational data may be stored exclusively in the Web API. All data required to use the material must remain available on the tag.
 
-> [!NOTE]
-> The web API will **NEVER** be used for critical information required by printers in order to print the material properly. It will **ONLY** be used for advanced supplemental data, or data that requires an internet connection to utilize.
+The Web API complements the data stored on the tag in two ways:
+
+1. **Provide additional resources.** The API can provide assets, data, and links that cannot fit on the tag itself, including:
+   - Product photos
+   - Slicer print profiles
+   - Purchase links and current prices
+   - Advanced manufacturing data, such as diameter and ovality graphs
+2. **Keep tag data up to date.** The API can provide an online copy of the data stored on the tag. A reader can compare the two sources and update the tag when the manufacturer:
+   - Changes its recommended settings
+   - Adds specification data for parameters that were previously left blank
 
 The "Online Data URL" field should be populated with the URL that responds with the web API data. The URL must return JSON data when the `Accept` HTTP header is set to `application/json`. Implementers are welcome to create a user-friendly UI if the `Accept` header is set to anything else, but it _must_ return JSON format if the client calls for it.
 
@@ -153,12 +163,9 @@ These are topics that were heavily discussed during the development of OpenTag3D
   - NTAG215 tags only have 504 bytes of usable memory, which would be eaten up quickly
     - With memory mapping, the essential data was able to easily fit in 144 bytes
 - Lookup Tables
-  - OpenTag3D does NOT use lookup tables, which would be too difficult to maintain due to the decentralized nature of this standard
-  - Lookup tables can quickly become outdated, which would require regular updates to tag readers to make sure they've downloaded the most recent table
-  - Storing lookup tables consumes more memory on the device that reads tags
-  - On-demand lookup (via the internet) would require someone to host a database
-    - Hosting this data would have costs associated with it, and would also put the control of the entire OpenTag3D format in the hands of a single person/company
-  - Rather than representing data as a number (such as "company #123 = Example Company"), the plain-text company name should be used instead
+  - **They undermine decentralization.** A lookup table requires someone to maintain a central map of IDs to values, such as `1 = PLA`. This would give one organization control over which values receive an entry, contrary to the decentralized purpose of OpenTag3D.
+  - **They complicate implementations.** A printer or other tag reader would need either an internet connection for on-demand lookups or a local copy of every lookup table. These could include lists of all 3D-printing materials and brands. Local tables also consume unnecessary storage and must be kept up to date.
+  - **They are unsuitable for operational data.** A generic label such as `PLA` does not describe how every PLA filament should be used. Formulations vary between brands and products. Values such as print temperature, bed temperature, and maximum volumetric print speed describe the material's operating requirements more accurately than its name alone.
 - NDEF Records vs Direct Writing
   - In an early version of the spec, it was designed for the bytes to be written directly to the tag instead of using NDEF records
   - Although NDEF records consume more memory on the tag, the choice to switch to them was made for the following reasons
