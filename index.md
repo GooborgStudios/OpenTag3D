@@ -11,23 +11,23 @@ header:
   actions:
     - label: "View Spec"
       url: "/spec"
-  announcement: "OpenTag3D has reached a stable point and is now at v1.0!"
+  announcement: "[OpenTag3D v2.0](./articles/v2-already) is out now!"
   caption: "Placeholder Background by [**morgaannn23**](https://wallpapercave.com/w/wp6945227)"
 excerpt: "An open source standard for 3D printer filament RFID tags. Designed from the ground up for compatibility between printers, filament manufacturers, and accessories, implementation is simple and low-cost."
 intro:
   - excerpt: "Proprietary locks you in. Open sets you free. — [Tim Berners-Lee](https://www.w3.org/People/Berners-Lee/)"
 feature_row:
-  - title: "Open Standard, Open To All"
-    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone, from major manufacturers to individual makers, can build, read, and write compatible tags. Additionally, all of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
-    image_path: assets/images/icons8-open_source.svg
-    alt: ""
   - title: "Low-Cost, Off-the-Shelf Hardware"
-    excerpt: "OpenTag3D uses NTAG213/215/216 NFC tags, the most common and affordable NFC tags on the market. These tags are readable and writable by smartphones, compatible with most off-the-shelf RFID/NFC readers (including low-cost PN532 modules), and require no proprietary hardware. This allows everyone, from corporations to hobbyists, to implement the standard into their applications, printers or accessories."
+    excerpt: "OpenTag3D uses standard NFC tags (NTAG215/216). These tags are readable and writable by smartphones, compatible with most off-the-shelf RFID/NFC readers (including low-cost PN532 modules), and require no proprietary hardware. This allows everyone, from corporations to hobbyists, to implement the standard into their applications, printers or accessories."
     image_path: /assets/images/icons8-request_money.svg
     alt: ""
   - title: "Compact Format, Complete Data"
-    excerpt: "All the critical data a 3D printer needs (such as manufacturer, material, color, print settings, and more) fits neatly within 144 bytes on an NTAG213. For manufacturers who want to include additional details like serial numbers, production data, or extended specifications, the NTAG215 and NTAG216 provide ample extra space without changing compatibility. Dynamic data, such as current filament price, can also be provided via a web API."
+    excerpt: "All the critical data a 3D printer needs, including manufacturer, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in half a megabyte. Dynamic data, such as current filament price, can also be provided via a web API."
     image_path: /assets/images/icons8-archive.svg
+    alt: ""
+  - title: "Open Standard, Open To All"
+    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone can build, read, and write compatible tags. All of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
+    image_path: assets/images/icons8-open_source.svg
     alt: ""
 ---
 
@@ -35,7 +35,7 @@ feature_row:
 
 {% include feature_row %}
 
-RFID tags for 3D printer filament is becoming more prevalent, with every printer manufacturer trying to launch their own RFID standard, both closed and open source. With the ever-growing list of conflicting standards, the 3D printing industry needs a centralized standard that is not controlled by any single company, more than ever. OpenTag3D strives to be that standard as a community-driven specification.
+RFID tags for 3D printer filament is becoming more prevalent, with every printer manufacturer trying to launch their own RFID standard. With the ever-growing list of conflicting formats, the 3D printing industry needs an open standard that is not controlled by any single company, more than ever. As a community-driven specification, OpenTag3D strives to be that standard.
 
 OpenTag3D defines standards for the following:
 

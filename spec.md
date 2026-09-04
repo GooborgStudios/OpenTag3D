@@ -11,29 +11,30 @@ Current Version: {{ site.data.spec.version }}
 
 ## Hardware Standard
 
-The OpenTag3D standard is designed to work on any NFC tag that is compliant with the ISO/IEC 14443 Type A communication protocol, is compatible with NDEF Type 2, and has at least 144 bytes of writable capacity. These kinds of tags are plentiful and can be read and written with smartphones and PN532 modules, making them low-cost and easy to integrate.
+The OpenTag3D standard is designed to work on any NFC tag that is compliant with the ISO/IEC 14443 Type A communication protocol, is compatible with NDEF Type 2, and has at least 504 bytes of writable capacity. These kinds of tags are plentiful and can be read and written with smartphones and PN532 modules, making them low-cost and easy to integrate.
 
-In particular, the standard is tailored towards the NTAG213/215/216 13.56MHz NFC chips. These tags are cheap and common, and have plenty of space to store all of the required and optional information. SLIX2 tags were later added as a compliant option.
+In particular, the standard is tailored towards the NTAG215 13.56MHz NFC chips. These tags are cheap and common, and have plenty of space to store all of the required and optional information.
 
-| Tag Type | Capacity  | Usable Capacity | Compatibility   |
-| -------- | --------- | --------------- | --------------- |
-| NTAG213  | 144 bytes | 111 bytes       | Core            |
-| SLIX2    | 320 bytes | 287 bytes       | Core + Extended |
-| NTAG215  | 504 bytes | 471 bytes       | Core + Extended |
-| NTAG216  | 888 bytes | 835 bytes       | Core + Extended |
+| Tag Type | Total Onboard Memory | Usable Memory | Maximum OpenTag3D Payload |
+| -------- | -------------------- | ------------- | ------------------------- |
+| NTAG215  | 540 bytes            | 504 bytes     | 471 bytes                 |
+| NTAG216  | 924 bytes            | 888 bytes     | 835 bytes                 |
+
+> [!NOTE]
+> In OpenTag3D v1.0, the NTAG213 and SLIX2 were listed as compatible tags. These two tag types are no longer supported by the OpenTag3D specification.
+
+Usable memory excludes manufacturer data, configuration data, lock bytes, and the capability container. The maximum OpenTag3D payload also accounts for the required NDEF record overhead.
 
 <img src="./assets/images/ntag-sticker.jpg" width="200">
 
 ### NTAG vs. MIFARE 1K Classic
 
-NFC NTAG213/215/216 was chosen over MIFARE 1K Classic tags, which is what the Bambu Lab AMS uses, for the following reasons:
+The NTAG215 tags were chosen over MIFARE 1K Classic tags, which is what the Bambu Lab AMS uses, for the following reasons:
 
-- Smartphone Support: NTAG213/215/216 can be read from smartphones, while MF1K requires a dedicated reader
+- Cheap and Easy to Source: NTAG215 tags are readily available at a low cost through any online retailer
+- Smartphone Support: NTAG215 tags can be read from smartphones, while MF1K requires a dedicated reader
 - Backwards Compatible: The RFID hardware used for reading MF1K tags typically supports NTAG tags as well
 - Non-Encrypted: MF1K uses 25% of its memory to encrypt the data, which is unsuitable for an open source standard
-
-> [!NOTE]
-> Originally, the NTAG216 was specifically selected as it had more usable memory (888 bytes) than the MF1K (768 bytes). However, it was later determined that the core data required for functionality could be stored within 144 bytes, and extra data could be stored within at little as 320 bytes. So, the NTAG213, SLIX2 and NTAG215 were added as cheaper spec-compliant options.
 
 ## Mechanical Standard
 
@@ -45,14 +46,9 @@ The NFC tags should be placed on the spools as follows:
   - For spool sides thicker than 4mm, there must be a cutout to embed the tag, or the tag should be fixed to the outside of the spool
 - Two tags should be used, one on each end of the spool, directly across from each other
 
-> [!NOTE]
-> The tag placement had slightly changed in v1.002 from exactly 56.0mm to 60.0mm with an additional tolerance. This was done in order to increase compatibility with spool shapes. This should not be an issue for any existing NFC reader implementations as NFC antennae are powerful enough to pick up a tag much further away.
-
 ## Data Structure Standard
 
 The data is to be stored as a payload within an NDEF record of MIME type `{{ site.data.spec.mime_type }}`. The data must remain unencrypted to be compliant with the spec.
-
-NTAG213 tags have 144 bytes of writable memory, which is the minimum requirement for OpenTag3D Core. SLIX2 tags have 320 bytes of writable memory, which is the minimum requirement for OpenTag3D Extended.
 
 All strings are UTF-8 unless specified otherwise. All integers are unsigned, big endian, unless specified otherwise.
 
@@ -61,28 +57,33 @@ Temperatures are stored in Celsius, divided by 5.
 Below is list of data that will live on the RFID chip. All **REQUIRED** data must be populated to be compliant with the spec.
 
 > [!NOTE]
-> Spec implementers: the memory maps for OpenTag3D Core and Extended are also available in [JSON format](https://opentag3d.info/spec.json).
+> Spec implementers: the memory maps for OpenTag3D are also available in [JSON format](https://opentag3d.info/spec.json).
 
-### Memory Map - OpenTag3D Core
+### Memory Map
 
-This is designed to fit within the 144 bytes of writable space on the NTAG213, the smallest and cheapest variant of compatible tags.
+The data is designed to fit within the 504 bytes of writable space on the NTAG215, the most common NFC tag type around.
 
 {% include spec_table.md set="core" %}
 
-### Memory Map - OpenTag3D Extended
+### Memory Map - Visualization
 
-This is additional data that not all manufacturers will implement, typically due to technological restrictions. These fields should be populated if available.
-
-This memory address starts just outside the range of NTAG213; an SLIX2 or larger must be used to store this data.
-
-{% include spec_table.md set="extended" %}
+{% include memory_map.html %}
 
 ### Web API Standard
 
-Sometimes a filament manufacturer may want to include supplemental data for advanced users that doesn't fit or otherwise cannot be stored on the RFID tag itself. One example is a diameter graph, which is too much data to be stored within only 888 bytes of memory. OpenTag3D defines a field for a "web API" URL which can be used to look up this information.
+> [!IMPORTANT]
+> OpenTag3D is designed to work entirely offline. The Web API is optional and may only provide supplemental information; no operational data may be stored exclusively in the Web API. All data required to use the material must remain available on the tag.
 
-> [!NOTE]
-> The web API will **NEVER** be used for critical information required by printers in order to print the material properly. It will **ONLY** be used for advanced supplemental data, or data that requires an internet connection to utilize.
+The Web API complements the data stored on the tag in two ways:
+
+1. **Provide additional resources.** The API can provide assets, data, and links that cannot fit on the tag itself, including:
+   - Product photos
+   - Slicer print profiles
+   - Purchase links and current prices
+   - Advanced manufacturing data, such as diameter and ovality graphs
+2. **Keep tag data up to date.** The API can provide an online copy of the data stored on the tag. A reader can compare the two sources and update the tag when the manufacturer:
+   - Changes its recommended settings
+   - Adds specification data for parameters that were previously left blank
 
 The "Online Data URL" field should be populated with the URL that responds with the web API data. The URL must return JSON data when the `Accept` HTTP header is set to `application/json`. Implementers are welcome to create a user-friendly UI if the `Accept` header is set to anything else, but it _must_ return JSON format if the client calls for it.
 
@@ -154,7 +155,7 @@ OpenTag3D has both full-size and small logos available:
 These are topics that were heavily discussed during the development of OpenTag3D. Below is a quick summary of each topic, and why we decided to settle on the standards we defined.
 
 - NTAG vs MIFARE 1K Classic
-  - NTAG213/215/216 and SLIX2 tags are easy to source
+  - NTAG215 tags are easy to source
   - NTAG216 has slightly more usable memory than MIFARE tags
     - This was later determined to not be important, as the core data could be fit within significantly less capacity
   - MIFARE 1K Classic uses about 25% of memory to encrypt data, preventing read/write operations, which is not applicable for OpenTag3D because of the open-source nature
@@ -163,15 +164,12 @@ These are topics that were heavily discussed during the development of OpenTag3D
 - JSON vs Memory Map
   - Formats such as JSON (human-readable text) take up considerably more memory than memory mapped
     - For example, defining something like Printing Temperature would be `PrintTemp:225` which is 13 bytes, instead of storing a memory mapped 2-byte number. Tokens could be reduced, but that also defeats the purpose of using JSON in the first place, which is often for readability
-  - NTAG216 tags only have 888 bytes of usable memory, and NTAG213 tags only have 144 bytes, which would be eaten up quickly
-    - With memory mapping, the core data was able to easily fit in 144 bytes
+  - NTAG215 tags only have 504 bytes of usable memory, which would be eaten up quickly
+    - With memory mapping, the essential data was able to easily fit in 144 bytes
 - Lookup Tables
-  - OpenTag3D does NOT use lookup tables, which would be too difficult to maintain due to the decentralized nature of this standard
-  - Lookup tables can quickly become outdated, which would require regular updates to tag readers to make sure they've downloaded the most recent table
-  - Storing lookup tables consumes more memory on the device that reads tags
-  - On-demand lookup (via the internet) would require someone to host a database
-    - Hosting this data would have costs associated with it, and would also put the control of the entire OpenTag3D format in the hands of a single person/company
-  - Rather than representing data as a number (such as "company #123 = Example Company"), the plain-text company name should be used instead
+  - **They undermine decentralization.** A lookup table requires someone to maintain a central map of IDs to values, such as `1 = PLA`. This would give one organization control over which values receive an entry, contrary to the decentralized purpose of OpenTag3D.
+  - **They complicate implementations.** A printer or other tag reader would need either an internet connection for on-demand lookups or a local copy of every lookup table. These could include lists of all 3D-printing materials and brands. Local tables also consume unnecessary storage and must be kept up to date.
+  - **They are unsuitable for operational data.** A generic label such as `PLA` does not describe how every PLA filament should be used. Formulations vary between brands and products. Values such as print temperature, bed temperature, and maximum volumetric print speed describe the material's operating requirements more accurately than its name alone.
 - NDEF Records vs Direct Writing
   - In an early version of the spec, it was designed for the bytes to be written directly to the tag instead of using NDEF records
   - Although NDEF records consume more memory on the tag, the choice to switch to them was made for the following reasons
@@ -182,6 +180,16 @@ These are topics that were heavily discussed during the development of OpenTag3D
 
 ## Changelog
 
+- 2.000
+  - Drop NTAG213 and SLIX2 as spec compliant options
+  - Drop "Core" and "Extended" terminology, as there are no more fields in the "Extended" space
+    - "Core" is now just the OpenTag3D format
+    - An "Extended" format could be revisited at a later time as the need arises
+  - Rearrange all fields' memory mapping
+  - Add `sku`, `barcode`, `chamber_temp` and `nozzle_diameter` fields to memory mapping
+  - Double serial number field size from 16 bytes to 32 bytes
+  - Reduce Transmission Distance from 2 bytes to 1 byte
+    - After discussion with filament manufacturers and users, 25.0mm of TD seems to be a reasonable upper limit
 - 1.003
   - Made all fields (except for `opentag_version`) in the web API optional
 - 1.002

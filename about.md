@@ -13,7 +13,7 @@ As the OpenTag3D protocol began to reach maturity, it was later moved to its own
 
 ### OpenTag3D vs. OpenPrintTag
 
-In late October 2025, after the announcement and development of OpenTag3D, Prusa announced a new open source standard for 3D printer filament RFID tags called [OpenPrintTag](https://openprinttag.org/). We wrote a [post](/response-to-openprinttag.md) explaining what this meant for OpenTag3D, but in summary, OpenTag3D development will not be discontinuing.
+In late October 2025, after the announcement and development of OpenTag3D, Prusa announced a new open source standard for 3D printer filament RFID tags called [OpenPrintTag](https://openprinttag.org/). We wrote a [post](/articles/response-to-openprinttag.md) explaining what this meant for OpenTag3D, but in summary, OpenTag3D development will not be discontinuing.
 
 ## Why RFID?
 
@@ -64,9 +64,6 @@ Want to provide a financial contribution? Donate to the Gooborg Studios' founder
 
 The OpenTag3D Consortium is a collaborative group of 3D printing companies, hobbyists, RFID experts, and other stakeholders committed to maintaining and evolving the OpenTag3D RFID standard specification. The consortium operates under a structured membership model, ensuring a balance of inclusivity and effective decision-making.
 
-> [!NOTE]
-> Currently, the consortium consists of two members: Gooborg Studios and Polar Filament. As the specification matures, we hope to add more members to the consortium. Please [email us](#contact) if you wish to join!
-
 ### Voting Members
 
 Voting members play a critical role in the governance of the OpenTag3D standard. They have the authority to vote on proposals related to modifying the specification. Their decisions shape the future direction of OpenTag3D, ensuring it meets the needs of the community and industry.
@@ -78,6 +75,22 @@ To maintain fairness and inclusivity, the voting seats are divided equally betwe
 
 This balanced structure ensures that no single group dominates decision-making, fostering a standard that reflects the interests of both professional and grassroots contributors.
 
+The current voting members are as follows:
+
+- Industry:
+  - Mitch (Polar Filament) - Filament Manufacturer
+  - Josh (Push Plastic) - Filament Manufacturer
+- Community:
+  - Vinyl Da.i'gyu (Gooborg Studios) - Spec Host/Author
+  - Grant (3D Musketeers) - YouTube Content Creator
+  - Blake770
+  - MadSciSlack
+  - PlayTone
+  - ccatlett1984 (Open Resin Alliance)
+
+> [!NOTE]
+> We are looking for additional members to join the consortium. Please [email us](#contact) if you wish to join!
+
 ### Non-Voting Members
 
 Non-voting members are integral to the consortium's ecosystem, contributing ideas and fostering collaboration. While they cannot directly vote on proposals, they can:
@@ -88,4 +101,4 @@ Non-voting members are integral to the consortium's ecosystem, contributing idea
 
 ## Contact
 
-For any questions regarding the standard, please feel free to email [queen@gooborg.com](mailto:queen@gooborg.com).
+For any questions regarding the standard, please feel free to email [queen@gooborg.com](mailto:queen@gooborg.com). You may also file an issue on the [GitHub repo](https://github.com/GooborgStudios/OpenTag3D).
