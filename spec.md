@@ -20,6 +20,9 @@ In particular, the standard is tailored towards the NTAG215 13.56MHz NFC chips. 
 | NTAG215  | 540 bytes            | 504 bytes     | 471 bytes                 |
 | NTAG216  | 924 bytes            | 888 bytes     | 835 bytes                 |
 
+> [!NOTE]
+> In OpenTag3D v1.0, the NTAG213 and SLIX2 were listed as compatible tags. These two tag types are no longer supported by the OpenTag3D specification.
+
 Usable memory excludes manufacturer data, configuration data, lock bytes, and the capability container. The maximum OpenTag3D payload also accounts for the required NDEF record overhead.
 
 <img src="./assets/images/ntag-sticker.jpg" width="200">
@@ -63,6 +66,7 @@ The data is designed to fit within the 504 bytes of writable space on the NTAG21
 {% include spec_table.md set="core" %}
 
 ### Memory Map - Visualization
+
 {% include memory_map.html %}
 
 ### Web API Standard
