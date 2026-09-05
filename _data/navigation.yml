@@ -1,4 +1,6 @@
 main:
+  - title: "Getting Started"
+    url: "/getting-started/"
   - title: "About"
     url: "/about"
   - title: "Spec"

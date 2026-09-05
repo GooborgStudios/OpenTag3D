@@ -110,3 +110,146 @@ textarea {
   outline: none;
   transition: border-color 0.2s;
 }
+
+.feature__wrapper {
+  text-align: center;
+}
+
+/* Getting Started */
+
+.getting-started__lede {
+  max-width: 52rem;
+  margin: 0 0 2rem;
+  color: $light-gray;
+  font-size: 1.2em;
+  line-height: 1.6;
+}
+
+.role-grid,
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 3rem;
+}
+
+.role-card {
+  display: flex;
+  min-height: 11rem;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.3rem;
+  color: inherit;
+  background: linear-gradient(145deg, #1e232e, #151922);
+  border: 1px solid #303847;
+  border-radius: 1rem;
+  text-decoration: none;
+  text-align: center;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    color: inherit;
+    border-color: $primary-color;
+    transform: translateY(-2px);
+  }
+
+  strong {
+    margin-bottom: 0.35rem;
+    color: #fff;
+    font-size: 1.15em;
+  }
+
+  span:last-child {
+    color: $light-gray;
+    font-size: 0.88em;
+    line-height: 1.45;
+  }
+}
+
+.role-card--primary {
+  background: linear-gradient(
+    145deg,
+    rgba($primary-color, 0.27),
+    rgba($primary-color, 0.08)
+  );
+  border-color: rgba($primary-color, 0.7);
+}
+
+.role-card__eyebrow {
+  margin-bottom: 0.75rem;
+  color: rgb(198, 157, 235) !important;
+  font-size: 0.7em !important;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.role-card__icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: auto;
+  scale: 1;
+  transition: scale 0.2s;
+}
+
+.role-card:hover .role-card__icon {
+  /* Overwrite box-shadow for hovering on images in links */
+  box-shadow: none !important;
+  scale: 1.1;
+}
+
+.benefit-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 2rem;
+}
+
+.benefit-card {
+  padding: 1.25rem;
+  background: #181d27;
+  border: 1px solid #29313e;
+  border-radius: 0.75rem;
+
+  h4 {
+    margin: 0 0 0.5rem;
+    border-bottom: 0;
+  }
+
+  p {
+    margin: 0;
+    color: $light-gray;
+  }
+}
+
+.start-path {
+  @include notice($primary-color);
+  font-size: revert !important;
+  border-left: 3px solid $primary-color;
+
+  a {
+    color: $link-color;
+
+    &:hover {
+      color: $link-color-hover;
+    }
+  }
+}
+
+.getting-started__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+
+@media (max-width: 700px) {
+  .role-grid,
+  .benefit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .role-card {
+    min-height: 9rem;
+  }
+}
