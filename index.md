@@ -46,15 +46,7 @@ OpenTag3D defines standards for the following:
 
 OpenTag3D is supported by the following projects/companies:
 
-<!-- prettier-ignore-start -->
-
-<ul>
-  {%- for s in site.data.supporters.supporters -%}
-    <li><a href="{{ s.url }}" target="_blank" rel="nofollow">{{ s.name }}</a></li>
-  {%- endfor -%}
-</ul>
-
-<!-- prettier-ignore-end -->
+{% include supporters_list.html details=false %}
 
 ## Add RFID support to your printer
 

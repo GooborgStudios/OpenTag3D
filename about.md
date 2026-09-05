@@ -33,30 +33,7 @@ What is the benefit of adding RFID chips to filament?
 
 These are companies that are implementing OpenTag3D into their printers, filament, add-ons, etc., or otherwise supporting the OpenTag3D specification. If you would like to join this list, please open an [Issue on GitHub](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=supporter.yml).
 
-<!-- prettier-ignore-start -->
-
-{%- assign cats = site.data.supporters.categories -%}
-{%- assign implstages = site.data.supporters.implstages -%}
-{%- assign all = site.data.supporters.supporters -%}
-{%- assign category_order = "filament,hardware,software" | split: "," -%}
-
-<ul>
-{%- for cat in category_order -%}
-  {%- assign label = cats[cat] -%}
-  {%- assign items = all | where: "category", cat | sort: "since" -%}
-  {%- if items.size > 0 -%}
-    <li>{{ label }}
-      <ul>
-        {%- for s in items -%}
-          <li><a href="{{ s.url }}" target="_blank" rel="nofollow">{{ s.name }}</a> (Supporter Since {{ s.since }}{%- if s.implstage and s.implstage != "unknown" -%}, Status: {{implstages[s.implstage]}}{%- endif -%})</li>
-        {%- endfor -%}
-      </ul>
-    </li>
-  {%- endif -%}
-{%- endfor -%}
-</ul>
-
-<!-- prettier-ignore-end -->
+{% include supporters_list.html %}
 
 Want to provide a financial contribution? Donate to the Gooborg Studios' founder via [Ko-Fi](https://ko-fi.com/queengooborg) or [PayPal](https://paypal.me/VinylDarkscratch)!
 
