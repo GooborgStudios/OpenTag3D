@@ -197,11 +197,17 @@ textarea {
 }
 
 .start-path {
-  margin: 1rem 0;
-  padding: 0.25rem 1.25rem 0.5rem;
-  background: rgba($primary-color, 0.07);
+  @include notice($primary-color);
+  font-size: revert !important;
   border-left: 3px solid $primary-color;
-  border-radius: 0 0.75rem 0.75rem 0;
+
+  a {
+    color: $link-color;
+
+    &:hover {
+      color: $link-color-hover;
+    }
+  }
 }
 
 .getting-started__actions {
