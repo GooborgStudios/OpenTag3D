@@ -1,0 +1,28 @@
+<!-- prettier-ignore-start -->
+
+{%- assign cats = site.data.supporters.categories -%} {%- assign implstages =
+site.data.supporters.implstages -%} {%- assign all =
+site.data.supporters.supporters -%} {%- assign category_order =
+"filament,hardware,software" | split: "," -%}
+
+<ul>
+  {%- for cat in category_order -%} {%- assign label = cats[cat] -%} {%- assign
+  items = all | where: "category", cat | sort: "since" -%} {%- if items.size > 0
+  -%}
+  <li>
+    {{ label }}
+    <ul>
+      {%- for s in items -%}
+      <li>
+        <a href="{{ s.url }}" target="_blank" rel="nofollow">{{ s.name }}</a>{%-
+        if include.details != false -%} (Supporter Since {{ s.since }}{%- if
+        s.implstage and s.implstage != "unknown" -%}, Status:
+        {{implstages[s.implstage]}}{%- endif -%}){%- endif -%}
+      </li>
+      {%- endfor -%}
+    </ul>
+  </li>
+  {%- endif -%} {%- endfor -%}
+</ul>
+
+<!-- prettier-ignore-end -->
