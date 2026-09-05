@@ -93,6 +93,10 @@ textarea {
   transition: border-color 0.2s;
 }
 
+.feature__wrapper {
+  text-align: center;
+}
+
 /* Getting Started */
 
 .getting-started__lede {
@@ -122,6 +126,7 @@ textarea {
   border: 1px solid #303847;
   border-radius: 1rem;
   text-decoration: none;
+  text-align: center;
   transition:
     border-color 0.2s ease,
     transform 0.2s ease;
@@ -166,7 +171,7 @@ textarea {
 .role-card__icon {
   width: 3.5rem;
   height: 3.5rem;
-  margin: 0 0 auto;
+  margin: auto;
 }
 
 .benefit-grid {
