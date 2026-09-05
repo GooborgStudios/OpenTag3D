@@ -24,7 +24,7 @@ feature_row:
     image_path: /assets/images/icons8-request_money.svg
     alt: ""
   - title: "Compact Format, Complete Data"
-    excerpt: "All the critical data a 3D printer needs, including manufacturer, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in half a megabyte. Dynamic data, such as current filament price, can also be provided via a web API."
+    excerpt: "All the critical data a 3D printer needs, including manufacturer, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in a quarter of a megabyte. Dynamic data, such as current filament price, can also be provided via a web API."
     image_path: /assets/images/icons8-archive.svg
     alt: ""
   - title: "Open Standard, Open To All"
@@ -52,7 +52,7 @@ OpenTag3D is supported by the following projects/companies:
 
 <ul>
   {%- for s in site.data.supporters.supporters -%}
-    <li><a href="{{ s.url }}">{{ s.name }}</a></li>
+    <li><a href="{{ s.url }}" target="_blank" rel="nofollow">{{ s.name }}</a></li>
   {%- endfor -%}
 </ul>
 

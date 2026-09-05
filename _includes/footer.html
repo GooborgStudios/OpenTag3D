@@ -23,13 +23,16 @@
   &copy; {% assign site_time = site.time | date: '%Y' %}{% if site.footer.since
   and site_time != site.footer.since %}{{ site.footer.since }} - {% endif %}{{
   site_time }} {{ site.author | default: site.title | escape_once | strip }},
-  <a href="{{ site.copyright_url | default: site.url }}"
+  <a
+    href="{{ site.copyright_url | default: site.url }}"
+    target="_blank"
+    rel="nofollow"
     >{{ site.copyright | default: "All rights reserved" | escape_once | strip
     }}</a
   >. <br /><br />
   {{ site.data.ui-text[site.locale].powered_by | default: "Powered by" }}
-  <a href="https://github.com" rel="nofollow">GitHub Pages</a>,
-  <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp;
+  <a href="https://github.com" target="_blank" rel="nofollow">GitHub Pages</a>,
+  <a href="https://jekyllrb.com" target="_blank" rel="nofollow">Jekyll</a> &amp;
   <a
     href="https://mademistakes.com/work/jekyll-themes/minimal-mistakes/"
     rel="nofollow"
@@ -40,6 +43,8 @@
   <a href="https://www.gooborg.com">Gooborg Studios</a>.
   <br />
   Website and logo font is
-  <a href="https://www.dafont.com/gravity.font">Gravity by Vincenzo Vuono</a>.
-  Homepage icons from <a href="https://icons8.com/">Icons8</a>.
+  <a href="https://www.dafont.com/gravity.font" target="_blank" rel="nofollow"
+    >Gravity by Vincenzo Vuono</a
+  >. Homepage icons from
+  <a href="https://icons8.com/" target="_blank" rel="nofollow">Icons8</a>.
 </div>
