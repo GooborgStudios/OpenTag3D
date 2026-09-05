@@ -123,23 +123,23 @@ yourself.
 
 </div>
 
-#### With a phone (recommended)
+##### With a phone (recommended)
 
-- **Android:** Open [Make a Tag](/make) in a Web NFC-compatible browser. You can
+- **Android:** Open [Make a Tag](/make) in a [Web NFC-compatible browser](https://caniuse.com/webnfc). You can
   create, read, and write a tag directly from the page.
 - **iPhone:** A native app is required. OpenTag3D-compatible iPhone apps are in
   development, but none are available yet.
 
-##### OpenTag3D phone apps
+###### OpenTag3D phone apps
 
-| Platform | Available apps |
-| --- | --- |
-| Android | None yet. Use the [Web NFC tag tool](/make) in the meantime. |
-| iPhone | None yet. |
+| Platform | Available apps                                               |
+| -------- | ------------------------------------------------------------ |
+| Android  | None yet. Use the [Web NFC tag tool](/make) in the meantime. |
+| iPhone   | None yet.                                                    |
 
 Building an app? Let us know so it can be added here.
 
-#### With a computer (advanced)
+##### With a computer (advanced)
 
 - **NFC Tools Desktop:** Use a USB NFC reader such as the ACR122U (typically
   around $30) to read and write tags. Follow Polar Filament’s
@@ -147,10 +147,10 @@ Building an app? Let us know so it can be added here.
 - **Proxmark3:** Use this popular RFID development toolkit with the Proxmark3
   export provided by [Make a Tag](/make).
 
-#### With a Flipper Zero
+##### With a Flipper Zero
 
 The hardware is capable of reading and writing compatible tags, but the full
-OpenTag3D workflow is not documented yet. This is not currently a recommended
+OpenTag3D workflow is not finished yet. This is not currently a recommended
 getting-started path.
 
 ## For developers
