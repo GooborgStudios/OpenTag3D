@@ -172,6 +172,14 @@ textarea {
   width: 3.5rem;
   height: 3.5rem;
   margin: auto;
+  scale: 1;
+  transition: scale 0.2s;
+}
+
+.role-card:hover .role-card__icon {
+  /* Overwrite box-shadow for hovering on images in links */
+  box-shadow: none !important;
+  scale: 1.1;
 }
 
 .benefit-grid {
