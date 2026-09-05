@@ -92,29 +92,3 @@ textarea {
   outline: none;
   transition: border-color 0.2s;
 }
-
-/* GFM Alerts */
-
-.markdown-alert {
-  @include notice($light-gray);
-}
-
-.markdown-alert-important {
-  @include notice($primary-color);
-}
-
-.markdown-alert-note {
-  @include notice($info-color);
-}
-
-.markdown-alert-warning {
-  @include notice($warning-color);
-}
-
-.markdown-alert-tip {
-  @include notice($success-color);
-}
-
-.markdown-alert-caution {
-  @include notice($danger-color);
-}
