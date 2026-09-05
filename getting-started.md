@@ -179,8 +179,4 @@ filament data lives on the tag and works offline; optional web lookups can be
 hosted by the manufacturer or another provider. OpenTag3D is both open source
 and decentralized.
 
-We recommend talking with the community on Discord before implementation. We
-can walk through the getting-started documentation, answer integration
-questions, and help you avoid common hardware and data-format pitfalls. You can
-also [review the specification](/spec) or
-[contact the project maintainers](/about#contact).
+Please feel free to [contact the project maintainers](/about#contact) to discuss implementation. We can walk through the getting-started documentation, answer integration questions, and help you avoid common hardware and data-format pitfalls.
