@@ -95,17 +95,11 @@ set of data they can use to build features such as:
 
 ### I’m sold. How do I start?
 
-<div class="start-path" markdown="1">
-
 #### 1. Use filament and projects that already support OpenTag3D
 
 This is the easiest route: buy a tagged spool, then use it with a compatible
 printer, accessory, slicer, or community project. See the current
 [supporters and implementation status](/about#supporters).
-
-</div>
-
-<div class="start-path" markdown="1">
 
 #### 2. Write your own tags
 
@@ -120,8 +114,6 @@ Some filament companies provide a lookup that fills in product data for you:
 
 If the manufacturer does not offer a lookup, you can enter the information
 yourself.
-
-</div>
 
 ##### With a phone (recommended)
 
