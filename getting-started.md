@@ -12,13 +12,13 @@ description: Learn what OpenTag3D can do and how users, developers, and filament
 
 <nav class="role-grid" aria-label="Choose how you want to use OpenTag3D">
   <a class="role-card role-card--primary" href="#for-people-who-print">
-    <span class="role-card__eyebrow">I use filament</span>
+    <span class="role-card__eyebrow">I print things</span>
     <img class="role-card__icon" src="/assets/images/getting-started-user.svg" alt="" aria-hidden="true">
     <strong>Start printing</strong>
     <span>See why tags are useful and how to try them.</span>
   </a>
   <a class="role-card" href="#for-developers">
-    <span class="role-card__eyebrow">I build things</span>
+    <span class="role-card__eyebrow">I design and build tools</span>
     <img class="role-card__icon" src="/assets/images/getting-started-developer.svg" alt="" aria-hidden="true">
     <strong>Develop with OpenTag3D</strong>
     <span>Read the specification and explore the source.</span>
