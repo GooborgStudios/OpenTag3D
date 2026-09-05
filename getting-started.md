@@ -14,8 +14,8 @@ description: Learn what OpenTag3D can do and how users, developers, and filament
   <a class="role-card role-card--primary" href="#for-people-who-print">
     <span class="role-card__eyebrow">I print things</span>
     <img class="role-card__icon" src="/assets/images/getting-started-user.svg" alt="" aria-hidden="true">
-    <strong>Start printing</strong>
-    <span>See why tags are useful and how to try them.</span>
+    <strong>Start or enhance your 3D printing journey</strong>
+    <span>See why tags are useful and how to use them.</span>
   </a>
   <a class="role-card" href="#for-developers">
     <span class="role-card__eyebrow">I design and build tools</span>
@@ -26,7 +26,7 @@ description: Learn what OpenTag3D can do and how users, developers, and filament
   <a class="role-card" href="#for-manufacturers">
     <span class="role-card__eyebrow">I make filament or hardware</span>
     <img class="role-card__icon" src="/assets/images/getting-started-manufacturer.svg" alt="" aria-hidden="true">
-    <strong>Adopt the standard</strong>
+    <strong>Adopt the open, decentralized standard</strong>
     <span>Add support without fees, licenses, or lock-in.</span>
   </a>
 </nav>
