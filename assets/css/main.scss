@@ -28,6 +28,24 @@ $sans-serif:
   --input-border: #1e2a3a;
 }
 
+a[href^="http"]:not([href^="https://0.0.0.0"]):not(
+    [href^="https://github.com/GooborgStudios/OpenTag3D"]
+  )::after {
+  content: "" / "(external link)";
+  background-color: currentColor;
+  display: inline-block;
+  mask: url("/assets/images/icons8-external_link.svg");
+  mask-size: cover;
+  height: 0.5em;
+  width: 0.5em;
+  margin-left: 0.2em;
+  vertical-align: sub;
+}
+
+.page__footer a::after {
+  content: none !important;
+}
+
 .mono {
   font-family: $monospace;
 }
