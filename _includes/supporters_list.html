@@ -1,9 +1,9 @@
-<!-- prettier-ignore-start -->
+<!-- prettier-ignore -->
 
-{%- assign cats = site.data.supporters.categories -%} {%- assign implstages =
-site.data.supporters.implstages -%} {%- assign all =
-site.data.supporters.supporters -%} {%- assign category_order =
-"filament,hardware,software" | split: "," -%}
+{%- assign cats = site.data.supporters.categories -%}
+{%- assign implstages = site.data.supporters.implstages -%}
+{%- assign all = site.data.supporters.supporters -%}
+{%- assign category_order = "filament,hardware,software" | split: "," -%}
 
 <ul>
   {%- for cat in category_order -%} {%- assign label = cats[cat] -%} {%- assign
@@ -24,5 +24,3 @@ site.data.supporters.supporters -%} {%- assign category_order =
   </li>
   {%- endif -%} {%- endfor -%}
 </ul>
-
-<!-- prettier-ignore-end -->
