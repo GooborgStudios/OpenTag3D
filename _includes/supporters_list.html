@@ -13,11 +13,13 @@
     {{ label }}
     <ul>
       {%- for s in items -%}
+      <!-- prettier-ignore -->
       <li>
-        <a href="{{ s.url }}" target="_blank" rel="nofollow">{{ s.name }}</a>{%-
-        if include.details != false -%} (Supporter Since {{ s.since }}{%- if
-        s.implstage and s.implstage != "unknown" -%}, Status:
-        {{implstages[s.implstage]}}{%- endif -%}){%- endif -%}
+        <a href="{{ s.url }}" target="_blank" rel="nofollow">{{ s.name }}</a>
+        {%- if include.details != false -%}
+          {%- if s.since -%}&nbsp;- Supporter Since {{ s.since }}{%- endif -%}
+          {%- if s.implstage and s.implstage != "unknown" -%}&nbsp;- Status: {{implstages[s.implstage]}}{%- endif -%}
+        {%- endif -%}
       </li>
       {%- endfor -%}
     </ul>
