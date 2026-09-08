@@ -5,5 +5,7 @@ main:
     url: "/spec"
   - title: "Make"
     url: "/make"
+  - title: "Read"
+    url: "/read"
   - title: "GitHub"
     url: "https://github.com/GooborgStudios/OpenTag3D"
