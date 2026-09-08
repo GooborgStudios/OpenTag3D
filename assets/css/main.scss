@@ -50,7 +50,7 @@ a[href^="http"]:not([href^="https://0.0.0.0"]):not(
   content: "" / "(external link)";
   background-color: currentColor;
   display: inline-block;
-  mask: url("/assets/images/icons8-external_link.svg");
+  mask: url("/assets/images/icons/icons8-external_link.svg");
   mask-size: cover;
   height: 0.5em;
   width: 0.5em;
