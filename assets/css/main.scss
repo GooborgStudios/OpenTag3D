@@ -4,6 +4,8 @@ search: false
 
 @charset "utf-8";
 
+@use "sass:color";
+
 @import "./font-gravity.scss";
 
 /* Variables */
@@ -315,4 +317,46 @@ textarea {
 }
 .web-nfc-dialog__content .flex {
   margin-top: 16px;
+}
+
+@mixin _notice($notice-color) {
+  @include notice($notice-color);
+
+  a {
+    color: color.mix(#fff, $notice-color, 10%);
+
+    &:hover {
+      color: color.mix(#fff, $notice-color, 50%);
+    }
+  }
+}
+
+.notice,
+.markdown-alert {
+  @include _notice($light-gray);
+}
+
+.notice--primary,
+.markdown-alert-important {
+  @include _notice($primary-color);
+}
+
+.notice--info,
+.markdown-alert-note {
+  @include _notice($info-color);
+}
+
+.notice--warning,
+.markdown-alert-warning {
+  @include _notice($warning-color);
+}
+
+.notice--success,
+.markdown-alert-tip {
+  @include _notice($success-color);
+}
+
+.notice--danger,
+.markdown-alert-caution {
+  @include _notice($danger-color);
 }
