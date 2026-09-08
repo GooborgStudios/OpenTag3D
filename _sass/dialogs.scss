@@ -1,0 +1,62 @@
+/* Modal dialogs */
+.app-dialog {
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--menu);
+  color: #dce9ff;
+  box-shadow:
+    0 0 32px rgba(64, 144, 255, 0.2),
+    0 0px 48px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    display 0.2s allow-discrete,
+    overlay 0.2s allow-discrete,
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.app-dialog.app-dialog-wide {
+  width: 100%;
+}
+.app-dialog[open] {
+  opacity: 1;
+  transform: translateY(0);
+}
+.app-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  transition:
+    display 0.2s allow-discrete,
+    overlay 0.2s allow-discrete,
+    opacity 0.2s ease;
+}
+.app-dialog[open]::backdrop {
+  opacity: 1;
+}
+@starting-style {
+  .app-dialog[open] {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .app-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+.web-nfc-dialog__content {
+  padding: 20px;
+}
+.web-nfc-dialog__content h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+.web-nfc-dialog__content p {
+  margin: 0 0 16px;
+}
+.web-nfc-dialog__content p:last-of-type {
+  margin-bottom: 0;
+}
+.web-nfc-dialog__content .flex {
+  margin-top: 16px;
+}
