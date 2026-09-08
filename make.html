@@ -1123,8 +1123,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       "reading",
       async (event) => {
         webNfcDialogMessage.textContent = "Writing to tag...";
-        controller.abort();
-        if (nfcController === controller) nfcController = null;
         await reader.write(
           {
             records: [
@@ -1139,6 +1137,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
             overwrite: true,
           },
         );
+        controller.abort();
+        if (nfcController === controller) nfcController = null;
         finishWebNfcAction("Wrote NDEF payload to tag");
       },
       { once: true },
