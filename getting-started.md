@@ -117,19 +117,18 @@ yourself.
 
 ##### With a phone (recommended)
 
-- **Android:** Open [Make a Tag](/make) in a [Web NFC-compatible browser](https://caniuse.com/webnfc). You can
-  create, read, and write a tag directly from the page.
-- **iPhone:** A native app is required. OpenTag3D-compatible iPhone apps are in
-  development, but none are available yet.
+- **Android:** Open [Make a Tag](/make) in a [Web NFC-compatible browser](https://caniuse.com/webnfc). You can create, read, and write a tag directly from the page.
+- **iPhone:** Native apps are available via third parties.
 
 ###### OpenTag3D phone apps
 
-| Platform | Available apps                                               |
-| -------- | ------------------------------------------------------------ |
-| Android  | None yet. Use the [Web NFC tag tool](/make) in the meantime. |
-| iPhone   | None yet.                                                    |
+| Application                                      | Platform(s) | Notes                                                           |
+| ------------------------------------------------ | ----------- | --------------------------------------------------------------- |
+| [OpenTag3D Make Page](/make)                     | Android     | This can be installed like an app via Google Chrome on Android. |
+| [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone      | Supports v1 of the spec.                                        |
+| [SpoolSense](https://spoolsense.org/)            | iPhone      | Supports v1 of the spec.                                        |
 
-Building an app? Let us know so it can be added here.
+Building an app? [Let us know](/about#contact) so it can be added here.
 
 ##### With a computer (advanced)
 
