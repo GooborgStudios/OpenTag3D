@@ -71,6 +71,28 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     padding: 14px 16px;
     margin-bottom: 16px;
   }
+  .tag-panel__heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .tag-panel__icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.8;
+  }
+  .tag-panel__heading .tag-stat-label {
+    margin-bottom: 0;
+  }
+  .tag-header__icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    vertical-align: -3px;
+    opacity: 0.8;
+  }
   .tag-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -94,7 +116,8 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     font-size: 1.3em;
     font-weight: 600;
   }
-  .tag-stat-subvalue, .tag-stat-divider {
+  .tag-stat-subvalue,
+  .tag-stat-divider {
     font-size: 13px;
     color: var(--muted);
     margin-top: 2px;
@@ -127,15 +150,12 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
   @media screen and (max-width: 900px), screen and (max-device-width: 900px) {
     .tag-header,
     .tag-grid,
-    .tag-grid--wide
+    .tag-grid--wide {
       grid-template-columns: 1fr;
     }
   }
 
   @media screen and (max-width: 600px), screen and (max-device-width: 600px) {
-    .tag-header,
-    .tag-grid,
-    .tag-grid--wide,
     .tag-grid--2col {
       grid-template-columns: 1fr;
     }
@@ -152,9 +172,18 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     <details class="btn-menu" role="button">
       <summary class="btn btn--warning">Read / Import</summary>
       <div class="btn-menu__panel">
-        <button class="btn" id="readWebNFC" disabled>Read via Web NFC</button>
-        <button class="btn" id="loadFileBtn">Load File</button>
-        <button class="btn" id="loadClipboardBtn">Load from Clipboard</button>
+        <button class="btn" id="readWebNFC" disabled>
+          <img class="control-icon" src="{{ '/assets/images/icons/icons8-nfc.svg' | relative_url }}" alt="" aria-hidden="true" />
+          Read via Web NFC
+        </button>
+        <button class="btn" id="loadFileBtn">
+          <img class="control-icon" src="{{ '/assets/images/icons/icons8-archive.svg' | relative_url }}" alt="" aria-hidden="true" />
+          Load File
+        </button>
+        <button class="btn" id="loadClipboardBtn">
+          <img class="control-icon" src="{{ '/assets/images/icons/icons8-clipboard.svg' | relative_url }}" alt="" aria-hidden="true" />
+          Load from Clipboard
+        </button>
       </div>
     </details>
     <input
@@ -207,12 +236,28 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
     <div class="tag-grid tag-grid--2col">
       <div class="tag-panel">
-        <div class="tag-stat-label">Diameter</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-diameter.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Diameter</div>
+        </div>
         <span id="tagDiameter" class="tag-stat-value"></span>
         <span id="tagTolerance" class="tag-stat-subvalue"></span>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">Target Weight</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-weight.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Target Weight</div>
+        </div>
         <span id="tagWeight" class="tag-stat-value"></span>
       </div>
     </div>
@@ -220,17 +265,41 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     <div class="tag-panel">
       <div class="tag-grid--wide" style="display: grid; gap: 16px">
         <div>
-          <div class="tag-stat-label">Print Temp</div>
+          <div class="tag-panel__heading">
+            <img
+              class="tag-panel__icon"
+              src="{{ '/assets/images/icons/mdi-nozzle-printing.svg' | relative_url }}"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="tag-stat-label">Print Temp</div>
+          </div>
           <div id="tagPrintTemp" class="tag-stat-value"></div>
           <div id="tagPrintTempRange" class="tag-stat-subvalue"></div>
         </div>
         <div>
-          <div class="tag-stat-label">Bed Temp</div>
+          <div class="tag-panel__heading">
+            <img
+              class="tag-panel__icon"
+              src="{{ '/assets/images/icons/mdi-bed.svg' | relative_url }}"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="tag-stat-label">Bed Temp</div>
+          </div>
           <div id="tagBedTemp" class="tag-stat-value"></div>
           <div id="tagBedTempRange" class="tag-stat-subvalue"></div>
         </div>
         <div>
-          <div class="tag-stat-label">Chamber Temp</div>
+          <div class="tag-panel__heading">
+            <img
+              class="tag-panel__icon"
+              src="{{ '/assets/images/icons/vecteezy-chamber.svg' | relative_url }}"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="tag-stat-label">Chamber Temp</div>
+          </div>
           <div id="tagChamberTemp" class="tag-stat-value"></div>
         </div>
       </div>
@@ -238,17 +307,40 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
     <div class="tag-grid">
       <div class="tag-panel">
-        <div class="tag-stat-label">Min Nozzle</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/vecteezy-nozzle.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Minimum Nozzle Diameter</div>
+        </div>
         <div id="tagNozzle" class="tag-stat-value"></div>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">Dry Time / Dry Temp</div>
-        <span id="tagDryTime" class="tag-stat-value"></span
-        ><span class="tag-stat-divider"> - </span>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-microwave.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Recommended Drying Time + Temp</div>
+        </div>
+        <span id="tagDryTime" class="tag-stat-value"></span>
         <span id="tagDryTemp" class="tag-stat-value"></span>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">Target VSO</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/vecteezy-chemistry.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Target VSO</div>
+        </div>
         <div id="tagTargetVso" class="tag-stat-value"></div>
         <div id="tagVsoRange" class="tag-stat-subvalue"></div>
       </div>
@@ -256,30 +348,78 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
     <div class="tag-grid">
       <div class="tag-panel">
-        <div class="tag-stat-label">Measured Length</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-length.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Measured Length</div>
+        </div>
         <div id="tagMeasuredLength" class="tag-stat-value"></div>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">Measured Weight</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-weight.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Measured Weight</div>
+        </div>
         <div id="tagMeasuredWeight" class="tag-stat-value"></div>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">Empty Spool Weight</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-weight.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Empty Spool Weight</div>
+        </div>
         <div id="tagSpoolWeight" class="tag-stat-value"></div>
       </div>
     </div>
 
     <div class="tag-grid">
       <div class="tag-panel">
-        <div class="tag-stat-label">Core Diameter</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-diameter.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Core Diameter</div>
+        </div>
         <div id="tagSpoolCoreDiameter" class="tag-stat-value"></div>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">Density</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/vecteezy-density.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Density</div>
+        </div>
         <div id="tagDensity" class="tag-stat-value"></div>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">MFI Temp / Load / Value</div>
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-microwave.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">MFI Temp / Load / Value</div>
+        </div>
         <div id="tagMfiTemp" class="tag-stat-value"></div>
         <div id="tagMfiLoadValue" class="tag-stat-subvalue"></div>
       </div>
@@ -397,7 +537,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     }
     setText("tagColorHexes", hexLines.join(" / "));
     const td = v("td");
-    setText("tagTd", td ? `TD: ${td}mm` : "");
+    setText("tagTd", td ? `Transmission Distance (TD): ${td}mm` : "");
 
     const diameter = v("diameter");
     setText("tagDiameter", diameter ? `${diameter}mm` : "—");

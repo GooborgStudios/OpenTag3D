@@ -96,7 +96,10 @@ const initBtnMenus = () => {
     if (summary) {
       summary.addEventListener("click", (e) => {
         e.preventDefault();
-        if (menu.hasAttribute("open") && !menu.classList.contains("is-closing")) {
+        if (
+          menu.hasAttribute("open") &&
+          !menu.classList.contains("is-closing")
+        ) {
           closeMenu(menu);
         } else {
           menus.forEach((other) => other !== menu && closeMenu(other));

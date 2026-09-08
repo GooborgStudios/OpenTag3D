@@ -55,8 +55,7 @@ const finishWebNfcAction = (message, isErr = false) => {
 };
 
 // --- Byte/encoding utils ---
-const hex = (n, w = 2) =>
-  Number(n).toString(16).toUpperCase().padStart(w, "0");
+const hex = (n, w = 2) => Number(n).toString(16).toUpperCase().padStart(w, "0");
 const addrHex = (a) => "0x" + hex(a);
 const parseHex = (s) => (typeof s === "number" ? s : parseInt(s, 16));
 const textEncoder = new TextEncoder();
@@ -201,9 +200,7 @@ const encodeFieldValue = (field, value) => {
   if (field.type === "time") {
     const parts = String(value || "00:00:00").split(":");
     const [hour = 0, minute = 0, second = 0] =
-      parts.length >= 2
-        ? parts.map((part) => Number(part.split(".")[0]))
-        : [];
+      parts.length >= 2 ? parts.map((part) => Number(part.split(".")[0])) : [];
     return new Uint8Array([hour & 0xff, minute & 0xff, second & 0xff]);
   }
   return typeof value === "number"
@@ -326,10 +323,7 @@ const readViaWebNFC = async (onPayload) => {
     if (nfcController === controller) nfcController = null;
     let found = false;
     for (const record of event.message.records) {
-      if (
-        record.recordType === "mime" &&
-        record.mediaType === SPEC.mime_type
-      ) {
+      if (record.recordType === "mime" && record.mediaType === SPEC.mime_type) {
         found = true;
         finishWebNfcAction("Found and loaded OpenTag3D record");
         onPayload(record.data.buffer, 0x00);
