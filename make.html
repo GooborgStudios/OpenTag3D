@@ -605,7 +605,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
       const setBackground = (value) => {
         input.style.backgroundImage = `
-          linear-gradient(135deg, ${value.substr(0, 7)} 0%, ${value.substr(0, 7)} 50%, ${value} 50%, ${value} 100%),
+          linear-gradient(135deg, ${value.slice(0, 7)} 0%, ${value.slice(0, 7)} 50%, ${value} 50%, ${value} 100%),
           url(/assets/images/transparency-grid.jpg)
         `;
       };
@@ -743,7 +743,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     hexdumpElement.textContent = hexdump(buf);
 
     tagState.buffer = buf;
-    tagState.hash = generateHash(buf.toString()).substr(0, 8);
+    tagState.hash = generateHash(buf.toString()).slice(0, 8);
     tagState.filename = `OpenTag3D_${tagState.values.get("manufacturer")}_${tagState.values.get("material")}${tagState.values.get("material_mod") ? "-" + tagState.values.get("material_mod") : ""}_${tagState.values.get("color_name")}_${tagState.values.get("serial") || tagState.hash}`;
   };
 
@@ -778,7 +778,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     );
     for (const input of inputs) {
       if (optional || input.required) {
-        console.log(optional, input, input.required);
         setInputValue(input, input.placeholder);
       }
     }

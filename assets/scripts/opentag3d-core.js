@@ -117,7 +117,7 @@ const fixHexRgba = (inputValue) => {
     // Assume hex color without alpha value is full opacity
     value = value.padEnd(9, "FF");
   }
-  return value.substr(0, 9).toUpperCase();
+  return value.slice(0, 9).toUpperCase();
 };
 
 const bufferFromText = (text) => {

@@ -515,7 +515,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
       if (!hexValue) continue;
       const swatch = document.createElement("div");
       swatch.className = "color-swatch";
-      swatch.style.backgroundImage = `linear-gradient(0deg, ${hexValue.substr(0, 7)} 0%, ${hexValue.substr(0, 7)} 50%, ${hexValue} 50%, ${hexValue} 100%), url(/assets/images/transparency-grid.jpg)`;
+      swatch.style.backgroundImage = `linear-gradient(0deg, ${hexValue.slice(0, 7)} 0%, ${hexValue.slice(0, 7)} 50%, ${hexValue} 50%, ${hexValue} 100%), url(/assets/images/transparency-grid.jpg)`;
       swatch.title = hexValue;
       swatches.append(swatch);
       hexLines.push(hexValue);
