@@ -1118,31 +1118,24 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     showWebNfcDialog("Waiting to write tag...");
 
     const reader = new NDEFReader();
-    await reader.scan({ signal: controller.signal });
-    reader.addEventListener(
-      "reading",
-      async (event) => {
-        webNfcDialogMessage.textContent = "Writing to tag...";
-        await reader.write(
+    await reader.write(
+      {
+        records: [
           {
-            records: [
-              {
-                recordType: "mime",
-                mediaType: "{{ site.data.spec.mime_type }}",
-                data: buf,
-              },
-            ],
+            recordType: "mime",
+            mediaType: "{{ site.data.spec.mime_type }}",
+            data: buf,
           },
-          {
-            overwrite: true,
-          },
-        );
-        controller.abort();
-        if (nfcController === controller) nfcController = null;
-        finishWebNfcAction("Wrote NDEF payload to tag");
+        ],
       },
-      { once: true },
+      {
+        overwrite: true,
+        signal: controller.signal,
+      },
     );
+    controller.abort();
+    if (nfcController === controller) nfcController = null;
+    finishWebNfcAction("Wrote NDEF payload to tag");
   };
 
   const readViaWebNFC = async () => {
