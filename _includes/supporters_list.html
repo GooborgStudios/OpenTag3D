@@ -1,9 +1,9 @@
-<!-- prettier-ignore-start -->
+<!-- prettier-ignore -->
 
-{%- assign cats = site.data.supporters.categories -%} {%- assign implstages =
-site.data.supporters.implstages -%} {%- assign all =
-site.data.supporters.supporters -%} {%- assign category_order =
-"filament,hardware,software" | split: "," -%}
+{%- assign cats = site.data.supporters.categories -%}
+{%- assign implstages = site.data.supporters.implstages -%}
+{%- assign all = site.data.supporters.supporters -%}
+{%- assign category_order = "filament,hardware,software" | split: "," -%}
 
 <ul>
   {%- for cat in category_order -%} {%- assign label = cats[cat] -%} {%- assign
@@ -13,16 +13,16 @@ site.data.supporters.supporters -%} {%- assign category_order =
     {{ label }}
     <ul>
       {%- for s in items -%}
+      <!-- prettier-ignore -->
       <li>
-        <a href="{{ s.url }}" target="_blank" rel="nofollow">{{ s.name }}</a>{%-
-        if include.details != false -%} (Supporter Since {{ s.since }}{%- if
-        s.implstage and s.implstage != "unknown" -%}, Status:
-        {{implstages[s.implstage]}}{%- endif -%}){%- endif -%}
+        <a href="{{ s.url }}" target="_blank" rel="nofollow">{{ s.name }}</a>
+        {%- if include.details != false -%}
+          {%- if s.since -%}&nbsp;- Supporter Since {{ s.since }}{%- endif -%}
+          {%- if s.implstage and s.implstage != "unknown" -%}&nbsp;- Status: {{implstages[s.implstage]}}{%- endif -%}
+        {%- endif -%}
       </li>
       {%- endfor -%}
     </ul>
   </li>
   {%- endif -%} {%- endfor -%}
 </ul>
-
-<!-- prettier-ignore-end -->

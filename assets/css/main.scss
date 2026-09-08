@@ -29,8 +29,8 @@ $sans-serif:
 }
 
 a[href^="http"]:not([href^="https://0.0.0.0"]):not(
-    [href^="https://github.com/GooborgStudios/OpenTag3D"]
-  )::after {
+    [href^="https://opentag3d.info"]
+  ):not([href^="https://github.com/GooborgStudios/OpenTag3D"])::after {
   content: "" / "(external link)";
   background-color: currentColor;
   display: inline-block;

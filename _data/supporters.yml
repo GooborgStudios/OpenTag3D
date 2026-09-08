@@ -7,6 +7,7 @@ implstages:
   unknown: "Unknown"
   pending: "In Progress"
   active: "Active Implementation"
+  v1: "Supports v1 (v2 Pending)"
 
 supporters:
   - name: "3D Fuel"
@@ -69,3 +70,15 @@ supporters:
     since: "2026-04-25"
     category: "software"
     implstage: "unknown"
+  - name: "SpoolFlux"
+    url: "https://spoolflux.dingdongclick.de/"
+    category: "software"
+    implstage: "v1"
+  - name: "SpoolSense (Hardware Reader)"
+    url: "https://spoolsense.org/"
+    category: "hardware"
+    implstage: "v1"
+  - name: "SpoolSense (iOS App)"
+    url: "https://spoolsense.org/"
+    category: "software"
+    implstage: "v1"
