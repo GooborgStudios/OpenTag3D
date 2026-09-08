@@ -72,13 +72,16 @@ supporters:
     implstage: "unknown"
   - name: "SpoolFlux"
     url: "https://spoolflux.dingdongclick.de/"
+    since: "2026-09-01" # Tentative; this was when we discovered it
     category: "software"
     implstage: "v1"
   - name: "SpoolSense (Hardware Reader)"
     url: "https://spoolsense.org/"
+    since: "2026-04-08" # Tentative; assumed based on changelog
     category: "hardware"
     implstage: "v1"
   - name: "SpoolSense (iOS App)"
     url: "https://spoolsense.org/"
+    since: "2026-04-08" # Tentative; assumed based on changelog
     category: "software"
     implstage: "v1"
