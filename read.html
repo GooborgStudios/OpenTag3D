@@ -94,7 +94,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     font-size: 1.3em;
     font-weight: 600;
   }
-  .tag-stat-subvalue {
+  .tag-stat-subvalue, .tag-stat-divider {
     font-size: 13px;
     color: var(--muted);
     margin-top: 2px;
@@ -212,9 +212,8 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
         <span id="tagTolerance" class="tag-stat-subvalue"></span>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">Target Weight / Density</div>
+        <div class="tag-stat-label">Target Weight</div>
         <span id="tagWeight" class="tag-stat-value"></span>
-        <span class="tag-stat-subvalue"> / <span id="tagDensity"></span></span>
       </div>
     </div>
 
@@ -244,8 +243,9 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
       </div>
       <div class="tag-panel">
         <div class="tag-stat-label">Dry Time / Dry Temp</div>
-        <div id="tagDryTime" class="tag-stat-value"></div>
-        <div id="tagDryTemp" class="tag-stat-subvalue"></div>
+        <span id="tagDryTime" class="tag-stat-value"></span
+        ><span class="tag-stat-divider"> - </span>
+        <span id="tagDryTemp" class="tag-stat-value"></span>
       </div>
       <div class="tag-panel">
         <div class="tag-stat-label">Target VSO</div>
@@ -256,14 +256,27 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
     <div class="tag-grid">
       <div class="tag-panel">
-        <div class="tag-stat-label">Measured Length / Weight</div>
+        <div class="tag-stat-label">Measured Length</div>
         <div id="tagMeasuredLength" class="tag-stat-value"></div>
-        <div id="tagMeasuredWeight" class="tag-stat-subvalue"></div>
       </div>
       <div class="tag-panel">
-        <div class="tag-stat-label">Empty Spool Weight / Core Diameter</div>
+        <div class="tag-stat-label">Measured Weight</div>
+        <div id="tagMeasuredWeight" class="tag-stat-value"></div>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-stat-label">Empty Spool Weight</div>
         <div id="tagSpoolWeight" class="tag-stat-value"></div>
-        <div id="tagSpoolCoreDiameter" class="tag-stat-subvalue"></div>
+      </div>
+    </div>
+
+    <div class="tag-grid">
+      <div class="tag-panel">
+        <div class="tag-stat-label">Core Diameter</div>
+        <div id="tagSpoolCoreDiameter" class="tag-stat-value"></div>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-stat-label">Density</div>
+        <div id="tagDensity" class="tag-stat-value"></div>
       </div>
       <div class="tag-panel">
         <div class="tag-stat-label">MFI Temp / Load / Value</div>
@@ -423,7 +436,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     const dryTime = v("dry_time");
     setText("tagDryTime", dryTime ? `${dryTime}hr` : "—");
     const dryTemp = v("max_dry_temp");
-    setText("tagDryTemp", dryTemp ? `Max ${dryTemp}°C` : "");
+    setText("tagDryTemp", dryTemp ? `${dryTemp}°C` : "");
 
     const targetVso = v("target_vso");
     setText("tagTargetVso", targetVso ? `${targetVso}mm³/s` : "—");
@@ -444,7 +457,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     const spoolCoreDiameter = v("spool_core_diameter");
     setText(
       "tagSpoolCoreDiameter",
-      spoolCoreDiameter ? `${spoolCoreDiameter}mm core` : "",
+      spoolCoreDiameter ? `${spoolCoreDiameter}mm` : "",
     );
 
     const mfiTemp = v("mfi_temp");
