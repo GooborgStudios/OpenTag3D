@@ -23,9 +23,6 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
   }
 
   /* --- Tag display --- */
-  #tagDisplay[hidden] {
-    display: none;
-  }
   #tagEmptyState {
     padding: 3em 1em;
     text-align: center;
@@ -169,23 +166,24 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
 <main>
   <div id="controls" class="flex">
-    <details class="btn-menu" role="button">
-      <summary class="btn btn--warning">Read / Import</summary>
-      <div class="btn-menu__panel">
-        <button class="btn" id="readWebNFC" disabled>
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-nfc.svg' | relative_url }}" alt="" aria-hidden="true" />
-          Read via Web NFC
-        </button>
-        <button class="btn" id="loadFileBtn">
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-archive.svg' | relative_url }}" alt="" aria-hidden="true" />
-          Load File
-        </button>
-        <button class="btn" id="loadClipboardBtn">
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-clipboard.svg' | relative_url }}" alt="" aria-hidden="true" />
-          Load from Clipboard
-        </button>
-      </div>
-    </details>
+    <button class="btn btn--warning" id="loadFileBtn">
+      <img
+        class="control-icon"
+        src="{{ '/assets/images/icons/icons8-archive.svg' | relative_url }}"
+        alt=""
+        aria-hidden="true"
+      />
+      Load File
+    </button>
+    <button class="btn btn--warning" id="loadClipboardBtn">
+      <img
+        class="control-icon"
+        src="{{ '/assets/images/icons/icons8-clipboard.svg' | relative_url }}"
+        alt=""
+        aria-hidden="true"
+      />
+      Load from Clipboard
+    </button>
     <input
       type="file"
       id="uploadFile"
@@ -195,8 +193,8 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
   </div>
 
   <div id="tagEmptyState" class="muted">
-    No tag data loaded yet. Use "Read / Import" above to load a tag via Web NFC,
-    a file, or your clipboard.
+    No tag data loaded yet.<br />You can load a tag dump from a file or from the
+    clipboard, or scan a tag using Web NFC (if your device supports it).
   </div>
 
   <div id="tagDisplay" hidden>
@@ -434,18 +432,6 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
   </details>
 </main>
 
-<dialog
-  id="webNfcDialog"
-  class="app-dialog"
-  aria-labelledby="webNfcDialogTitle"
->
-  <div class="web-nfc-dialog__content">
-    <h2 id="webNfcDialogTitle">Web NFC</h2>
-    <p id="webNfcDialogMessage"></p>
-    <button class="btn" id="webNfcDialogClose" type="button">Cancel</button>
-  </div>
-</dialog>
-
 <script>
   /* prettier-ignore-start */
 
@@ -458,7 +444,6 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 <script src="{{ '/assets/scripts/opentag3d-core.js' | relative_url }}"></script>
 
 <script>
-  const webNfcDialog = document.getElementById("webNfcDialog");
   const tagEmptyState = document.getElementById("tagEmptyState");
   const tagDisplay = document.getElementById("tagDisplay");
   const hexdumpBox = document.getElementById("hexdumpBox");
@@ -643,20 +628,6 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     });
 
     document
-      .getElementById("webNfcDialogClose")
-      .addEventListener("click", () => webNfcDialog.close());
-    webNfcDialog.addEventListener("close", () => {
-      nfcController?.abort();
-      nfcController = null;
-    });
-
-    document.getElementById("readWebNFC").addEventListener("click", () => {
-      readViaWebNFC((buf, startAddr) =>
-        loadBufferIntoDisplay(buf, startAddr),
-      ).catch((e) => finishWebNfcAction(e.message, true));
-    });
-
-    document
       .getElementById("loadFileBtn")
       .addEventListener("click", () =>
         document.getElementById("uploadFile").click(),
@@ -710,7 +681,11 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
       loadBufferIntoDisplay(bufferFromText(hexParam), 0x00);
     }
 
-    // Enable Web NFC button when Web NFC is supported
-    document.getElementById("readWebNFC").disabled = !("NDEFReader" in window);
+    // Automatically scan for an OpenTag3D tag when Web NFC is available.
+    if ("NDEFReader" in window) {
+      startAutomaticWebNFC((buf, startAddr) =>
+        loadBufferIntoDisplay(buf, startAddr),
+      );
+    }
   });
 </script>

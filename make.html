@@ -160,15 +160,30 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       <summary class="btn btn--warning">Read / Import</summary>
       <div class="btn-menu__panel">
         <button class="btn" id="readWebNFC" disabled>
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-nfc.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/icons8-nfc.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Read via Web NFC
         </button>
         <button class="btn" id="loadFileBtn">
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-archive.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/icons8-archive.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Load File
         </button>
         <button class="btn" id="loadClipboardBtn">
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-clipboard.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/icons8-clipboard.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Load from Clipboard
         </button>
       </div>
@@ -177,37 +192,77 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       <summary class="btn btn--warning">Write / Export</summary>
       <div class="btn-menu__panel">
         <button class="btn" id="writeWebNFC" disabled>
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-nfc.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/icons8-nfc.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Write via Web NFC
         </button>
         <button class="btn" id="downloadBin">
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-archive.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/icons8-archive.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Download Raw Data .bin
         </button>
         <button class="btn" id="downloadProxmark3Bin">
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-rfid_tag.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/icons8-rfid_tag.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Download Proxmark3 .bin
         </button>
         <button class="btn btn--warning" id="downloadFlipper">
-          <img class="control-icon" src="{{ '/assets/images/icons/flipperzero.png' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/flipperzero.png' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Download Flipper .nfc ⚠️<br />
           <small>Emulation only</small>
         </button>
         <button class="btn" id="downloadNfcToolsDesktopJson">
-          <img class="control-icon" src="{{ '/assets/images/icons/nfc-tools.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/nfc-tools.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Download NFC Tools Desktop .json
         </button>
         <button class="btn btn--warning" id="downloadNfcToolsMobileJson">
-          <img class="control-icon" src="{{ '/assets/images/icons/nfc-tools.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/nfc-tools.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Download NFC Tools Mobile .json ⚠️<br />
           <small>Non-functional on iOS</small>
         </button>
         <button class="btn" id="copyToClipboard">
-          <img class="control-icon" src="{{ '/assets/images/icons/icons8-clipboard.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/icons8-clipboard.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Copy Hex to Clipboard
         </button>
         <button class="btn" id="copyLink">
-          <img class="control-icon" src="{{ '/assets/images/icons/mdi-link.svg' | relative_url }}" alt="" aria-hidden="true" />
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/mdi-link.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
           Copy Share Link
         </button>
       </div>
@@ -748,6 +803,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       nfcController = null;
     });
 
+    document.getElementById("readWebNFC").addEventListener("click", () => {
+      readViaWebNFC((buf, startAddr) =>
+        loadBufferIntoForm(buf, startAddr),
+      ).catch((e) => finishWebNfcAction(e.message, true));
+    });
+
     document
       .getElementById("nfcToolsMobileWarningDialogClose")
       .addEventListener("click", () => nfcToolsMobileWarningDialog.close());
@@ -850,12 +911,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         }
       });
 
-    document.getElementById("readWebNFC").addEventListener("click", () => {
-      readViaWebNFC((buf, startAddr) =>
-        loadBufferIntoForm(buf, startAddr),
-      ).catch((e) => finishWebNfcAction(e.message, true));
-    });
-
     // Save/export actions
     document.getElementById("downloadBin").addEventListener("click", () => {
       if (!checkMissing()) {
@@ -952,7 +1007,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .getElementById("helpButton")
       .addEventListener("click", () => helpDialog.showModal());
 
-    // Enable Web NFC buttons when Web NFC is supported
+    // Enable explicit Web NFC actions when Web NFC is available.
     document.getElementById("writeWebNFC").disabled = !("NDEFReader" in window);
     document.getElementById("readWebNFC").disabled = !("NDEFReader" in window);
   });

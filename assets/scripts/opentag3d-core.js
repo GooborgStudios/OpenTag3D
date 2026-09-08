@@ -304,7 +304,7 @@ const writeViaWebNFC = async (buf) => {
 };
 
 // Scans for an OpenTag3D NDEF record and invokes onPayload(buffer, startAddr).
-const readViaWebNFC = async (onPayload) => {
+const readViaWebNFC = async (onPayload, { silent = false } = {}) => {
   if (!("NDEFReader" in window)) {
     throw new Error("Web NFC is not supported in this browser");
   }
@@ -312,34 +312,46 @@ const readViaWebNFC = async (onPayload) => {
   nfcController?.abort();
   const controller = new AbortController();
   nfcController = controller;
-  showWebNfcDialog("Waiting to read tag...");
+  if (!silent) showWebNfcDialog("Waiting to read tag...");
 
   const reader = new NDEFReader();
   await reader.scan({ signal: controller.signal });
   reader.addEventListener("reading", (event) => {
-    document.getElementById("webNfcDialogMessage").textContent =
-      "Reading tag...";
-    controller.abort();
-    if (nfcController === controller) nfcController = null;
     let found = false;
     for (const record of event.message.records) {
       if (record.recordType === "mime" && record.mediaType === SPEC.mime_type) {
         found = true;
-        finishWebNfcAction("Found and loaded OpenTag3D record");
+        if (!silent) {
+          document.getElementById("webNfcDialogMessage").textContent =
+            "Reading tag...";
+          finishWebNfcAction("Found and loaded OpenTag3D record");
+        }
+        controller.abort();
+        if (nfcController === controller) nfcController = null;
         onPayload(record.data.buffer, 0x00);
         break;
       }
     }
-    if (!found) {
+    if (!found && !silent) {
+      controller.abort();
+      if (nfcController === controller) nfcController = null;
       finishWebNfcAction("Read tag does not have any OpenTag3D records", true);
     }
   });
   reader.addEventListener("readingerror", () => {
     controller.abort();
     if (nfcController === controller) nfcController = null;
-    finishWebNfcAction("Error reading tag, try again or try another tag", true);
+    if (!silent) {
+      finishWebNfcAction(
+        "Error reading tag, try again or try another tag",
+        true,
+      );
+    }
   });
 };
+
+const startAutomaticWebNFC = (onPayload) =>
+  readViaWebNFC(onPayload, { silent: true }).catch(() => {});
 
 // Builds a full NTAG page dump (Capability Container + NDEF TLV wrapping
 // our MIME payload), shared by the Flipper and Proxmark3 exporters.
