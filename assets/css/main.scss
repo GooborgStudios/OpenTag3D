@@ -227,9 +227,54 @@ textarea {
   scale: 1.1;
 }
 
+.support-table {
+  th:first-child,
+  td:first-child {
+    width: 5rem;
+    text-align: center;
+  }
+
+  td {
+    vertical-align: middle;
+  }
+}
+
+.support-logo {
+  display: block;
+  width: 4rem;
+  height: 3rem;
+  margin: 0 auto;
+  padding: 0.3rem;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 0.4rem;
+  box-shadow: none !important;
+}
+
+.support-logo--wide {
+  width: 4.5rem;
+}
+
 .benefit-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-bottom: 2rem;
+}
+
+.getting-started__overview-image {
+  display: block;
+  width: 100%;
+  margin: 1.5rem 0 2rem;
+  border: 1px solid #303847;
+  border-radius: 0.75rem;
+}
+
+.getting-started__overview-image--compact {
+  width: auto;
+  max-width: 100%;
+  max-height: 15rem;
+  margin-right: auto;
+  margin-left: auto;
+  object-fit: contain;
 }
 
 .benefit-card {

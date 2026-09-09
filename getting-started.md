@@ -41,6 +41,8 @@ printers and slicers can read that information automatically, so you spend less
 time adjusting profiles, catch incompatible settings before a print starts,
 and keep your filament organized.
 
+<img class="getting-started__overview-image getting-started__overview-image--compact" src="/assets/images/a-look-inside.png" alt="A filament spool's NFC tag sharing its material, color, and recommended print settings">
+
 <div class="benefit-grid" markdown="1">
 
 <div class="benefit-card" markdown="1">
@@ -102,13 +104,23 @@ printer, accessory, slicer, or community project.
 
 ##### Supported Printers
 
-| Printer                                                                                                                                                               | Support            | Link                                                                                                                                                                                           | Notes |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| Bambu Lab Series Printers                                                                                                                                             | Via Community Mods | [BambuTagger](https://www.bambutagger.de/en/bt), [OpenSpool (with custom firmware)](https://github.com/spuder/OpenSpool/pull/80), [SpoolSense](https://spoolsense.org/installation/bambu-ams/) |       |
-| Snapmaker U1                                                                                                                                                          | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/snapmaker-u1/)                                                                                                                                |
-| Prusa MK4 / MMU3                                                                                                                                                      | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/)                                                                                                                                       |
-| Other Klipper-based Printers                                                                                                                                          | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/)                                                                                                                                  |
-| For more details on the filament brands, projects and companies that support the standard, see the current [supporters and implementation status](/about#supporters). |
+| Logo | Printer | Support | Link | Notes |
+| ---- | ------- | ------- | ---- | ----- |
+| <img class="support-logo" src="/assets/images/logos/bambu-lab.png" alt="Bambu Lab logo"> | Bambu Lab Series Printers | Via Community Mods | [BambuTagger](https://www.bambutagger.de/en/bt), [OpenSpool (with custom firmware)](https://github.com/spuder/OpenSpool/pull/80), [SpoolSense](https://spoolsense.org/installation/bambu-ams/) | |
+| <img class="support-logo" src="/assets/images/logos/snapmaker.svg" alt="Snapmaker logo"> | Snapmaker U1 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/snapmaker-u1/) | |
+| <img class="support-logo" src="/assets/images/logos/prusa.png" alt="Prusa logo"> | Prusa MK4 / MMU3 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/) | |
+| <img class="support-logo" src="/assets/images/logos/klipper.svg" alt="Klipper logo"> | Other Klipper-based Printers | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/) | |
+{: .support-table}
+
+For more details on the filament brands, projects, and companies that support
+the standard, see the current [supporters and implementation status](/about#supporters).
+
+##### Supported Filament Brands
+
+| Logo | Brand | Filament Sold with Pre-programmed Tags | Online OpenTag3D Exports |
+| ---- | ----- | --------------------------------------- | ------------------------ |
+| <img class="support-logo support-logo--wide" src="/assets/images/logos/polar-filament-color.png" alt="Polar Filament logo"> | [Polar Filament](https://polarfilament.com/) | Planned Q4 2026 | [Yes](https://pfil.us/rfid) |
+{: .support-table}
 
 #### 2. Write your own tags
 
@@ -117,12 +129,11 @@ Buy compatible NFC tags, enter the spool information in
 specification is designed around **NTAG215** tags; **NTAG216** tags are also
 supported.
 
-Some filament companies provide a lookup that fills in product data for you:
-
-- [Polar Filament](https://pfil.us/rfid)
-
-If the manufacturer does not offer a lookup, you can enter the information
+If the filament manufacturer offers an online OpenTag3D export, use it to fill
+in the product data automatically. Otherwise, you can enter the information
 yourself.
+
+<img class="getting-started__overview-image getting-started__overview-image--compact" src="/assets/images/nfc-reader-options.png" alt="Examples of NFC and RFID readers that can work with filament tags">
 
 ##### With a phone (recommended)
 
@@ -132,11 +143,12 @@ On iPhone, OpenTag3D data can be read and written via third-party native apps. W
 
 Other mobile applications are available for reading and writing OpenTag3D data. Here is a list:
 
-| Application                                      | Platform(s) | Features    | Spec Version | Notes                                                           |
-| ------------------------------------------------ | ----------- | ----------- | ------------ | --------------------------------------------------------------- |
-| [OpenTag3D Make Page](/make)                     | Android     | Read, Write | v2           | This can be installed like an app via Google Chrome on Android. |
-| [SpoolSense](https://spoolsense.org/)            | iPhone      | Read, Write | v1, v2       |                                                                 |
-| [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone      | Read        | v1, v2       |                                                                 |
+| Logo | Application | Platform(s) | Features | Spec Version | Notes |
+| ---- | ----------- | ----------- | -------- | ------------ | ----- |
+| <img class="support-logo" src="/assets/favicon/android-chrome-512x512.png" alt="OpenTag3D spool logo"> | [OpenTag3D Make Page](/make) | Android | Read, Write | v2 | This can be installed like an app via Google Chrome on Android. |
+| <img class="support-logo" src="/assets/images/logos/spoolsense.jpg" alt="SpoolSense logo"> | [SpoolSense](https://spoolsense.org/) | iPhone | Read, Write | v1, v2 | |
+| <img class="support-logo" src="/assets/images/logos/spoolflux.png" alt="SpoolFlux logo"> | [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone | Read | v1, v2 | |
+{: .support-table}
 
 Building an app? [Let us know](/about#contact) so it can be added here.
 

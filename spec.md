@@ -58,8 +58,10 @@ Below is list of data that will live on the RFID chip. All **REQUIRED** data mus
 
 For any missing bytes (example: OpenTag3D defines data in 0xFF but the payload only goes up to 0xD0), treat them as "0x00".
 
-> [!NOTE]
-> Spec implementers: the memory maps for OpenTag3D are also available in [JSON format](https://opentag3d.info/spec.json).
+> [!IMPORTANT]
+> **Use [`spec.json`](https://opentag3d.info/spec.json) as the source of truth for implementations.** We strongly recommend parsing the JSON specification instead of hard-coding field addresses, lengths, types, scaling rules, or other memory-map details.
+>
+> A data-driven implementation can adopt compatible specification updates by replacing its local `spec.json` file. The updated field layout and parsing rules can then take effect without rewriting the memory map in code. Hard-coded layouts require code changes for every memory-map update and are more likely to become outdated.
 
 ### Memory Map
 
@@ -124,6 +126,8 @@ The `product_url` field should be links to product pages where the user can repu
 ## Reader Implementation Guidelines
 
 While every implementation for reading OpenTag3D RFID tags will be different, this specification aims to set a few requirements to ensure that functionality is consistent across printers and other hardware -- we'll call these the "reader" for continuity.
+
+Readers should load field locations and parsing rules from [`spec.json`](https://opentag3d.info/spec.json) whenever possible. This recommendation does not replace the version checks below; readers must still reject unsupported major versions.
 
 When attempting to read an RFID tag, the reader should check for an NDEF record of the type `{{ site.data.spec.mime_type }}`. This record will include all of the tag data. It may ignore any other NDEF records. If there is no `{{ site.data.spec.mime_type }}` record, it is not an OpenTag3D tag.
 
