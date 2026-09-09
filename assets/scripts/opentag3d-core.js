@@ -229,42 +229,40 @@ const decodeTagBuffer = (buf, startAddr = 0x00) => {
     if (addr > data.length) break;
     const bytes = read(addr, f.length);
 
-    try {
-      if (f.id === "tag_version") {
-        const v = readInt(bytes) / 1000.0;
-        const ev = parseFloat(SPEC.version);
-        values.set(f.id, { raw: v, display: v.toFixed(3) });
-        if (Math.floor(v) !== Math.floor(ev)) {
-          warnings.push(
-            `Loaded tag version is mismatched (got ${v}, expected ${ev})`,
-          );
-        }
-      } else if (f.type === "ascii" || f.type === "utf8") {
-        const s = String.fromCharCode(...bytes).replace(/\u0000+$/, "");
-        values.set(f.id, { raw: s, display: s });
-      } else if (f.type === "rgba") {
-        const [r = 0, g = 0, b = 0, a = 255] = bytes;
-        const hexStr = "#" + [r, g, b, a].map((x) => hex(x)).join("");
-        values.set(f.id, { raw: [r, g, b, a], display: hexStr });
-      } else if (f.type === "int") {
-        const n = readInt(bytes);
-        values.set(f.id, { raw: n, display: n * (f.scaling || 1) });
-      } else if (f.type === "date") {
-        const y = (bytes[0] << 8) | bytes[1],
-          m = bytes[2],
-          d = bytes[3];
-        const str = `${y.toString().padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-        values.set(f.id, { raw: { year: y, month: m, day: d }, display: str });
-      } else if (f.type === "time") {
-        const [hh = 0, mm = 0, ss = 0] = bytes;
-        const str = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
-        values.set(f.id, {
-          raw: { hour: hh, minute: mm, second: ss },
-          display: str,
-        });
+    if (f.id === "tag_version") {
+      const v = readInt(bytes) / 1000.0;
+      const ev = parseFloat(SPEC.version);
+      values.set(f.id, { raw: v, display: v.toFixed(3) });
+      console.log(v, Math.floor(v), ev, Math.floor(ev));
+      if (Math.floor(v) !== Math.floor(ev)) {
+        console.log("Foo");
+        throw new Error(
+          `Loaded tag version is mismatched (got ${v}, expected ${ev})`,
+        );
       }
-    } catch {
-      /* be forgiving on decode */
+    } else if (f.type === "ascii" || f.type === "utf8") {
+      const s = String.fromCharCode(...bytes).replace(/\u0000+$/, "");
+      values.set(f.id, { raw: s, display: s });
+    } else if (f.type === "rgba") {
+      const [r = 0, g = 0, b = 0, a = 255] = bytes;
+      const hexStr = "#" + [r, g, b, a].map((x) => hex(x)).join("");
+      values.set(f.id, { raw: [r, g, b, a], display: hexStr });
+    } else if (f.type === "int") {
+      const n = readInt(bytes);
+      values.set(f.id, { raw: n, display: n * (f.scaling || 1) });
+    } else if (f.type === "date") {
+      const y = (bytes[0] << 8) | bytes[1],
+        m = bytes[2],
+        d = bytes[3];
+      const str = `${y.toString().padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      values.set(f.id, { raw: { year: y, month: m, day: d }, display: str });
+    } else if (f.type === "time") {
+      const [hh = 0, mm = 0, ss = 0] = bytes;
+      const str = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+      values.set(f.id, {
+        raw: { hour: hh, minute: mm, second: ss },
+        display: str,
+      });
     }
   }
 
