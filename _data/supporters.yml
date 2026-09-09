@@ -75,6 +75,11 @@ supporters:
     since: "2026-09-01" # Tentative; this was when we discovered it
     category: "software"
     implstage: "v1"
+  - name: "SpoolKid"
+    url: "https://github.com/marko-p/SpoolKid"
+    since: "2026-04-22" # https://github.com/marko-p/SpoolKid/commit/c072b41ae3cd70f557f72bf35e206bddf38dd193#diff-dcb081b6f4a3e4b8b8b5ecd4d13a20625604e1cb77ad80049b397f958fb65134
+    category: "software"
+    implstage: "v1"
   - name: "SpoolSense (Hardware Reader)"
     url: "https://spoolsense.org/"
     since: "2026-04-08" # Tentative; assumed based on changelog
