@@ -233,9 +233,7 @@ const decodeTagBuffer = (buf, startAddr = 0x00) => {
       const v = readInt(bytes) / 1000.0;
       const ev = parseFloat(SPEC.version);
       values.set(f.id, { raw: v, display: v.toFixed(3) });
-      console.log(v, Math.floor(v), ev, Math.floor(ev));
       if (Math.floor(v) !== Math.floor(ev)) {
-        console.log("Foo");
         throw new Error(
           `Loaded tag version is mismatched (got ${v}, expected ${ev})`,
         );
