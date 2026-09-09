@@ -122,11 +122,11 @@ yourself.
 
 ###### OpenTag3D phone apps
 
-| Application                                      | Platform(s) | Notes                                                           |
-| ------------------------------------------------ | ----------- | --------------------------------------------------------------- |
-| [OpenTag3D Make Page](/make)                     | Android     | This can be installed like an app via Google Chrome on Android. |
-| [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone      | Supports v1 of the spec.                                        |
-| [SpoolSense](https://spoolsense.org/)            | iPhone      | Supports v1 of the spec.                                        |
+| Application                                      | Platform(s) | Features    | Spec Version | Notes                                                           |
+| ------------------------------------------------ | ----------- | ----------- | ------------ | --------------------------------------------------------------- |
+| [OpenTag3D Make Page](/make)                     | Android     | Read, Write | v2           | This can be installed like an app via Google Chrome on Android. |
+| [SpoolSense](https://spoolsense.org/)            | iPhone      | Read, Write | v1, v2       |                                                                 |
+| [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone      | Read        | v1, v2       |                                                                 |
 
 Building an app? [Let us know](/about#contact) so it can be added here.
 
