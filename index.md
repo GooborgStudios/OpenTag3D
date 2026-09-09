@@ -9,13 +9,15 @@ header:
   overlay_filter: "0.6"
   overlay_image: /assets/images/background.jpg
   actions:
+    - label: "Get Started"
+      url: "/getting-started/"
     - label: "View Spec"
       url: "/spec"
   announcement: "[OpenTag3D v2.0](./articles/v2-already) is out now!"
   caption: "Placeholder Background by [**morgaannn23**](https://wallpapercave.com/w/wp6945227)"
 excerpt: "An open source standard for 3D printer filament RFID tags. Designed from the ground up for compatibility between printers, filament manufacturers, and accessories, implementation is simple and low-cost."
 intro:
-  - excerpt: "Proprietary locks you in. Open sets you free. — [Tim Berners-Lee](https://www.w3.org/People/Berners-Lee/)"
+  - excerpt: "Proprietary locks you in. Open sets you free. [Tim Berners-Lee](https://www.w3.org/People/Berners-Lee/)"
 feature_row:
   - title: "Low-Cost, Off-the-Shelf Hardware"
     excerpt: "OpenTag3D uses standard NFC tags (NTAG215/216). These tags are readable and writable by smartphones, compatible with most off-the-shelf RFID/NFC readers (including low-cost PN532 modules), and require no proprietary hardware. This allows everyone, from corporations to hobbyists, to implement the standard into their applications, printers or accessories."
