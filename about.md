@@ -31,11 +31,13 @@ What is the benefit of adding RFID chips to filament?
 
 ## Supporters
 
-These are companies that are implementing OpenTag3D into their printers, filament, add-ons, etc., or otherwise supporting the OpenTag3D specification. If you would like to join this list, please open an [Issue on GitHub](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=supporter.yml).
+These are companies that are implementing OpenTag3D into their printers, filament, add-ons, etc., or otherwise supporting the OpenTag3D specification.
 
 {% include supporters_list.html %}
 
-Want to provide a financial contribution? Donate to the Gooborg Studios' founder via [Ko-Fi](https://ko-fi.com/queengooborg) or [PayPal](https://paypal.me/VinylDarkscratch)!
+If you would like to be added to this list to show your support and intent to implement OpenTag3D, please open an [Issue on GitHub](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=supporter.yml).
+
+Want to provide a financial contribution instead? Donate to the Gooborg Studios' founder via [Ko-Fi](https://ko-fi.com/queengooborg) or [PayPal](https://paypal.me/VinylDarkscratch)!
 
 ## OpenTag3D Consortium
 

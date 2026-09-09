@@ -614,12 +614,12 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     }
   };
 
-  const loadBufferIntoDisplay = (buf, startAddr) => {
+  const loadBufferIntoDisplay = async (buf, startAddr) => {
     const data = new Uint8Array(buf);
     hexdumpElement.textContent = hexdump(data, startAddr);
     hexdumpBox.hidden = false;
 
-    const { values, warnings } = decodeTagBuffer(data, startAddr);
+    const { values, warnings } = await decodeTagBuffer(data, startAddr);
     warnings.forEach((w) => msg(`Warning: ${w}`, true));
 
     renderTag(values);
@@ -644,7 +644,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
         const clipboard = await navigator.clipboard.readText();
         try {
           const { data, startAddr } = parseImportedText(clipboard);
-          loadBufferIntoDisplay(data, startAddr);
+          await loadBufferIntoDisplay(data, startAddr);
           msg("Loaded data from clipboard");
         } catch (e) {
           msg(
@@ -665,13 +665,13 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
             const buf = await file.arrayBuffer();
             // A Proxmark3 dump is just a raw .bin with a 56-byte header, try that first.
             try {
-              loadBufferIntoDisplay(parseProxmark3Bin(buf), 0x00);
+              await loadBufferIntoDisplay(parseProxmark3Bin(buf), 0x00);
             } catch {
-              loadBufferIntoDisplay(buf, 0x00);
+              await loadBufferIntoDisplay(buf, 0x00);
             }
           } else {
             const { data, startAddr } = parseImportedText(await file.text());
-            loadBufferIntoDisplay(data, startAddr);
+            await loadBufferIntoDisplay(data, startAddr);
           }
           msg(`Loaded ${file.name}`);
         } catch (err) {
@@ -683,13 +683,17 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
     const hexParam = urlParams.get("hex");
     if (hexParam) {
-      loadBufferIntoDisplay(bufferFromText(hexParam), 0x00);
+      loadBufferIntoDisplay(bufferFromText(hexParam), 0x00).catch((e) =>
+        msg("Import error: " + e.message, true),
+      );
     }
 
     // Automatically scan for an OpenTag3D tag when Web NFC is available.
     if ("NDEFReader" in window) {
       startAutomaticWebNFC((buf, startAddr) =>
-        loadBufferIntoDisplay(buf, startAddr),
+        loadBufferIntoDisplay(buf, startAddr).catch((e) =>
+          msg("Import error: " + e.message, true),
+        ),
       );
     }
   });
