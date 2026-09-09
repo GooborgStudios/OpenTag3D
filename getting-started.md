@@ -104,6 +104,7 @@ printer, accessory, slicer, or community project.
 
 ##### Supported Printers
 
+<!-- prettier-ignore -->
 | Logo | Printer | Support | Link | Notes |
 | ---- | ------- | ------- | ---- | ----- |
 | <img class="support-logo" src="/assets/images/logos/bambu-lab.png" alt="Bambu Lab logo"> | Bambu Lab Series Printers | Via Community Mods | [BambuTagger](https://www.bambutagger.de/en/bt), [OpenSpool (with custom firmware)](https://github.com/spuder/OpenSpool/pull/80), [SpoolSense](https://spoolsense.org/installation/bambu-ams/) | |
@@ -117,6 +118,7 @@ the standard, see the current [supporters and implementation status](/about#supp
 
 ##### Supported Filament Brands
 
+<!-- prettier-ignore -->
 | Logo | Brand | Filament Sold with Pre-programmed Tags | Online OpenTag3D Exports |
 | ---- | ----- | --------------------------------------- | ------------------------ |
 | <img class="support-logo support-logo--wide" src="/assets/images/logos/polar-filament-color.png" alt="Polar Filament logo"> | [Polar Filament](https://polarfilament.com/) | Planned Q4 2026 | [Yes](https://pfil.us/rfid) |
@@ -143,6 +145,7 @@ On iPhone, OpenTag3D data can be read and written via third-party native apps. W
 
 Other mobile applications are available for reading and writing OpenTag3D data. Here is a list:
 
+<!-- prettier-ignore -->
 | Logo | Application | Platform(s) | Features | Spec Version | Notes |
 | ---- | ----------- | ----------- | -------- | ------------ | ----- |
 | <img class="support-logo" src="/assets/favicon/android-chrome-512x512.png" alt="OpenTag3D spool logo"> | [OpenTag3D Make Page](/make) | Android | Read, Write | v2 | This can be installed like an app via Google Chrome on Android. |
