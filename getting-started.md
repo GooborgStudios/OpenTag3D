@@ -101,6 +101,15 @@ This is the easiest route: buy a tagged spool, then use it with a compatible
 printer, accessory, slicer, or community project. See the current
 [supporters and implementation status](/about#supporters).
 
+##### Supported Printers
+
+| Printer                      | Support            | Link                                                                                                                                                                                           | Notes |
+| ---------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Bambu Lab Series Printers    | Via Community Mods | [BambuTagger](https://www.bambutagger.de/en/bt), [OpenSpool (with custom firmware)](https://github.com/spuder/OpenSpool/pull/80), [SpoolSense](https://spoolsense.org/installation/bambu-ams/) |       |
+| Snapmaker U1                 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/snapmaker-u1/)                                                                                                                                |
+| Prusa MK4 / MMU3             | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/)                                                                                                                                       |
+| Other Klipper-based Printers | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/)                                                                                                                                  |
+
 #### 2. Write your own tags
 
 Buy compatible NFC tags, enter the spool information in
