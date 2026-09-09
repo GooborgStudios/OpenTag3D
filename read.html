@@ -213,6 +213,10 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
         </div>
         <div class="tag-id-list">
           <div class="tag-id-row">
+            <span class="tag-stat-label">OpenTag3D Version</span>
+            <span id="tagVersion"></span>
+          </div>
+          <div class="tag-id-row">
             <span class="tag-stat-label">Serial Number</span>
             <span id="tagSerial"></span>
           </div>
@@ -494,6 +498,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
       v("material_mod") ? `— ${v("material_mod")}` : "",
     );
 
+    setText("tagVersion", v("tag_version"));
     setText("tagSerial", dash(v("serial")));
     const mfgDate = v("mfg_date");
     const mfgTime = v("mfg_time");
