@@ -79,7 +79,7 @@ supporters:
     url: "https://spoolsense.org/"
     since: "2026-04-08" # Tentative; assumed based on changelog
     category: "hardware"
-    implstage: "v1"
+    implstage: "active"
   - name: "SpoolSense (iOS App)"
     url: "https://spoolsense.org/"
     since: "2026-04-08" # Tentative; assumed based on changelog
