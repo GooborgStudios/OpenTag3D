@@ -208,10 +208,33 @@ const encodeFieldValue = (field, value) => {
     : encodeUtf8(String(value || ""), field.length);
 };
 
+// Field layouts for older major spec versions (fetched on demand from
+// /assets/json/spec_v{major}.json) so tags written under an older major
+// version can still be read with the correct field offsets/lengths.
+const legacySpecFieldsCache = new Map();
+const getFieldsForMajorVersion = async (major) => {
+  const currentMajor = Math.floor(parseFloat(SPEC.version));
+  if (major === currentMajor) return allFields;
+  if (legacySpecFieldsCache.has(major)) return legacySpecFieldsCache.get(major);
+
+  const res = await fetch(`/assets/json/spec_v${major}.json`).catch(() => null);
+  if (!res || !res.ok) {
+    throw new Error(
+      `Unsupported tag version ${major}.x - no legacy spec is available for it`,
+    );
+  }
+  const spec = await res.json();
+  const fields = spec.core.fields;
+  legacySpecFieldsCache.set(major, fields);
+  return fields;
+};
+
 // Decodes a raw tag buffer into a Map of field id -> { raw, display } values,
 // where `display` is the scaled/formatted value suitable for showing to a
 // user (or writing back into a form input), and `raw` is the unscaled value.
-const decodeTagBuffer = (buf, startAddr = 0x00) => {
+// Automatically detects and loads the field layout for older major tag
+// versions, since their field offsets/lengths can differ from the current spec.
+const decodeTagBuffer = async (buf, startAddr = 0x00) => {
   const data = new Uint8Array(buf);
   const values = new Map();
   const warnings = [];
@@ -223,21 +246,28 @@ const decodeTagBuffer = (buf, startAddr = 0x00) => {
   };
   const readInt = (bytes) => bytes.reduce((n, b) => (n << 8) | b, 0) >>> 0;
 
-  for (const f of allFields) {
+  // Tag version is always the first field, at the same location/format
+  // across every spec version, so read it before picking a field set.
+  const versionField = allFields.find((f) => f.id === "tag_version");
+  const v =
+    readInt(read(parseHex(versionField.start), versionField.length)) / 1000.0;
+  const major = Math.floor(v);
+  const currentMajor = Math.floor(parseFloat(SPEC.version));
+  const fields = await getFieldsForMajorVersion(major);
+  if (major !== currentMajor) {
+    warnings.push(
+      `Tag was written with an older spec version (${v.toFixed(3)}); some fields may be missing or interpreted differently`,
+    );
+  }
+
+  for (const f of fields) {
     if (f.type === "-") continue;
     const addr = parseHex(f.start);
     if (addr > data.length) break;
     const bytes = read(addr, f.length);
 
     if (f.id === "tag_version") {
-      const v = readInt(bytes) / 1000.0;
-      const ev = parseFloat(SPEC.version);
       values.set(f.id, { raw: v, display: v.toFixed(3) });
-      if (Math.floor(v) !== Math.floor(ev)) {
-        throw new Error(
-          `Loaded tag version is mismatched (got ${v}, expected ${ev})`,
-        );
-      }
     } else if (f.type === "ascii" || f.type === "utf8") {
       const s = String.fromCharCode(...bytes).replace(/\u0000+$/, "");
       values.set(f.id, { raw: s, display: s });
@@ -349,7 +379,9 @@ const readViaWebNFC = async (onPayload, { silent = false } = {}) => {
 const startAutomaticWebNFC = (onPayload) => {
   const action = (buffer, startAddr) => {
     onPayload(buffer, startAddr);
-    startAutomaticWebNFC(onPayload);
+    setTimeout(() => {
+      startAutomaticWebNFC(onPayload);
+    }, 1000);
   };
   readViaWebNFC(action, { silent: true }).catch(() => {});
 };

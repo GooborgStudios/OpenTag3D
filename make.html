@@ -751,17 +751,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     downloadFile(buf, "application/octet-stream", name);
   };
 
-  const loadImportedText = (text) => {
+  const loadImportedText = async (text) => {
     const { data, startAddr } = parseImportedText(text);
-    loadBufferIntoForm(data, startAddr);
+    await loadBufferIntoForm(data, startAddr);
   };
 
   // Decode imported buffer back into the form (reverse the scalings where we can)
-  const loadBufferIntoForm = (buf, startAddr) => {
+  const loadBufferIntoForm = async (buf, startAddr) => {
     const data = new Uint8Array(buf);
     hexdumpElement.textContent = hexdump(data, startAddr);
 
-    const { values, warnings } = decodeTagBuffer(data, startAddr);
+    const { values, warnings } = await decodeTagBuffer(data, startAddr);
     warnings.forEach((w) => msg(`Warning: ${w}`, true));
 
     for (const [id, { display }] of values) {
@@ -804,7 +804,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     document.getElementById("readWebNFC").addEventListener("click", () => {
       readViaWebNFC((buf, startAddr) =>
-        loadBufferIntoForm(buf, startAddr),
+        loadBufferIntoForm(buf, startAddr).catch((e) =>
+          finishWebNfcAction(e.message, true),
+        ),
       ).catch((e) => finishWebNfcAction(e.message, true));
     });
 
@@ -843,7 +845,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     const hexParam = urlParams.get("hex");
     if (hexParam) {
-      loadBufferIntoForm(bufferFromText(hexParam), 0x00);
+      loadBufferIntoForm(bufferFromText(hexParam), 0x00).catch((e) =>
+        msg("Import error: " + e.message, true),
+      );
     }
 
     document
@@ -873,7 +877,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .addEventListener("click", async () => {
         const clipboard = await navigator.clipboard.readText();
         try {
-          loadImportedText(clipboard);
+          await loadImportedText(clipboard);
           msg("Loaded data from clipboard");
         } catch (e) {
           msg(
@@ -895,12 +899,12 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
             const buf = await file.arrayBuffer();
             // A Proxmark3 dump is just a raw .bin with a 56-byte header, try that first.
             try {
-              loadBufferIntoForm(parseProxmark3Bin(buf), 0x00);
+              await loadBufferIntoForm(parseProxmark3Bin(buf), 0x00);
             } catch {
-              loadBufferIntoForm(buf, 0x00);
+              await loadBufferIntoForm(buf, 0x00);
             }
           } else {
-            loadImportedText(await file.text());
+            await loadImportedText(await file.text());
           }
           msg(`Loaded ${file.name}`);
         } catch (err) {
