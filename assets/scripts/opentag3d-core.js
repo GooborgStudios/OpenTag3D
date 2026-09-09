@@ -346,8 +346,13 @@ const readViaWebNFC = async (onPayload, { silent = false } = {}) => {
   });
 };
 
-const startAutomaticWebNFC = (onPayload) =>
-  readViaWebNFC(onPayload, { silent: true }).catch(() => {});
+const startAutomaticWebNFC = (onPayload) => {
+  const action = (buffer, startAddr) => {
+    onPayload(buffer, startAddr);
+    startAutomaticWebNFC(onPayload);
+  };
+  readViaWebNFC(action, { silent: true }).catch(() => {});
+};
 
 // Builds a full NTAG page dump (Capability Container + NDEF TLV wrapping
 // our MIME payload), shared by the Flipper and Proxmark3 exporters.
