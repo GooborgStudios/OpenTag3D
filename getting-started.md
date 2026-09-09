@@ -148,7 +148,7 @@ Other mobile applications are available for reading and writing OpenTag3D data. 
 <!-- prettier-ignore -->
 | Logo | Application | Platform(s) | Features | Spec Version | Notes |
 | ---- | ----------- | ----------- | -------- | ------------ | ----- |
-| <img class="support-logo" src="/assets/favicon/android-chrome-512x512.png" alt="OpenTag3D spool logo"> | [OpenTag3D Make Page](/make) | Android | Read, Write | v2 | This can be installed like an app via Google Chrome on Android. |
+| <img class="support-logo" src="/assets/favicon/android-chrome-512x512.png" alt="OpenTag3D spool logo"> | [OpenTag3D Make Page](/make) | Android | Read, Write | v1, v2 | This can be installed like an app via Google Chrome on Android. |
 | <img class="support-logo" src="/assets/images/logos/spoolsense.jpg" alt="SpoolSense logo"> | [SpoolSense](https://spoolsense.org/) | iPhone | Read, Write | v1, v2 | |
 | <img class="support-logo" src="/assets/images/logos/spoolflux.png" alt="SpoolFlux logo"> | [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone | Read | v1, v2 | |
 {: .support-table}
