@@ -5,6 +5,8 @@ main:
     url: "/about"
   - title: "Spec"
     url: "/spec"
+  - title: "Read"
+    url: "/read"
   - title: "Make"
     url: "/make"
   - title: "GitHub"

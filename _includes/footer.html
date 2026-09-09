@@ -1,10 +1,8 @@
 {% if site.footer.links %}
 <div class="page__footer-follow">
   <ul class="social-icons">
-    {% if site.data.ui-text[site.locale].follow_label %}
-    <li><strong>{{ site.data.ui-text[site.locale].follow_label }}</strong></li>
-    {% endif %} {% if site.footer.links %} {% for link in site.footer.links %}
-    {% if link.label and link.url %}
+    {% if site.footer.links %} {% for link in site.footer.links %} {% if
+    link.label and link.url %}
     <li>
       <a href="{{ link.url }}" rel="nofollow noopener noreferrer"
         ><i
@@ -45,6 +43,16 @@
   Website and logo font is
   <a href="https://www.dafont.com/gravity.font" target="_blank" rel="nofollow"
     >Gravity by Vincenzo Vuono</a
-  >. Homepage icons from
-  <a href="https://icons8.com/" target="_blank" rel="nofollow">Icons8</a>.
+  >.<br />Icons from
+  <a href="https://icons8.com/" target="_blank" rel="nofollow">Icons8</a>,
+  <a href="https://www.vecteezy.com/" target="_blank" rel="nofollow"
+    >Vecteezy</a
+  >
+  and
+  <a
+    href="https://pictogrammers.com/library/mdi/"
+    target="_blank"
+    rel="nofollow"
+    >Material Design Icons</a
+  >.
 </div>

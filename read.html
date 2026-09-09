@@ -1,0 +1,696 @@
+---
+title: Read a Tag
+layout: single
+description: A tool to read and display the data stored on an OpenTag3D tag.
+---
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .flex {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  #controls {
+    margin-bottom: 1em;
+  }
+
+  /* --- Tag display --- */
+  #tagEmptyState {
+    padding: 3em 1em;
+    text-align: center;
+  }
+  .tag-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .tag-header h2 {
+    margin: 4px 0 0;
+    font-size: 2em;
+    border-bottom: none;
+  }
+  .tag-header .material-name {
+    font-size: 1.6em;
+    font-weight: 600;
+    text-align: right;
+  }
+  .tag-header .material-mod {
+    color: var(--muted);
+  }
+  .tag-id-list {
+    display: grid;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .tag-id-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+  }
+  .tag-id-row .tag-stat-label {
+    margin-bottom: 0;
+  }
+  .tag-color-preview {
+    margin-bottom: 16px;
+  }
+  .tag-panel {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .tag-panel__heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .tag-panel__icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.8;
+  }
+  .tag-panel__heading .tag-stat-label {
+    margin-bottom: 0;
+  }
+  .tag-header__icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    vertical-align: -3px;
+    opacity: 0.8;
+  }
+  .tag-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .tag-grid--wide {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .tag-grid--2col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tag-stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .tag-stat-value {
+    font-size: 1.3em;
+    font-weight: 600;
+  }
+  .tag-stat-subvalue,
+  .tag-stat-divider {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .color-swatches {
+    display: flex;
+    width: 100%;
+    height: 64px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .color-swatch {
+    flex: 1;
+    background-image: url(/assets/images/transparency-grid.jpg);
+    background-size: cover;
+  }
+  .color-hex-list {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .tag-footer {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  @media screen and (max-width: 900px), screen and (max-device-width: 900px) {
+    .tag-header,
+    .tag-grid,
+    .tag-grid--wide {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media screen and (max-width: 600px), screen and (max-device-width: 600px) {
+    .tag-grid--2col {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<p>
+  This is a utility to read OpenTag3D tag data and display it in a friendly
+  format.
+</p>
+
+<main>
+  <div id="controls" class="flex">
+    <button class="btn btn--warning" id="loadFileBtn">
+      <img
+        class="control-icon"
+        src="{{ '/assets/images/icons/icons8-archive.svg' | relative_url }}"
+        alt=""
+        aria-hidden="true"
+      />
+      Load File
+    </button>
+    <button class="btn btn--warning" id="loadClipboardBtn">
+      <img
+        class="control-icon"
+        src="{{ '/assets/images/icons/icons8-clipboard.svg' | relative_url }}"
+        alt=""
+        aria-hidden="true"
+      />
+      Load from Clipboard
+    </button>
+    <input
+      type="file"
+      id="uploadFile"
+      accept=".bin,.nfc,.txt,.hex,.json"
+      style="display: none"
+    />
+  </div>
+
+  <div id="tagEmptyState" class="muted">
+    No tag data loaded yet.<br />You can load a tag dump from a file or from the
+    clipboard, or scan a tag using Web NFC (if your device supports it).
+  </div>
+
+  <div id="tagDisplay" hidden>
+    <div class="tag-header">
+      <div>
+        <div id="tagManufacturer"></div>
+        <h2 id="tagColorName"></h2>
+        <div id="tagColorSwatches" class="color-swatches"></div>
+        <div id="tagColorHexes" class="color-hex-list"></div>
+        <div id="tagTd" class="tag-stat-subvalue"></div>
+      </div>
+      <div>
+        <div class="material-name">
+          <span id="tagMaterial"></span>
+          <span id="tagMaterialMod" class="material-mod"></span>
+        </div>
+        <div class="tag-id-list">
+          <div class="tag-id-row">
+            <span class="tag-stat-label">OpenTag3D Version</span>
+            <span id="tagVersion"></span>
+          </div>
+          <div class="tag-id-row">
+            <span class="tag-stat-label">Serial Number</span>
+            <span id="tagSerial"></span>
+          </div>
+          <div class="tag-id-row">
+            <span class="tag-stat-label">Manufacture Date</span>
+            <span id="tagMfgDate"></span>
+          </div>
+          <div class="tag-id-row">
+            <span class="tag-stat-label">SKU</span>
+            <span id="tagSku"></span>
+          </div>
+          <div class="tag-id-row">
+            <span class="tag-stat-label">Barcode</span>
+            <span id="tagBarcode"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tag-grid tag-grid--2col">
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-diameter.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Diameter</div>
+        </div>
+        <span id="tagDiameter" class="tag-stat-value"></span>
+        <span id="tagTolerance" class="tag-stat-subvalue"></span>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-weight.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Target Weight</div>
+        </div>
+        <span id="tagWeight" class="tag-stat-value"></span>
+      </div>
+    </div>
+
+    <div class="tag-panel">
+      <div class="tag-grid--wide" style="display: grid; gap: 16px">
+        <div>
+          <div class="tag-panel__heading">
+            <img
+              class="tag-panel__icon"
+              src="{{ '/assets/images/icons/mdi-nozzle-printing.svg' | relative_url }}"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="tag-stat-label">Print Temp</div>
+          </div>
+          <div id="tagPrintTemp" class="tag-stat-value"></div>
+          <div id="tagPrintTempRange" class="tag-stat-subvalue"></div>
+        </div>
+        <div>
+          <div class="tag-panel__heading">
+            <img
+              class="tag-panel__icon"
+              src="{{ '/assets/images/icons/mdi-bed.svg' | relative_url }}"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="tag-stat-label">Bed Temp</div>
+          </div>
+          <div id="tagBedTemp" class="tag-stat-value"></div>
+          <div id="tagBedTempRange" class="tag-stat-subvalue"></div>
+        </div>
+        <div>
+          <div class="tag-panel__heading">
+            <img
+              class="tag-panel__icon"
+              src="{{ '/assets/images/icons/vecteezy-chamber.svg' | relative_url }}"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="tag-stat-label">Chamber Temp</div>
+          </div>
+          <div id="tagChamberTemp" class="tag-stat-value"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tag-grid">
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/vecteezy-nozzle.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Minimum Nozzle Diameter</div>
+        </div>
+        <div id="tagNozzle" class="tag-stat-value"></div>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-microwave.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Recommended Drying Time + Temp</div>
+        </div>
+        <span id="tagDryTime" class="tag-stat-value"></span>
+        <span id="tagDryTemp" class="tag-stat-value"></span>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/vecteezy-chemistry.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Target VSO</div>
+        </div>
+        <div id="tagTargetVso" class="tag-stat-value"></div>
+        <div id="tagVsoRange" class="tag-stat-subvalue"></div>
+      </div>
+    </div>
+
+    <div class="tag-grid">
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-length.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Measured Length</div>
+        </div>
+        <div id="tagMeasuredLength" class="tag-stat-value"></div>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-weight.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Measured Weight</div>
+        </div>
+        <div id="tagMeasuredWeight" class="tag-stat-value"></div>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-weight.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Empty Spool Weight</div>
+        </div>
+        <div id="tagSpoolWeight" class="tag-stat-value"></div>
+      </div>
+    </div>
+
+    <div class="tag-grid">
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-diameter.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Core Diameter</div>
+        </div>
+        <div id="tagSpoolCoreDiameter" class="tag-stat-value"></div>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/vecteezy-density.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">Density</div>
+        </div>
+        <div id="tagDensity" class="tag-stat-value"></div>
+      </div>
+      <div class="tag-panel">
+        <div class="tag-panel__heading">
+          <img
+            class="tag-panel__icon"
+            src="{{ '/assets/images/icons/icons8-microwave.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          <div class="tag-stat-label">MFI Temp / Load / Value</div>
+        </div>
+        <div id="tagMfiTemp" class="tag-stat-value"></div>
+        <div id="tagMfiLoadValue" class="tag-stat-subvalue"></div>
+      </div>
+    </div>
+
+    <div id="tagFooter" class="tag-footer"></div>
+  </div>
+
+  <details class="scroll" id="hexdumpBox" hidden>
+    <summary>Show hex dump</summary>
+    <pre id="hexdump" class="mono"></pre>
+  </details>
+</main>
+
+<script>
+  /* prettier-ignore-start */
+
+  // Spec comes from site.data.spec (Jekyll).
+  const SPEC = {{site.data.spec | jsonify}};
+
+  /* prettier-ignore-end */
+</script>
+
+<script src="{{ '/assets/scripts/opentag3d-core.js' | relative_url }}"></script>
+
+<script>
+  const tagEmptyState = document.getElementById("tagEmptyState");
+  const tagDisplay = document.getElementById("tagDisplay");
+  const hexdumpBox = document.getElementById("hexdumpBox");
+  const hexdumpElement = document.getElementById("hexdump");
+
+  const el = (id) => document.getElementById(id);
+
+  // Returns the decoded display value for a field, or null if it should be
+  // treated as "not set" (optional field left at its zero/empty default).
+  const fieldValue = (values, id) => {
+    const field = allFields.find((f) => f.id === id);
+    const entry = values.get(id);
+    if (!entry) return null;
+    if (field?.required) return entry.display;
+
+    if (field?.type === "ascii" || field?.type === "utf8") {
+      return entry.raw.trim().length ? entry.display : null;
+    }
+    if (field?.type === "rgba") {
+      return entry.raw.some((v) => v !== 0) ? entry.display : null;
+    }
+    if (field?.type === "date") {
+      return entry.raw.year ? entry.display : null;
+    }
+    if (field?.type === "time") {
+      return entry.raw.hour || entry.raw.minute || entry.raw.second
+        ? entry.display
+        : null;
+    }
+    // int
+    return entry.display ? entry.display : null;
+  };
+
+  const setText = (id, text) => {
+    el(id).textContent = text ?? "";
+  };
+
+  const renderTag = (values) => {
+    const v = (id) => fieldValue(values, id);
+    const dash = (text) => text || "—";
+
+    setText("tagManufacturer", v("manufacturer") || "Unknown Brand");
+    setText("tagColorName", v("color_name") || "Unknown Color");
+
+    setText("tagMaterial", v("material") || "Unknown Material");
+    setText(
+      "tagMaterialMod",
+      v("material_mod") ? `— ${v("material_mod")}` : "",
+    );
+
+    setText("tagVersion", v("tag_version"));
+    setText("tagSerial", dash(v("serial")));
+    const mfgDate = v("mfg_date");
+    const mfgTime = v("mfg_time");
+    setText(
+      "tagMfgDate",
+      dash(
+        [mfgDate, mfgTime ? `${mfgTime} UTC` : ""].filter(Boolean).join(" "),
+      ),
+    );
+    setText("tagSku", dash(v("sku")));
+    setText("tagBarcode", dash(v("barcode")));
+
+    // Colors
+    const swatches = el("tagColorSwatches");
+    swatches.innerHTML = "";
+    const hexLines = [];
+    for (const id of ["color_1", "color_2", "color_3", "color_4"]) {
+      const hexValue = v(id);
+      if (!hexValue) continue;
+      const swatch = document.createElement("div");
+      swatch.className = "color-swatch";
+      swatch.style.backgroundImage = `linear-gradient(0deg, ${hexValue.slice(0, 7)} 0%, ${hexValue.slice(0, 7)} 50%, ${hexValue} 50%, ${hexValue} 100%), url(/assets/images/transparency-grid.jpg)`;
+      swatch.title = hexValue;
+      swatches.append(swatch);
+      hexLines.push(hexValue);
+    }
+    setText("tagColorHexes", hexLines.join(" / "));
+    const td = v("td");
+    setText("tagTd", td ? `Transmission Distance (TD): ${td}mm` : "");
+
+    const diameter = v("diameter");
+    setText("tagDiameter", diameter ? `${diameter}mm` : "—");
+    const tolerance = v("tolerance");
+    setText("tagTolerance", tolerance ? `±${tolerance}mm` : "");
+
+    const weight = v("weight");
+    setText("tagWeight", weight ? `${weight}g` : "—");
+    const density = v("density");
+    setText("tagDensity", density ? `${density}g/cm³` : "");
+
+    const printTemp = v("print_temp");
+    setText("tagPrintTemp", printTemp ? `${printTemp}°C` : "—");
+    const minPrint = v("min_print_temp"),
+      maxPrint = v("max_print_temp");
+    setText(
+      "tagPrintTempRange",
+      minPrint || maxPrint ? `${minPrint ?? "?"} - ${maxPrint ?? "?"}°C` : "",
+    );
+
+    const bedTemp = v("bed_temp");
+    setText("tagBedTemp", bedTemp ? `${bedTemp}°C` : "—");
+    const minBed = v("min_bed_temp"),
+      maxBed = v("max_bed_temp");
+    setText(
+      "tagBedTempRange",
+      minBed || maxBed ? `${minBed ?? "?"} - ${maxBed ?? "?"}°C` : "",
+    );
+
+    const chamberTemp = v("chamber_temp");
+    setText("tagChamberTemp", chamberTemp ? `${chamberTemp}°C` : "—");
+
+    const nozzle = v("nozzle_diameter");
+    setText("tagNozzle", nozzle ? `${nozzle}mm` : "—");
+
+    const dryTime = v("dry_time");
+    setText("tagDryTime", dryTime ? `${dryTime}hr` : "—");
+    const dryTemp = v("max_dry_temp");
+    setText("tagDryTemp", dryTemp ? `${dryTemp}°C` : "");
+
+    const targetVso = v("target_vso");
+    setText("tagTargetVso", targetVso ? `${targetVso}mm³/s` : "—");
+    const minVso = v("min_vso"),
+      maxVso = v("max_vso");
+    setText(
+      "tagVsoRange",
+      minVso || maxVso ? `${minVso ?? "?"} - ${maxVso ?? "?"}mm³/s` : "",
+    );
+
+    const measuredLength = v("measured_length");
+    setText("tagMeasuredLength", measuredLength ? `${measuredLength}m` : "—");
+    const measuredWeight = v("measured_weight");
+    setText("tagMeasuredWeight", measuredWeight ? `${measuredWeight}g` : "");
+
+    const spoolWeight = v("empty_spool_weight");
+    setText("tagSpoolWeight", spoolWeight ? `${spoolWeight}g` : "—");
+    const spoolCoreDiameter = v("spool_core_diameter");
+    setText(
+      "tagSpoolCoreDiameter",
+      spoolCoreDiameter ? `${spoolCoreDiameter}mm` : "",
+    );
+
+    const mfiTemp = v("mfi_temp");
+    setText("tagMfiTemp", mfiTemp ? `${mfiTemp}°C` : "—");
+    const mfiLoad = v("mfi_load"),
+      mfiValue = v("mfi_value");
+    setText(
+      "tagMfiLoadValue",
+      [mfiLoad ? `${mfiLoad}g load` : "", mfiValue ? `${mfiValue}g/min` : ""]
+        .filter(Boolean)
+        .join(" — "),
+    );
+
+    const dataUrl = v("data_url");
+    const footer = el("tagFooter");
+    footer.innerHTML = "";
+    if (dataUrl) {
+      const link = document.createElement("a");
+      link.href = dataUrl.startsWith("http") ? dataUrl : `https://${dataUrl}`;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = dataUrl;
+      footer.append("Online data: ", link);
+    }
+  };
+
+  const loadBufferIntoDisplay = (buf, startAddr) => {
+    const data = new Uint8Array(buf);
+    hexdumpElement.textContent = hexdump(data, startAddr);
+    hexdumpBox.hidden = false;
+
+    const { values, warnings } = decodeTagBuffer(data, startAddr);
+    warnings.forEach((w) => msg(`Warning: ${w}`, true));
+
+    renderTag(values);
+    tagEmptyState.hidden = true;
+    tagDisplay.hidden = false;
+  };
+
+  window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("error", (e) => {
+      msg("Error: " + e.message, true);
+    });
+
+    document
+      .getElementById("loadFileBtn")
+      .addEventListener("click", () =>
+        document.getElementById("uploadFile").click(),
+      );
+
+    document
+      .getElementById("loadClipboardBtn")
+      .addEventListener("click", async () => {
+        const clipboard = await navigator.clipboard.readText();
+        try {
+          const { data, startAddr } = parseImportedText(clipboard);
+          loadBufferIntoDisplay(data, startAddr);
+          msg("Loaded data from clipboard");
+        } catch (e) {
+          msg(
+            "Clipboard does not appear to be a valid OpenTag3D dump - " +
+              e.message,
+            true,
+          );
+        }
+      });
+
+    document
+      .getElementById("uploadFile")
+      .addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          if (file.name.toLowerCase().endsWith(".bin")) {
+            const buf = await file.arrayBuffer();
+            // A Proxmark3 dump is just a raw .bin with a 56-byte header, try that first.
+            try {
+              loadBufferIntoDisplay(parseProxmark3Bin(buf), 0x00);
+            } catch {
+              loadBufferIntoDisplay(buf, 0x00);
+            }
+          } else {
+            const { data, startAddr } = parseImportedText(await file.text());
+            loadBufferIntoDisplay(data, startAddr);
+          }
+          msg(`Loaded ${file.name}`);
+        } catch (err) {
+          msg("Import error: " + err.message, true);
+        } finally {
+          e.target.value = "";
+        }
+      });
+
+    const hexParam = urlParams.get("hex");
+    if (hexParam) {
+      loadBufferIntoDisplay(bufferFromText(hexParam), 0x00);
+    }
+
+    // Automatically scan for an OpenTag3D tag when Web NFC is available.
+    if ("NDEFReader" in window) {
+      startAutomaticWebNFC((buf, startAddr) =>
+        loadBufferIntoDisplay(buf, startAddr),
+      );
+    }
+  });
+</script>

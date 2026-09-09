@@ -14,7 +14,7 @@ plugins:
 
 sass:
   quiet_deps: true
-  silence_deprecations: ['import']
+  silence_deprecations: ["import"]
 
 # Theme settings
 minimal_mistakes_skin: dark
@@ -37,3 +37,6 @@ footer:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/GooborgStudios/OpenTag3D"
+    - label: "Discord"
+      icon: "fab fa-fw fa-discord"
+      url: "https://discord.opentag3d.info"

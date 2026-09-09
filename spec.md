@@ -56,6 +56,8 @@ Temperatures are stored in Celsius, divided by 5.
 
 Below is list of data that will live on the RFID chip. All **REQUIRED** data must be populated to be compliant with the spec.
 
+For any missing bytes (example: OpenTag3D defines data in 0xFF but the payload only goes up to 0xD0), treat them as "0x00".
+
 > [!NOTE]
 > Spec implementers: the memory maps for OpenTag3D are also available in [JSON format](https://opentag3d.info/spec.json).
 
@@ -180,6 +182,8 @@ These are topics that were heavily discussed during the development of OpenTag3D
 
 ## Changelog
 
+- 2.001
+  - Added an implementers' note that missing bytes in a payload should be treated as 0x00
 - 2.000
   - Drop NTAG213 and SLIX2 as spec compliant options
   - Drop "Core" and "Extended" terminology, as there are no more fields in the "Extended" space

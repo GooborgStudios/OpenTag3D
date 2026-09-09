@@ -21,15 +21,15 @@ intro:
 feature_row:
   - title: "Low-Cost, Off-the-Shelf Hardware"
     excerpt: "OpenTag3D uses standard NFC tags (NTAG215/216). These tags are readable and writable by smartphones, compatible with most off-the-shelf RFID/NFC readers (including low-cost PN532 modules), and require no proprietary hardware. This allows everyone, from corporations to hobbyists, to implement the standard into their applications, printers or accessories."
-    image_path: /assets/images/icons8-request_money.svg
+    image_path: /assets/images/icons/icons8-request_money.svg
     alt: ""
   - title: "Compact Format, Complete Data"
     excerpt: "All the critical data a 3D printer needs, including manufacturer, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in a quarter of a megabyte. Dynamic data, such as current filament price, can also be provided via a web API."
-    image_path: /assets/images/icons8-archive.svg
+    image_path: /assets/images/icons/icons8-archive.svg
     alt: ""
   - title: "Open Standard, Open To All"
     excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone can build, read, and write compatible tags. All of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
-    image_path: assets/images/icons8-open_source.svg
+    image_path: assets/images/icons/icons8-open_source.svg
     alt: ""
 ---
 

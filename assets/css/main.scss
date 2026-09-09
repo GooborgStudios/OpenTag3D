@@ -4,7 +4,12 @@ search: false
 
 @charset "utf-8";
 
+@use "sass:color";
+
 @import "./font-gravity.scss";
+@import "./flash.scss";
+@import "./buttons.scss";
+@import "./dialogs.scss";
 
 /* Variables */
 
@@ -25,7 +30,23 @@ $sans-serif:
 :root {
   --primary-color: $primary-color;
   --input: #1e232e;
-  --input-border: #1e2a3a;
+  --border: #1e2a3a;
+  --menu: #131822;
+  --muted: #a9b5c9;
+  --error: #ff6b6b;
+  --accent: #7aa2ff;
+}
+
+[hidden] {
+  display: none;
+}
+
+.control-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  vertical-align: -3px;
+  margin-right: 4px;
 }
 
 a[href^="http"]:not([href^="https://0.0.0.0"]):not(
@@ -34,7 +55,7 @@ a[href^="http"]:not([href^="https://0.0.0.0"]):not(
   content: "" / "(external link)";
   background-color: currentColor;
   display: inline-block;
-  mask: url("/assets/images/icons8-external_link.svg");
+  mask: url("/assets/images/icons/icons8-external_link.svg");
   mask-size: cover;
   height: 0.5em;
   width: 0.5em;
@@ -90,11 +111,6 @@ a[href^="http"]:not([href^="https://0.0.0.0"]):not(
   padding: 0.25em 0;
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 select,
 input {
   background-color: #111;
@@ -109,6 +125,17 @@ textarea {
   border: 1px solid var(--input-border);
   outline: none;
   transition: border-color 0.2s;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.flex {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .feature__wrapper {
@@ -253,3 +280,48 @@ textarea {
     min-height: 9rem;
   }
 }
+
+/* Bugfix - https://github.com/mmistakes/minimal-mistakes/pull/5527 */
+@mixin _notice($notice-color) {
+  @include notice($notice-color);
+
+  a {
+    color: color.mix($text-color, $notice-color, 10%);
+
+    &:hover {
+      color: color.mix($text-color, $notice-color, 50%);
+    }
+  }
+}
+
+.notice,
+.markdown-alert {
+  @include _notice($light-gray);
+}
+
+.notice--primary,
+.markdown-alert-important {
+  @include _notice($primary-color);
+}
+
+.notice--info,
+.markdown-alert-note {
+  @include _notice($info-color);
+}
+
+.notice--warning,
+.markdown-alert-warning {
+  @include _notice($warning-color);
+}
+
+.notice--success,
+.markdown-alert-tip {
+  @include _notice($success-color);
+}
+
+.notice--danger,
+.markdown-alert-caution {
+  @include _notice($danger-color);
+}
+
+/* End bugfix */
