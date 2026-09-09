@@ -104,25 +104,31 @@ printer, accessory, slicer, or community project.
 
 ##### Supported Printers
 
-<!-- prettier-ignore -->
+<!-- prettier-ignore-start -->
+
 | Logo | Printer | Support | Link | Notes |
 | ---- | ------- | ------- | ---- | ----- |
-| <img class="support-logo" src="/assets/images/logos/bambu-lab.png" alt="Bambu Lab logo"> | Bambu Lab Series Printers | Via Community Mods | [BambuTagger](https://www.bambutagger.de/en/bt), [OpenSpool (with custom firmware)](https://github.com/spuder/OpenSpool/pull/80), [SpoolSense](https://spoolsense.org/installation/bambu-ams/) | |
-| <img class="support-logo" src="/assets/images/logos/snapmaker.svg" alt="Snapmaker logo"> | Snapmaker U1 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/snapmaker-u1/) | |
+| <img class="support-logo" src="/assets/images/logos/bambu-lab.png" alt="Bambu Lab logo"> | Bambu Lab Series Printers | Via Community Mods | [OpenSpool (with [custom firmware](https://github.com/spuder/OpenSpool/pull/80))<br />[SpoolSense](https://spoolsense.org/installation/bambu-ams/) | |
+| <img class="support-logo" src="/assets/images/logos/snapmaker.svg" alt="Snapmaker logo"> | Snapmaker U1 | Via Community Mods | paxx12 Extended Firmware (with [custom OpenRFID version](https://github.com/suchmememanyskill/OpenRFID/pull/27))<br />[SpoolSense](https://spoolsense.org/installation/snapmaker-u1/) | |
 | <img class="support-logo" src="/assets/images/logos/prusa.png" alt="Prusa logo"> | Prusa MK4 / MMU3 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/) | |
 | <img class="support-logo" src="/assets/images/logos/klipper.svg" alt="Klipper logo"> | Other Klipper-based Printers | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/) | |
 {: .support-table}
+
+<!-- prettier-ignore-end -->
 
 For more details on the filament brands, projects, and companies that support
 the standard, see the current [supporters and implementation status](/about#supporters).
 
 ##### Supported Filament Brands
 
-<!-- prettier-ignore -->
+<!-- prettier-ignore-start -->
+
 | Logo | Brand | Filament Sold with Pre-programmed Tags | Online OpenTag3D Exports |
 | ---- | ----- | --------------------------------------- | ------------------------ |
 | <img class="support-logo support-logo--wide" src="/assets/images/logos/polar-filament-color.png" alt="Polar Filament logo"> | [Polar Filament](https://polarfilament.com/) | Planned Q4 2026 | [Yes](https://pfil.us/rfid) |
 {: .support-table}
+
+<!-- prettier-ignore-end -->
 
 #### 2. Write your own tags
 
@@ -145,13 +151,16 @@ On iPhone, OpenTag3D data can be read and written via third-party native apps. W
 
 Other mobile applications are available for reading and writing OpenTag3D data. Here is a list:
 
-<!-- prettier-ignore -->
+<!-- prettier-ignore-start -->
+
 | Logo | Application | Platform(s) | Features | Spec Version | Notes |
 | ---- | ----------- | ----------- | -------- | ------------ | ----- |
 | <img class="support-logo" src="/assets/favicon/android-chrome-512x512.png" alt="OpenTag3D spool logo"> | [OpenTag3D Make Page](/make) | Android | Read, Write | v1, v2 | This can be installed like an app via Google Chrome on Android. |
 | <img class="support-logo" src="/assets/images/logos/spoolsense.jpg" alt="SpoolSense logo"> | [SpoolSense](https://spoolsense.org/) | iPhone | Read, Write | v1, v2 | |
-| <img class="support-logo" src="/assets/images/logos/spoolflux.png" alt="SpoolFlux logo"> | [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone | Read | v1, v2 | |
+| <img class="support-logo" src="/assets/images/logos/spoolflux.png" alt="SpoolFlux logo"> | [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone | Read, Write | v1 | v2 support is in a closed beta and will be released later. |
 {: .support-table}
+
+<!-- prettier-ignore-end -->
 
 Building an app? [Let us know](/about#contact) so it can be added here.
 
