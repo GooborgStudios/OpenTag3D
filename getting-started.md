@@ -98,17 +98,17 @@ set of data they can use to build features such as:
 #### 1. Use filament and projects that already support OpenTag3D
 
 This is the easiest route: buy a tagged spool, then use it with a compatible
-printer, accessory, slicer, or community project. See the current
-[supporters and implementation status](/about#supporters).
+printer, accessory, slicer, or community project.
 
 ##### Supported Printers
 
-| Printer                      | Support            | Link                                                                                                                                                                                           | Notes |
-| ---------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| Bambu Lab Series Printers    | Via Community Mods | [BambuTagger](https://www.bambutagger.de/en/bt), [OpenSpool (with custom firmware)](https://github.com/spuder/OpenSpool/pull/80), [SpoolSense](https://spoolsense.org/installation/bambu-ams/) |       |
-| Snapmaker U1                 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/snapmaker-u1/)                                                                                                                                |
-| Prusa MK4 / MMU3             | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/)                                                                                                                                       |
-| Other Klipper-based Printers | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/)                                                                                                                                  |
+| Printer                                                                                                                                                               | Support            | Link                                                                                                                                                                                           | Notes |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Bambu Lab Series Printers                                                                                                                                             | Via Community Mods | [BambuTagger](https://www.bambutagger.de/en/bt), [OpenSpool (with custom firmware)](https://github.com/spuder/OpenSpool/pull/80), [SpoolSense](https://spoolsense.org/installation/bambu-ams/) |       |
+| Snapmaker U1                                                                                                                                                          | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/snapmaker-u1/)                                                                                                                                |
+| Prusa MK4 / MMU3                                                                                                                                                      | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/)                                                                                                                                       |
+| Other Klipper-based Printers                                                                                                                                          | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/)                                                                                                                                  |
+| For more details on the filament brands, projects and companies that support the standard, see the current [supporters and implementation status](/about#supporters). |
 
 #### 2. Write your own tags
 
@@ -126,10 +126,11 @@ yourself.
 
 ##### With a phone (recommended)
 
-- **Android:** Open [Make a Tag](/make) in a [Web NFC-compatible browser](https://caniuse.com/webnfc). You can create, read, and write a tag directly from the page.
-- **iPhone:** Native apps are available via third parties.
+On Android, open the [Make a Tag](/make) webpage in a [Web NFC-compatible browser](https://caniuse.com/webnfc). You can create, read, and write a tag directly from the page.
 
-###### OpenTag3D phone apps
+On iPhone, OpenTag3D data can be read and written via third-party native apps. We recommend [SpoolSense](https://spoolsense.org/) as it has the best coverage of the spec fields.
+
+Other mobile applications are available for reading and writing OpenTag3D data. Here is a list:
 
 | Application                                      | Platform(s) | Features    | Spec Version | Notes                                                           |
 | ------------------------------------------------ | ----------- | ----------- | ------------ | --------------------------------------------------------------- |
