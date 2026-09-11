@@ -245,7 +245,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
             aria-hidden="true"
           />
           Download NFC Tools Mobile .json ⚠️<br />
-          <small>Non-functional on iOS</small>
+          <small>Non-functional (due to app bug)</small>
         </button>
         <button class="btn" id="copyToClipboard">
           <img
@@ -323,11 +323,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   aria-labelledby="nfcToolsMobileWarningDialogTitle"
 >
   <div class="web-nfc-dialog__content">
-    <h2 id="nfcToolsMobileWarningDialogTitle">
-      Warning: NFC Tools iOS App Bug
-    </h2>
+    <h2 id="nfcToolsMobileWarningDialogTitle">Warning: NFC Tools App Bug</h2>
     <p>
-      The NFC Tools iOS app has a bug where writing a tag from an imported .json
+      The NFC Tools app has a bug where writing a tag from an imported .json
       profile corrupts any byte value of 128 or higher, garbling your tag data.
       This happens even with profiles exported by the app itself, so it is
       something that Wakdev must fix.
@@ -342,9 +340,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       in the meantime.
     </p>
     <p>
-      Android Users: while the bug is not present on the Android version of the
-      app, we recommend using <strong>Web NFC</strong> to read and write your
-      tags.
+      Android Users: we recommend using <strong>Web NFC</strong> to read and
+      write your tags.
     </p>
     <button class="btn" id="nfcToolsMobileWarningDialogClose" type="button">
       Cancel
