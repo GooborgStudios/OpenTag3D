@@ -262,7 +262,7 @@
         "usage": "operational",
         "examples": [12, 16],
         "required": true,
-        "description": "Recommended chamber temperature in degrees Celsius, divided by 5. For example, `12` = `60°C`."
+        "description": "Recommended chamber temperature in degrees Celsius, divided by 5. For example, `12` = `60°C`. If the chamber does not need to be heated, set it to `0`."
       },
       {
         "name": "Target Bed Temperature",

@@ -129,9 +129,9 @@ While every implementation for reading OpenTag3D RFID tags will be different, th
 
 Readers should load field locations and parsing rules from [`spec.json`](https://opentag3d.info/spec.json) whenever possible. This recommendation does not replace the version checks below; readers must still reject unsupported major versions.
 
-When attempting to read an RFID tag, the reader should check for an NDEF record of the type `{{ site.data.spec.mime_type }}`. This record will include all of the tag data. It may ignore any other NDEF records. If there is no `{{ site.data.spec.mime_type }}` record, it is not an OpenTag3D tag.
+When attempting to read an RFID tag, the reader should load the _first_ NDEF record of the type `{{ site.data.spec.mime_type }}`. This record will include all of the tag data. It may ignore any other NDEF records. If there is no `{{ site.data.spec.mime_type }}` record, it is not an OpenTag3D tag.
 
-The reader should then check the tag version. If the tag version is a newer _minor_ version than the reader expects, display a warning to the user and attempt to parse anyways. If the tag version is a newer _major_ version, the reader should display an error to the user and not attempt to parse the data.
+The reader should then check the tag version. If the tag version is a newer _minor_ version than the reader expects, display a warning to the user and proceed as normal. If the tag version is a newer _major_ version, the reader should display an error to the user and not attempt to parse the data.
 
 When accessing the web API URL provided by the tag, the reader _must_ set the `Accept` HTTP header to `application/json`. The exception to this is if the reader is attempting to display the webpage to the user, in which the `Accept` HTTP header may be set to either `text/html` or `*/*`.
 
