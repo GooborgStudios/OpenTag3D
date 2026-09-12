@@ -5,7 +5,7 @@
   "{{ field.id }}": {% if field.id == "opentag_version" %}"{{ site.data.spec.version }}"
   {%- elsif field.type == "string" %}"{{ field.examples.first }}"
   {%- elsif field.type == "bool" %}{{ field.examples.first }}
-  {%- elsif field.type == "object" %}{
+  {%- elsif field.type contains "object" %}{
     {%- assign obj = field.examples.first -%}
     {%- for pair in obj %}
     "{{ pair[0] }}": {% if pair[1].first %}[
@@ -15,6 +15,11 @@
     ]{% else %}"{{ pair[1] }}"{% endif %}{% unless forloop.last %},{% endunless %}
     {%- endfor %}
   }
+  {%- elsif field.type contains "array" %}[
+    {%- for item in field.examples.first %}
+    {{item | jsonify}}{% unless forloop.last %},{% endunless %}
+    {%- endfor %}
+  ]
   {%- else %}{{ field.examples.first | jsonify }}
   {%- endif %}{% unless forloop.last %},{% endunless %}
 {%- endfor %}
