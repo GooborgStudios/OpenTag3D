@@ -147,7 +147,7 @@ yourself.
 
 On Android, open the [Make a Tag](/make) webpage in a [Web NFC-compatible browser](https://caniuse.com/webnfc). You can create, read, and write a tag directly from the page.
 
-On iPhone, OpenTag3D data can be read and written via third-party native apps. We recommend [SpoolSense](https://spoolsense.org/) as it has the best coverage of the spec fields.
+On iPhone, OpenTag3D data can be read and written via third-party native apps. We recommend [NFC Tools](https://www.wakdev.com) or [SpoolSense](https://spoolsense.org/) as they has the best coverage of the spec fields.
 
 Other mobile applications are available for reading and writing OpenTag3D data. Here is a list:
 
@@ -155,9 +155,10 @@ Other mobile applications are available for reading and writing OpenTag3D data. 
 
 | Logo | Application | Platform(s) | Features | Spec Version | Notes |
 | ---- | ----------- | ----------- | -------- | ------------ | ----- |
-| <img class="support-logo" src="/assets/favicon/android-chrome-512x512.png" alt="OpenTag3D spool logo"> | [OpenTag3D Make Page](/make) | Android | Read, Write | v1, v2 | This can be installed like an app via Google Chrome on Android. |
-| <img class="support-logo" src="/assets/images/logos/spoolsense.jpg" alt="SpoolSense logo"> | [SpoolSense](https://spoolsense.org/) | iPhone | Read, Write | v1, v2 | |
-| <img class="support-logo" src="/assets/images/logos/spoolflux.png" alt="SpoolFlux logo"> | [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone | Read, Write | v1 | v2 support is in a closed beta and will be released later. |
+| <img class="support-logo" src="/assets/favicon/android-chrome-512x512.png" alt="OpenTag3D spool logo"> | [OpenTag3D Make Page](/make) | Android | Read<br />Write | v1, v2 | This can be installed like an app via Google Chrome on Android. |
+| <img class="support-logo" src="/assets/images/logos/nfc-tools.png" alt="NFC Tools Logo"> | [NFC Tools](https://www.wakdev.com) | iPhone | Read<br />Write<br />Modify Other Records | v2 | Android support for OpenTag3D will be available at a later date. |
+| <img class="support-logo" src="/assets/images/logos/spoolsense.jpg" alt="SpoolSense logo"> | [SpoolSense](https://spoolsense.org/) | iPhone | Read<br />Write | v1, v2 | |
+| <img class="support-logo" src="/assets/images/logos/spoolflux.png" alt="SpoolFlux logo"> | [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone | Read<br />Write | v1 | v2 support is in a closed beta and will be released later. |
 {: .support-table}
 
 <!-- prettier-ignore-end -->

@@ -243,15 +243,14 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
           />
           Download NFC Tools Desktop .json
         </button>
-        <button class="btn btn--warning" id="downloadNfcToolsMobileJson">
+        <button class="btn" id="downloadNfcToolsMobileJson">
           <img
             class="control-icon"
             src="{{ '/assets/images/icons/nfc-tools.svg' | relative_url }}"
             alt=""
             aria-hidden="true"
           />
-          Download NFC Tools Mobile .json ⚠️<br />
-          <small>Non-functional (due to app bug)</small>
+          Download NFC Tools Mobile .json
         </button>
         <button class="btn" id="copyToClipboard">
           <img
@@ -320,41 +319,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     <h2 id="webNfcDialogTitle">Web NFC</h2>
     <p id="webNfcDialogMessage"></p>
     <button class="btn" id="webNfcDialogClose" type="button">Cancel</button>
-  </div>
-</dialog>
-
-<dialog
-  id="nfcToolsMobileWarningDialog"
-  class="app-dialog"
-  aria-labelledby="nfcToolsMobileWarningDialogTitle"
->
-  <div class="web-nfc-dialog__content">
-    <h2 id="nfcToolsMobileWarningDialogTitle">Warning: NFC Tools App Bug</h2>
-    <p>
-      The NFC Tools app has a bug where writing a tag from an imported .json
-      profile corrupts any byte value of 128 or higher, garbling your tag data.
-      This happens even with profiles exported by the app itself, so it is
-      something that Wakdev must fix.
-    </p>
-    <p>
-      iOS Users: we recommend using a dedicated app. See our
-      <a href="/getting-started#with-a-phone-recommended">Getting Started</a>
-      guide for a list of apps.
-    </p>
-    <p>
-      Android Users: we recommend using <strong>Web NFC</strong> to read and
-      write your tags.
-    </p>
-    <button class="btn" id="nfcToolsMobileWarningDialogClose" type="button">
-      Cancel
-    </button>
-    <button
-      class="btn btn--warning"
-      id="nfcToolsMobileWarningDialogContinue"
-      type="button"
-    >
-      Download anyway
-    </button>
   </div>
 </dialog>
 
@@ -488,9 +452,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
   const hexdumpElement = document.getElementById("hexdump");
   const webNfcDialog = document.getElementById("webNfcDialog");
-  const nfcToolsMobileWarningDialog = document.getElementById(
-    "nfcToolsMobileWarningDialog",
-  );
   const flipperZeroWarningDialog = document.getElementById(
     "flipperZeroWarningDialog",
   );
@@ -810,24 +771,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     });
 
     document
-      .getElementById("nfcToolsMobileWarningDialogClose")
-      .addEventListener("click", () => nfcToolsMobileWarningDialog.close());
-    document
-      .getElementById("nfcToolsMobileWarningDialogContinue")
-      .addEventListener("click", () => {
-        nfcToolsMobileWarningDialog.close();
-        downloadFile(
-          buildNfcToolsMobileJson(
-            tagState.buffer,
-            describeTag(tagState.values, tagState.hash),
-          ),
-          "application/json",
-          `${tagState.filename}.nfctools-mobile.json`,
-        );
-        msg(`Downloaded ${tagState.filename}.nfctools-mobile.json`);
-      });
-
-    document
       .getElementById("flipperZeroWarningDialogClose")
       .addEventListener("click", () => flipperZeroWarningDialog.close());
     document
@@ -956,7 +899,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     document
       .getElementById("downloadNfcToolsMobileJson")
       .addEventListener("click", () => {
-        if (!checkMissing()) nfcToolsMobileWarningDialog.showModal();
+        if (!checkMissing()) {
+          downloadFile(
+            buildNfcToolsMobileJson(
+              tagState.buffer,
+              describeTag(tagState.values, tagState.hash),
+            ),
+            "application/json",
+            `${tagState.filename}.nfctools-mobile.json`,
+          );
+          msg(`Downloaded ${tagState.filename}.nfctools-mobile.json`);
+        }
       });
 
     document.getElementById("writeWebNFC").addEventListener("click", () => {
