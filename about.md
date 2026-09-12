@@ -68,7 +68,7 @@ The current voting members are as follows:
   - ccatlett1984 (Open Resin Alliance)
 
 > [!NOTE]
-> We are looking for additional members to join the consortium. Please [email us](#contact) if you wish to join!
+> We are looking for additional members, especially industry members, to join the consortium. Please [contact us](#contact) if you wish to join!
 
 ### Non-Voting Members
 
