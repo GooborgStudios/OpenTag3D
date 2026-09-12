@@ -7,6 +7,7 @@
       {
         "name": "Tag Version",
         "id": "tag_version",
+        "required": true,
         "added": "1.000",
         "unit": "version",
         "type": "int",
@@ -15,24 +16,24 @@
         "length": 2,
         "usage": "operational",
         "examples": [1234],
-        "required": true,
         "description": "RFID tag data format version, with 3 implied decimal points. Eg `1000` → version `1.000`."
       },
       {
         "name": "Base Material Name",
         "id": "material",
+        "required": true,
         "added": "1.000",
         "type": "utf8",
         "start": "0x02",
         "length": 5,
         "usage": "display",
         "examples": ["PLA", "PETG", "PCTFE", "TPU"],
-        "required": true,
         "description": "Material name in plain text, excluding any modifiers."
       },
       {
         "name": "Material Modifiers",
         "id": "material_mod",
+        "required": false,
         "added": "1.000",
         "type": "utf8",
         "start": "0x07",
@@ -44,18 +45,19 @@
       {
         "name": "Filament Manufacturer",
         "id": "manufacturer",
+        "required": true,
         "added": "1.000",
         "type": "utf8",
         "start": "0x0C",
         "length": 16,
         "usage": "display",
         "examples": ["Example Brand", "Polar Filament"],
-        "required": true,
         "description": "Name of filament manufacturer. Long names should be abbreviated or truncated."
       },
       {
         "name": "Color Name",
         "id": "color_name",
+        "required": false,
         "added": "1.000",
         "type": "utf8",
         "start": "0x1C",
@@ -67,6 +69,7 @@
       {
         "name": "Color 1 Hex",
         "id": "color_1",
+        "required": true,
         "added": "1.000",
         "unit": "RGBA",
         "type": "rgba",
@@ -74,12 +77,12 @@
         "length": 4,
         "usage": "display",
         "examples": [[255, 166, 77, 255]],
-        "required": true,
         "description": "Primary filament color stored as 4 separate 1-byte integers for red, green, blue and alpha, in the sRGB color space."
       },
       {
         "name": "Color 2 Hex",
         "id": "color_2",
+        "required": false,
         "added": "1.000",
         "unit": "RGBA",
         "type": "rgba",
@@ -92,6 +95,7 @@
       {
         "name": "Color 3 Hex",
         "id": "color_3",
+        "required": false,
         "added": "1.000",
         "unit": "RGBA",
         "type": "rgba",
@@ -104,6 +108,7 @@
       {
         "name": "Color 4 Hex",
         "id": "color_4",
+        "required": false,
         "added": "1.000",
         "unit": "RGBA",
         "type": "rgba",
@@ -116,6 +121,7 @@
       {
         "name": "Serial Number / Batch ID",
         "id": "serial",
+        "required": false,
         "added": "1.000",
         "type": "utf8",
         "start": "0x4C",
@@ -127,6 +133,7 @@
       {
         "name": "SKU",
         "id": "sku",
+        "required": false,
         "added": "2.000",
         "type": "utf8",
         "start": "0x6C",
@@ -138,6 +145,7 @@
       {
         "name": "Barcode",
         "id": "barcode",
+        "required": false,
         "added": "2.000",
         "type": "int",
         "start": "0x7C",
@@ -149,6 +157,7 @@
       {
         "name": "Manufacture Date",
         "id": "mfg_date",
+        "required": false,
         "added": "1.000",
         "unit": "YYYY,MM,DD",
         "type": "date",
@@ -161,6 +170,7 @@
       {
         "name": "Manufacture Time",
         "id": "mfg_time",
+        "required": false,
         "added": "1.000",
         "unit": "UTC hh:mm:ss",
         "type": "time",
@@ -173,6 +183,7 @@
       {
         "name": "Filament Diameter",
         "id": "diameter",
+        "required": true,
         "added": "1.000",
         "unit": "mm",
         "type": "int",
@@ -181,12 +192,12 @@
         "length": 2,
         "usage": "operational",
         "examples": [1750, 2850],
-        "required": true,
         "description": "Filament (target) diameter in µm (micrometers). Eg `1750` → `1.750mm`."
       },
       {
         "name": "Measured Tolerance",
         "id": "tolerance",
+        "required": false,
         "added": "1.000",
         "unit": "mm",
         "type": "int",
@@ -200,6 +211,7 @@
       {
         "name": "Minimum Nozzle Diameter",
         "id": "nozzle_diameter",
+        "required": false,
         "added": "2.000",
         "unit": "mm",
         "type": "int",
@@ -213,6 +225,7 @@
       {
         "name": "Target Print Temperature",
         "id": "print_temp",
+        "required": true,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -221,12 +234,12 @@
         "length": 1,
         "usage": "operational",
         "examples": [42],
-        "required": true,
         "description": "Recommended print temperature in degrees Celsius, divided by 5. For example, `42` = `210°C`."
       },
       {
         "name": "Minimum Print Temperature",
         "id": "min_print_temp",
+        "required": false,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -240,6 +253,7 @@
       {
         "name": "Maximum Print Temperature",
         "id": "max_print_temp",
+        "required": false,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -253,6 +267,7 @@
       {
         "name": "Target Chamber Temperature",
         "id": "chamber_temp",
+        "required": true,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -261,12 +276,12 @@
         "length": 1,
         "usage": "operational",
         "examples": [12, 16],
-        "required": true,
         "description": "Recommended chamber temperature in degrees Celsius, divided by 5. For example, `12` = `60°C`. If the chamber does not need to be heated, set it to `0`."
       },
       {
         "name": "Target Bed Temperature",
         "id": "bed_temp",
+        "required": true,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -275,12 +290,12 @@
         "length": 1,
         "usage": "operational",
         "examples": [12, 16],
-        "required": true,
         "description": "Recommended bed temperature in degrees Celsius, divided by 5. For example, `12` = `60°C`."
       },
       {
         "name": "Minimum Bed Temperature",
         "id": "min_bed_temp",
+        "required": false,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -294,6 +309,7 @@
       {
         "name": "Maximum Bed Temperature",
         "id": "max_bed_temp",
+        "required": false,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -307,6 +323,7 @@
       {
         "name": "Target Volumetric Speed",
         "id": "target_vso",
+        "required": false,
         "added": "1.000",
         "unit": "mm³/s",
         "type": "int",
@@ -319,6 +336,7 @@
       {
         "name": "Minimum Volumetric Speed",
         "id": "min_vso",
+        "required": false,
         "added": "1.000",
         "unit": "mm³/s",
         "type": "int",
@@ -331,6 +349,7 @@
       {
         "name": "Maximum Volumetric Speed",
         "id": "max_vso",
+        "required": false,
         "added": "1.000",
         "unit": "mm³/s",
         "type": "int",
@@ -343,6 +362,7 @@
       {
         "name": "Maximum Dry Temperature",
         "id": "max_dry_temp",
+        "required": false,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -356,6 +376,7 @@
       {
         "name": "Dry Time",
         "id": "dry_time",
+        "required": false,
         "added": "1.000",
         "unit": "hr",
         "type": "int",
@@ -368,6 +389,7 @@
       {
         "name": "Density",
         "id": "density",
+        "required": true,
         "added": "1.000",
         "unit": "g/cm³",
         "type": "int",
@@ -376,12 +398,12 @@
         "length": 2,
         "usage": "operational",
         "examples": [1240, 3900],
-        "required": true,
         "description": "Filament density in µg (micrograms) per cubic centimeter. Eg `1240` → `1.240g/cm³`. (Recommendations: 1.24 for PLA, 1.07 for ABS, 1.27 for PETG)"
       },
       {
         "name": "Target Weight",
         "id": "weight",
+        "required": true,
         "added": "1.000",
         "unit": "g",
         "type": "int",
@@ -389,12 +411,12 @@
         "length": 2,
         "usage": "operational",
         "examples": [1000, 5000, 750],
-        "required": true,
         "description": "Filament weight in grams, excluding spool weight. This is the TARGET weight (e.g., 1kg). Actual measured weight is stored in a different field."
       },
       {
         "name": "Empty Spool Weight",
         "id": "empty_spool_weight",
+        "required": false,
         "added": "1.000",
         "unit": "g",
         "type": "int",
@@ -407,6 +429,7 @@
       {
         "name": "Measured Filament Length",
         "id": "measured_length",
+        "required": false,
         "added": "1.000",
         "unit": "m",
         "type": "int",
@@ -419,6 +442,7 @@
       {
         "name": "Measured Filament Weight",
         "id": "measured_weight",
+        "required": false,
         "added": "1.000",
         "unit": "g",
         "type": "int",
@@ -431,6 +455,7 @@
       {
         "name": "Spool Core Diameter",
         "id": "spool_core_diameter",
+        "required": false,
         "added": "1.000",
         "unit": "mm",
         "type": "int",
@@ -443,6 +468,7 @@
       {
         "name": "Transmission Distance (TD)",
         "id": "td",
+        "required": false,
         "added": "1.000",
         "unit": "mm",
         "type": "int",
@@ -456,6 +482,7 @@
       {
         "name": "MFI Temp",
         "id": "mfi_temp",
+        "required": false,
         "added": "1.000",
         "unit": "ºC",
         "type": "int",
@@ -469,6 +496,7 @@
       {
         "name": "MFI Load",
         "id": "mfi_load",
+        "required": false,
         "added": "1.000",
         "unit": "g",
         "type": "int",
@@ -482,6 +510,7 @@
       {
         "name": "MFI Value",
         "id": "mfi_value",
+        "required": false,
         "added": "1.000",
         "unit": "g/min",
         "type": "int",
@@ -494,6 +523,7 @@
       {
         "name": "Online Data URL",
         "id": "data_url",
+        "required": false,
         "added": "1.000",
         "type": "ascii",
         "start": "0xB8",
