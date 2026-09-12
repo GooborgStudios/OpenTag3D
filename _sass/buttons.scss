@@ -56,3 +56,16 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.page__hero--overlay .btn {
+  scale: 1;
+  filter: drop-shadow(0 0 0px white);
+  transition:
+    scale 0.2s,
+    filter 0.2s;
+
+  &:hover {
+    scale: 1.05;
+    filter: drop-shadow(0 0 5px white);
+  }
+}
