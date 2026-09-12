@@ -160,6 +160,10 @@ These are topics that were heavily discussed during the development of OpenTag3D
 
 ## Changelog
 
+- 2.002
+  - Added a `tag_data` property to the web API to provide ability for tag data corrections
+  - Added a `product_photos` property to the web API
+  - Added a property to the web API for manufacturer notes
 - 2.001
   - Added an implementers' note that missing bytes in a payload should be treated as 0x00
 - 2.000

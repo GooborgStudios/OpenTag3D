@@ -1,5 +1,5 @@
 {
-  "version": "2.001",
+  "version": "2.002",
   "mime_type": "application/opentag3d",
   "core": {
     "address_range": { "start": "0x00", "end": "0xDF" },
@@ -555,6 +555,22 @@
         "description": "A boolean field to indicate whether the API URL has a user-friendly UI available. This lets implementers know that they can see a friendly webpage if they access the API URL without using the `application/json` header."
       },
       {
+        "name": "Tag Data",
+        "id": "tag_data",
+        "required": false,
+        "added": "2.002",
+        "type": "object{string, any}",
+        "examples": [
+          {
+            "tag_version": "2.001",
+            "material": "PLA",
+            "manufacturer": "Example Brand",
+            "color_name": "Marionette Brown"
+          }
+        ],
+        "description": "A copy of the properties that populate the tag data. This can be used to write new tags or update existing tags as needed. **This property, along with any other web API properties, will NEVER be relied upon for printer functionality.**"
+      },
+      {
         "name": "Price",
         "id": "price",
         "required": false,
@@ -575,19 +591,40 @@
         "id": "product_url",
         "required": false,
         "added": "1.000",
-        "type": "object",
+        "type": "object{string, array[string]}",
         "examples": [
           {
             "us": [
               "https://www.amazon.com/dp/*",
               "https://example.com/filament-manufacturer-website"
             ],
-            "eu": [
-              "https://example.com"
-            ]
+            "eu": ["https://example.com"]
           }
         ],
         "description": "Links to product pages where the user can repurchase the filament, separated by country or region. The representations of countries/regions will be identical to that of the `price` field. For each country/region, a list of URLs may be specified in order to provide multiple places the user can buy new filament. The order of URLs may be specified however the filament maker desires. (Implementers should honor the filament maker's ordering.)"
+      },
+      {
+        "name": "Product Photos",
+        "id": "product_photos",
+        "required": false,
+        "added": "2.002",
+        "type": "array[string]",
+        "examples": [
+          [
+            "https://example.com/my-example-image.png",
+            "https://example.com/product-demo.jpg"
+          ]
+        ],
+        "description": "Links to images of the product."
+      },
+      {
+        "name": "Notes",
+        "id": "notes",
+        "required": false,
+        "added": "2.002",
+        "type": "string",
+        "examples": ["Lorem ipsum color sit print-it"],
+        "description": "Manufacturer notes, if any. This is helpful for adding notes to experimental, pre-production or other special spools."
       }
     ]
   }
