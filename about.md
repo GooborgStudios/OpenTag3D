@@ -80,4 +80,6 @@ Non-voting members are integral to the consortium's ecosystem, contributing idea
 
 ## Contact
 
-For any questions regarding the standard, please feel free to email [queen@gooborg.com](mailto:queen@gooborg.com). You may also file an issue on the [GitHub repo](https://github.com/GooborgStudios/OpenTag3D).
+Our [Discord](https://discord.opentag3d.info) is one of the best places to go to for communication. The Discord server hosts voting members, spec authors, implementers and community members, so you can get in touch with nearly anyone involved in OpenTag3D.
+
+If you do not use Discord, or prefer a more private and/or direct communication method, please feel free to reach out to Vinyl Da.i'gyu, the spec author, via [email (queen@gooborg.com)](mailto:queen@gooborg.com), [Telegram (@queengooborg)](https://t.me/queengooborg) or [Matrix (@queengooborg:matrix.org)](https://matrix.to/#/@queengooborg:matrix.org).
