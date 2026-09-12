@@ -93,35 +93,9 @@ The "Online Data URL" field should be populated with the URL that responds with 
 
 The URL should respond with JSON formatted like the following:
 
-```json
-{
-  "opentag_version": "{{ site.data.spec.version }}",
-  "has_ui": true,
-  "price": {
-    "us": "$15.99",
-    "eu": "€14.99",
-    "uk": "£16.99",
-    "global": "$15.99"
-  },
-  "product_url": {
-    "us": [
-      "https://www.amazon.com/dp/*",
-      "https://example.com/filament-manufacturer-website"
-    ],
-    "eu": ["https://example.com"]
-  }
-}
-```
+{% include web_api_example.md %}
 
-Except for `opentag_version`, all fields are optional.
-
-The `opentag_version` must be set as the current OpenTag3D version the API has been updated to support. This field is required.
-
-The `has_ui` field is a boolean field to indicate whether the API URL has a user-friendly UI available. This lets implementers know that they can see a friendly webpage if they access the API URL without using the `application/json` header.
-
-The `price` field should be the current prices for the material and color, separated by country or region. Each country or region should be represented by its two-letter ISO 3166-1 code, including any exceptional reservations such as EU for European Union. A `global` area may be defined as well.
-
-The `product_url` field should be links to product pages where the user can repurchase the filament, separated by country or region. The representations of countries/regions will be identical to that of the `price` field. For each country/region, a list of URLs may be specified in order to provide multiple places the user can buy new filament. The order of URLs may be specified however the filament maker desires. (Implementers should honor the filament maker's ordering.)
+{% include web_api_properties.md %}
 
 ## Reader Implementation Guidelines
 
