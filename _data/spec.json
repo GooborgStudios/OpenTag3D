@@ -490,7 +490,7 @@
         "start": "0xA8",
         "length": 1,
         "usage": "operational",
-        "examples": [210],
+        "examples": [42],
         "description": "MFI test temperature, divided by 5. For example, `42` = `210ºC`."
       },
       {
@@ -498,14 +498,14 @@
         "id": "mfi_load",
         "required": false,
         "added": "1.000",
-        "unit": "g",
+        "unit": "kg",
         "type": "int",
-        "scaling": 10,
+        "scaling": 0.01,
         "start": "0xA9",
         "length": 1,
         "usage": "operational",
         "examples": [216],
-        "description": "MFI test load grams, divided by 10. For example, `216` = `2.16kg`."
+        "description": "MFI test load in tens of grams. For example, `216` = `2.16kg`."
       },
       {
         "name": "MFI Value",
