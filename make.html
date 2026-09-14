@@ -598,19 +598,32 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         max: 255 * f.length * scale,
         step: scale,
       });
-      syncInputValue(inp, f.id, (value) =>
-        Math.round(parseFloat(value || "0") / scale),
-      );
-      if (scale !== 1) {
-        const round = () => {
+
+      const roundAndClip = (value) => {
+        if (scale !== 1) {
           const decimalPoints =
             scale < 1 ? String(scale).split(".")[1].length : 0;
-          inp.value = (
+          value = (
             Math.round(parseFloat(inp.value || "0") / scale) * scale
           ).toFixed(decimalPoints);
-        };
-        inp.addEventListener("focusout", round);
-      }
+        }
+
+        if (inp.value < 0) {
+          value = 0;
+        } else if (inp.value > inp.max) {
+          value = inp.max;
+        }
+
+        return value;
+      };
+
+      syncInputValue(inp, f.id, roundAndClip);
+
+      inp.addEventListener(
+        "focusout",
+        () => (inp.value = roundAndClip(inp.value)),
+      );
+
       return inp;
     }
     if (f.type === "date") {
