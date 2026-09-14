@@ -22,12 +22,33 @@ const NFC_INFO = {
         pageCount: 135,
         userMemoryLength: 0x3e * 8,
         cc: [0xe1, 0x10, 0x3e, 0x00],
+        // Factory-default last 5 pages (dynamic lock, CFG0, CFG1, PWD, PACK),
+        // verified byte-exact against 3 real NTAG215 tags. Crucially, CFG0's
+        // AUTH0 byte (0xff) must stay past the last page so the tag is never
+        // password-protected - leaving these pages zeroed instead sets
+        // AUTH0 to 0, locking the whole tag behind an all-zero password.
+        configPages: [
+          [0x00, 0x00, 0x00, 0xbd],
+          [0x04, 0x00, 0x00, 0xff],
+          [0x00, 0x05, 0x00, 0x00],
+          [0xff, 0xff, 0xff, 0xff],
+          [0x00, 0x00, 0x00, 0x00],
+        ],
       },
       ntag216: {
         type: "NTAG216",
         pageCount: 231,
         userMemoryLength: 0x6d * 8,
         cc: [0xe1, 0x10, 0x6d, 0x00],
+        // Same factory defaults as NTAG215, except the dynamic lock page's
+        // RFUI byte (differs per datasheet due to the larger lock range).
+        configPages: [
+          [0x00, 0x00, 0x00, 0x07],
+          [0x04, 0x00, 0x00, 0xff],
+          [0x00, 0x05, 0x00, 0x00],
+          [0xff, 0xff, 0xff, 0xff],
+          [0x00, 0x00, 0x00, 0x00],
+        ],
       },
     },
   },
@@ -418,6 +439,14 @@ const buildNtagPageDump = (buf) => {
     tag.cc,
     NFC_INFO.ntag.capabilityContainerPage * NFC_INFO.ntag.pageSize,
   );
+
+  // Factory-default config pages (last 5 pages) so the tag isn't left
+  // password-protected by an all-zero AUTH0/PWD after writing.
+  const configOffset =
+    (tag.pageCount - tag.configPages.length) * NFC_INFO.ntag.pageSize;
+  tag.configPages.forEach((page, i) => {
+    newbuf.set(page, configOffset + i * NFC_INFO.ntag.pageSize);
+  });
 
   // Start the NDEF TLV at page 4, followed by a short MIME record.
   const ndefOffset = NFC_INFO.ntag.ndefPage * NFC_INFO.ntag.pageSize;

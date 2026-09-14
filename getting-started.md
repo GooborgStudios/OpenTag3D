@@ -175,9 +175,7 @@ Building an app? [Let us know](/about#contact) so it can be added here.
 
 ##### With a Flipper Zero
 
-The hardware is capable of reading and writing compatible tags, but the full
-OpenTag3D workflow is not finished yet. This is not currently a recommended
-getting-started path.
+Go to the [Make a Tag](/make) webpage to generate the data, and then export the Flipper Zero .nfc file. Then, load the file onto your Flipper, either using qFlipper or directly to the SD card. You can then emulate or write the NFC data via the NFC app, just like any other NFC tag.
 
 ## For developers
 
