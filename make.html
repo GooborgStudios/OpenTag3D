@@ -603,7 +603,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       );
       if (scale !== 1) {
         const round = () => {
-          inp.value = Math.round(parseFloat(inp.value || "0") / scale) * scale;
+          const decimalPoints =
+            scale < 1 ? String(scale).split(".")[1].length : 0;
+          inp.value = (
+            Math.round(parseFloat(inp.value || "0") / scale) * scale
+          ).toFixed(decimalPoints);
         };
         inp.addEventListener("focusout", round);
       }
