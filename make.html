@@ -595,7 +595,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         ...commonParams,
         type: "number",
         min: 0,
-        max: 255 * f.length,
+        max: 255 * f.length * scale,
         step: scale,
       });
       syncInputValue(inp, f.id, (value) =>
