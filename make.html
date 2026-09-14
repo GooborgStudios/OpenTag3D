@@ -525,7 +525,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     // Calculate placeholder
     let placeholder = "";
     const firstExample = f.examples?.[0];
-    if (firstExample) {
+    if (firstExample !== undefined) {
       if (f.type === "int") {
         placeholder = firstExample * (f.scaling || 1);
       } else if (f.type === "rgba") {
@@ -600,20 +600,33 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       });
 
       const roundAndClip = (value) => {
+        if (
+          value === null ||
+          value === undefined ||
+          (typeof value === "string" && value.trim() === "")
+        ) {
+          return "";
+        }
+
+        let num = typeof value === "number" ? value : parseFloat(value);
+        if (isNaN(num)) {
+          return "";
+        }
+
         if (scale !== 1) {
           const decimalPoints =
             scale < 1 ? String(scale).split(".")[1].length : 0;
-          const rounded = Math.round(parseFloat(value || "0") / scale) * scale;
-          value = parseFloat(rounded.toFixed(decimalPoints));
+          const rounded = Math.round(num / scale) * scale;
+          num = parseFloat(rounded.toFixed(decimalPoints));
         }
 
-        if (value < 0) {
-          value = 0;
-        } else if (value > inp.max) {
-          value = inp.max;
+        if (num < 0) {
+          num = 0;
+        } else if (num > inp.max) {
+          num = inp.max;
         }
 
-        return value;
+        return num;
       };
 
       syncInputValue(inp, f.id, roundAndClip);
@@ -669,12 +682,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       if (f.type === "ascii" || f.type === "utf8")
         return typeof val === "string" && val.trim().length > 0;
       if (f.type === "rgba") return Array.isArray(val) && val.length === 4;
-      if (f.type === "int" || f.type === "date" || f.type === "time") {
-        if (val === undefined || val === null) return false;
+      if (f.type === "int") {
+        if (val === undefined || val === null || val === "") return false;
+        if (typeof val === "string" && val.trim() === "") return false;
         const n = typeof val === "number" ? val : Number(val);
-        return Number.isFinite(n) && n !== 0;
+        return Number.isFinite(n);
       }
-      return val !== undefined && val !== null && String(val).length > 0;
+      if (f.type === "date" || f.type === "time") {
+        return typeof val === "string" && val.trim().length > 0;
+      }
+      return val !== undefined && val !== null && String(val).trim().length > 0;
     };
 
     tagState.values.set(
@@ -948,10 +965,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       for (const f of allFields) {
         const v = tagState.values.get(f.id);
 
-        if (v == null) continue;
+        if (v == null || v === "") continue;
         if (f.id === "tag_version") continue;
         if (!f.required) {
-          if (!v) continue;
+          if (v === "" || v === undefined || v === null) continue;
           if (Array.isArray(v) && v.every((vp) => vp === 0)) continue;
         }
 
