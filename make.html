@@ -605,7 +605,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
             scale < 1 ? String(scale).split(".")[1].length : 0;
           const rounded = Math.round(parseFloat(value || "0") / scale) * scale;
           value = parseFloat(rounded.toFixed(decimalPoints));
-          console.log("scaled", value);
         }
 
         if (value < 0) {
