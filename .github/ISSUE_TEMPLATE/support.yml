@@ -43,6 +43,14 @@ body:
     validations:
       required: true
 
+  - type: upload
+    id: logo
+    attributes:
+      label: Upload logo
+      description: Do you have a logo for your company or project we may display on our homepage?  If so, add it here.
+    validations:
+      required: true
+
   - type: textarea
     id: additional_info
     attributes:
