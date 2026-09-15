@@ -4,7 +4,7 @@
  */
 
 // --- DOM helper ---
-const h = (tag, attrs = {}, ...kids) => {
+export const h = (tag, attrs = {}, ...kids) => {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
     if (k === "class") {
@@ -46,7 +46,7 @@ const dismissFlashAlert = (alert) => {
   setTimeout(() => alert.remove(), 200);
 };
 
-const msg = (message, isErr = false) => {
+export const msg = (message, isErr = false) => {
   const alert = h("div", {
     class: `flash-alert${isErr ? " is-error" : ""}`,
     role: isErr ? "alert" : "status",

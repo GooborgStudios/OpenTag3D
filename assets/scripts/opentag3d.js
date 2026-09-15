@@ -1,10 +1,12 @@
 /*
  * OpenTag3D shared logic (make.html + read.html).
- * Expects a global `SPEC` (site.data.spec), the site-wide helpers from
- * assets/scripts/site.js (`h`, `msg`), and #webNfcDialog / #webNfcDialogMessage
- * for Web NFC status, to already be defined/present before this script loads.
+ * Expects the generated site spec in `globalThis.OpenTag3D.spec`, the site-wide
+ * `msg` helper from assets/scripts/site.js, and the Web NFC dialog elements.
  */
 
+import { msg } from "./site.js";
+
+const SPEC = globalThis.OpenTag3D?.spec;
 const allFields = SPEC.core.fields;
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -405,6 +407,11 @@ const startAutomaticWebNFC = (onPayload) => {
     }, 1000);
   };
   readViaWebNFC(action, { silent: true }).catch(() => {});
+};
+
+const cancelWebNFC = () => {
+  nfcController?.abort();
+  nfcController = null;
 };
 
 // Builds a full NTAG page dump (Capability Container + NDEF TLV wrapping
@@ -813,4 +820,32 @@ const buildNfcToolsMobileJson = (buf, description) => {
     ],
     version: 1,
   });
+};
+
+export {
+  allFields,
+  urlParams,
+  bufferFromText,
+  bufferToHex,
+  buildProxmark3Bin,
+  buildNfcToolsDesktopJson,
+  buildNfcToolsMobileJson,
+  cancelWebNFC,
+  decodeTagBuffer,
+  describeTag,
+  downloadFile,
+  downloadFlipperNfc,
+  encodeFieldValue,
+  finishWebNfcAction,
+  fixHexRgba,
+  generateHash,
+  hexdump,
+  hex,
+  parseHex,
+  parseImportedText,
+  parseProxmark3Bin,
+  readViaWebNFC,
+  rgbaFromHex,
+  startAutomaticWebNFC,
+  writeViaWebNFC,
 };

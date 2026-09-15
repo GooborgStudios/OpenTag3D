@@ -1,6 +1,7 @@
 {
   "name": "OpenTag3D-Website",
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "bundle exec jekyll serve --host 0.0.0.0 --ssl-cert localhost.pem --ssl-key localhost-key.pem",
     "format": "prettier --write \"**/*.{js,scss,json,yml,yaml}\"",

@@ -440,14 +440,25 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
   /* prettier-ignore-start */
 
   // Spec comes from site.data.spec (Jekyll).
-  const SPEC = {{site.data.spec | jsonify}};
+  globalThis.OpenTag3D = { spec: {{site.data.spec | jsonify}} };
 
   /* prettier-ignore-end */
 </script>
 
-<script src="{{ '/assets/scripts/opentag3d-core.js' | relative_url }}"></script>
+<script type="module">
+  import { msg } from "{{ '/assets/scripts/site.js' | relative_url }}";
+  import {
+    allFields,
+    bufferFromText,
+    decodeTagBuffer,
+    hexdump,
+    parseImportedText,
+    parseProxmark3Bin,
+    startAutomaticWebNFC,
+    urlParams,
+  } from "{{ '/assets/scripts/opentag3d.js' | relative_url }}";
 
-<script>
+  const SPEC = globalThis.OpenTag3D.spec;
   const tagEmptyState = document.getElementById("tagEmptyState");
   const tagDisplay = document.getElementById("tagDisplay");
   const hexdumpBox = document.getElementById("hexdumpBox");

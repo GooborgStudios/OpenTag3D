@@ -406,14 +406,41 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   /* prettier-ignore-start */
 
   // Spec comes from site.data.spec (Jekyll).
-  const SPEC = {{site.data.spec | jsonify}};
+  globalThis.OpenTag3D = { spec: {{site.data.spec | jsonify}} };
 
   /* prettier-ignore-end */
 </script>
 
-<script src="{{ '/assets/scripts/opentag3d-core.js' | relative_url }}"></script>
+<script type="module">
+  import { h, msg } from "{{ '/assets/scripts/site.js' | relative_url }}";
+  import {
+    allFields,
+    bufferFromText,
+    bufferToHex,
+    buildNfcToolsDesktopJson,
+    buildNfcToolsMobileJson,
+    buildProxmark3Bin,
+    cancelWebNFC,
+    decodeTagBuffer,
+    describeTag,
+    downloadFile,
+    downloadFlipperNfc,
+    encodeFieldValue,
+    finishWebNfcAction,
+    fixHexRgba,
+    generateHash,
+    hexdump,
+    hex,
+    parseHex,
+    parseImportedText,
+    parseProxmark3Bin,
+    readViaWebNFC,
+    rgbaFromHex,
+    urlParams,
+    writeViaWebNFC,
+  } from "{{ '/assets/scripts/opentag3d.js' | relative_url }}";
 
-<script>
+  const SPEC = globalThis.OpenTag3D.spec;
   const tagState = {
     values: new Map(),
     buffer: null,
@@ -764,8 +791,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .getElementById("webNfcDialogClose")
       .addEventListener("click", () => webNfcDialog.close());
     webNfcDialog.addEventListener("close", () => {
-      nfcController?.abort();
-      nfcController = null;
+      cancelWebNFC();
     });
 
     document.getElementById("readWebNFC").addEventListener("click", () => {
