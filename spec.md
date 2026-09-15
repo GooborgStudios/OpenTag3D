@@ -160,6 +160,8 @@ These are topics that were heavily discussed during the development of OpenTag3D
 
 ## Changelog
 
+- 2.003
+  - Added a `qa_status` property to the web API
 - 2.002
   - Added a `tag_data` property to the web API to provide ability for tag data corrections
   - Added a `product_photos` property to the web API

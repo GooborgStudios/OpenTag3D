@@ -1,5 +1,5 @@
 {
-  "version": "2.002",
+  "version": "2.003",
   "mime_type": "application/opentag3d",
   "core": {
     "address_range": { "start": "0x00", "end": "0xDF" },
@@ -616,6 +616,15 @@
           ]
         ],
         "description": "Links to images of the product."
+      },
+      {
+        "name": "QA Status",
+        "id": "qa_status",
+        "required": false,
+        "added": "2.003",
+        "type": "string",
+        "examples": ["Pass", "Fail"],
+        "description": "Useful for experimental or B-stock spools. States whether the spool meets the quality assurance guidelines of production. Can be a simple Pass/Fail, a letter grade, or any other grading system the filament manufacturer uses."
       },
       {
         "name": "Notes",
