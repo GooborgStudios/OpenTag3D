@@ -125,7 +125,7 @@ the standard, see the current [supporters and implementation status](/about#supp
 
 | Logo | Brand | Filament Sold with Pre-programmed Tags | Online OpenTag3D Exports |
 | ---- | ----- | --------------------------------------- | ------------------------ |
-| <img class="support-logo support-logo--wide" src="/assets/images/logos/polar-filament-color.png" alt="Polar Filament logo"> | [Polar Filament](https://polarfilament.com/) | Planned Q4 2026 | [Yes](https://pfil.us/rfid) |
+| <img class="support-logo support-logo--wide" src="/assets/images/logos/polar-filament-color.png" alt="Polar Filament logo"> | [Polar Filament](https://polarfilament.com/) | Yes (as of Q4 2026) | [Yes](https://pfil.us/rfid) |
 {: .support-table}
 
 <!-- prettier-ignore-end -->
