@@ -22,3 +22,10 @@ OpenTag3D is supported by various companies that are implementing OpenTag3D into
 Want to join the list? [Open an issue here!](https://github.com/GooborgStudios/OpenTag3D/issues/new?template=supporter.yml)
 
 Want to provide a financial contribution? Donate to the Gooborg Studios' founder via [Ko-Fi](https://ko-fi.com/queengooborg) or [PayPal](https://paypal.me/VinylDarkscratch)!
+
+## Website Development
+
+To start a local version of the website for development, you will need Node.js and Ruby. Run the `setup.sh` script to run the setup commands, and then `npm start` to start the web server.
+
+> [!NOTE]
+> Scripts and commands are designed to run on macOS and Linux. There is no Windows support.

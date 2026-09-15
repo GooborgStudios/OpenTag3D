@@ -1,0 +1,6 @@
+_site/
+.jekyll-cache/
+.sass-cache/
+vendor/
+node_modules/
+spec.json
