@@ -595,7 +595,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         ...commonParams,
         type: "number",
         min: 0,
-        max: Math.pow(255.0, f.length) * scale,
+        max: 255.0 ** f.length * scale,
         step: scale,
       });
 
