@@ -142,6 +142,65 @@ textarea {
   text-align: center;
 }
 
+.supporters-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1em;
+  text-align: center;
+
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 1em;
+    height: 5em;
+    padding: 0.5em;
+    box-shadow: 0 0 0px white;
+    scale: 1;
+    transition:
+      box-shadow 0.2s,
+      background-color 0.2s,
+      scale 0.2s;
+
+    &:hover {
+      box-shadow: 0 0 10px white;
+      background-color: rgba(255, 255, 255, 0.2);
+      scale: 1.05;
+    }
+
+    a {
+      color: inherit;
+
+      &::after {
+        content: none !important;
+      }
+
+      img {
+        box-shadow: none !important;
+        max-width: 100%;
+        max-height: 4em;
+        object-fit: contain;
+
+        &.withcaption {
+          max-height: 3em;
+        }
+      }
+
+      p.caption {
+        display: block;
+        font-size: 75%;
+        margin-top: 0.25em;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  @media screen and (max-width: 800px), screen and (max-device-width: 800px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* Getting Started */
 
 .getting-started__lede {
@@ -315,7 +374,7 @@ textarea {
   margin: 1.5rem 0;
 }
 
-@media (max-width: 700px) {
+@media screen and (max-width: 700px), screen and (max-device-width: 700px) {
   .role-grid,
   .benefit-grid {
     grid-template-columns: 1fr;
