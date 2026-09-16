@@ -158,7 +158,7 @@ Other mobile applications are available for reading and writing OpenTag3D data. 
 | <img class="support-logo" src="/assets/favicon/android-chrome-512x512.png" alt="OpenTag3D spool logo"> | [OpenTag3D Make Page](/make) | Android | Read<br />Write | v1, v2 | This can be installed like an app via Google Chrome on Android. |
 | <img class="support-logo" src="/assets/images/logos/nfc-tools.png" alt="NFC Tools Logo"> | [NFC Tools](https://www.wakdev.com) | iPhone | Read<br />Write<br />Modify Other Records | v2 | Android support for OpenTag3D will be available at a later date. |
 | <img class="support-logo" src="/assets/images/logos/spoolsense.jpg" alt="SpoolSense logo"> | [SpoolSense](https://spoolsense.org/) | iPhone | Read<br />Write | v1, v2 | |
-| <img class="support-logo" src="/assets/images/logos/spoolflux.png" alt="SpoolFlux logo"> | [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone | Read<br />Write | v1 | v2 support is in a closed beta and will be released later. |
+| <img class="support-logo" src="/assets/images/logos/spoolflux.png" alt="SpoolFlux logo"> | [SpoolFlux](https://spoolflux.dingdongclick.de/) | iPhone | Read<br />Write | v1, v2 | |
 {: .support-table}
 
 <!-- prettier-ignore-end -->
