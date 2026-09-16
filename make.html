@@ -629,7 +629,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         return num;
       };
 
-      syncInputValue(inp, f.id, roundAndClip);
+      syncInputValue(inp, f.id, (value) =>
+        Math.round(parseFloat(value || "0") / scale),
+      );
 
       inp.addEventListener(
         "focusout",
