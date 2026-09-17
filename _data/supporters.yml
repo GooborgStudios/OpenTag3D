@@ -63,6 +63,7 @@ supporters:
     implstage: "unknown"
   - name: "FilaSpool"
     url: "https://jacfx7.github.io/filaspool/index.html"
+    logo: "FilaSpool.png"
     since: "2026-09-15"
     category: "software"
     implstage: "pending"
