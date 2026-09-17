@@ -99,8 +99,7 @@ set of data they can use to build features such as:
 
 #### 1. Use filament and projects that already support OpenTag3D
 
-This is the easiest route: buy a tagged spool, then use it with a compatible
-printer, accessory, slicer, or community project.
+This is the easiest route: buy a tagged spool, then use it with a compatible printer, accessory, slicer, or community project.
 
 ##### Supported Printers
 
@@ -116,8 +115,10 @@ printer, accessory, slicer, or community project.
 
 <!-- prettier-ignore-end -->
 
-For more details on the filament brands, projects, and companies that support
-the standard, see the current [supporters and implementation status](/about#supporters).
+For more details on the filament brands, projects, and companies that support the standard, see the current [supporters and implementation status](/about#supporters).
+
+> [!NOTE]
+> If you are not sure how to get started with a community mod, please feel free to ask for help in our [Discord](https://discord.opentag3d.info).
 
 ##### Supported Filament Brands
 
