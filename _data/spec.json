@@ -437,7 +437,7 @@
         "length": 2,
         "usage": "operational",
         "examples": [336],
-        "description": "Length in meters."
+        "description": "The measured length of the filament, in meters. This is the actual filament length measured during production of the filament (not a realtime value updated during printing)."
       },
       {
         "name": "Measured Filament Weight",
@@ -450,7 +450,7 @@
         "length": 2,
         "usage": "operational",
         "examples": [1002],
-        "description": "Weight of filament only. This should be the actual measurement taken"
+        "description": "The measured weight of the entire roll of filament, in grams, including the filament and the spool. This is the actual measurement taken right after production of a spool is completed (not a realtime value updated during printing)."
       },
       {
         "name": "Spool Core Diameter",

@@ -107,6 +107,8 @@ When attempting to read an RFID tag, the reader should load the _first_ NDEF rec
 
 The reader should then check the tag version. If the tag version is a newer _minor_ version than the reader expects, display a warning to the user and proceed as normal. If the tag version is a newer _major_ version, the reader should display an error to the user and not attempt to parse the data.
 
+When reading tag data, if there are any missing bytes in the payload (for example, OpenTag3D defines data in 0xFF but the payload only goes up to 0xD0), treat them as “0x00”.
+
 When accessing the web API URL provided by the tag, the reader _must_ set the `Accept` HTTP header to `application/json`. The exception to this is if the reader is attempting to display the webpage to the user, in which the `Accept` HTTP header may be set to either `text/html` or `*/*`.
 
 ## Branding Guidelines
