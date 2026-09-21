@@ -107,7 +107,7 @@ This is the easiest route: buy a tagged spool, then use it with a compatible pri
 
 | Logo | Printer | Support | Link | Notes |
 | ---- | ------- | ------- | ---- | ----- |
-| <img class="support-logo" src="/assets/images/logos/bambu-lab.png" alt="Bambu Lab logo"> | Bambu Lab Series Printers | Via Community Mods | [OpenSpool (with [custom firmware](https://github.com/spuder/OpenSpool/pull/80))<br />[SpoolSense](https://spoolsense.org/installation/bambu-ams/) | |
+| <img class="support-logo" src="/assets/images/logos/bambu-lab.png" alt="Bambu Lab logo"> | Bambu Lab Series Printers | Via Community Mods | OpenSpool (with [custom firmware](https://github.com/spuder/OpenSpool/pull/80))<br />[SpoolSense](https://spoolsense.org/installation/bambu-ams/) | |
 | <img class="support-logo" src="/assets/images/logos/snapmaker.svg" alt="Snapmaker logo"> | Snapmaker U1 | Via Community Mods | paxx12 Extended Firmware (with [custom OpenRFID version](https://github.com/suchmememanyskill/OpenRFID/pull/27))<br />[SpoolSense](https://spoolsense.org/installation/snapmaker-u1/) | |
 | <img class="support-logo" src="/assets/images/logos/prusa.png" alt="Prusa logo"> | Prusa MK4 / MMU3 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/) | |
 | <img class="support-logo" src="/assets/images/logos/klipper.svg" alt="Klipper logo"> | Other Klipper-based Printers | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/) | |
