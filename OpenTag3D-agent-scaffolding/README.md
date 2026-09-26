@@ -4,22 +4,26 @@ Working folder for figuring out how to set OpenTag3D up for AI coding agents. Th
 
 ## Why this project exists
 
-OpenTag3D's repo was largely built with AI assistance, but it has none of the scaffolding that helps an AI coding agent work in it safely (no `AGENTS.md`, no notes on the spec-is-data-driven design, no warning about the zero-test-coverage JS or the consortium-governed spec). Multiple people are actively building on `main`, so this effort is deliberately staged outside the tracked repo content until the deliverable is ready to land as a single, low-conflict PR — see the "untracked folder" note above for how that's enforced in practice.
+OpenTag3D's repo was largely built with AI assistance, but it has none of the scaffolding that helps an AI coding agent work in it safely (no `AGENTS.md`, no notes on the spec-is-data-driven design, no warning about the zero-test-coverage JS or the consortium-governed spec). Multiple people are actively building on `main`, so this effort is deliberately staged in this temporary folder until the deliverable is ready to land as a single, low-conflict PR. The folder is now committed on the feature branch and must be excluded/deleted before anything reaches `main`.
 
 ## Goal
 
 Land a well-scoped set of agent-scaffolding files at the repo root — designed here first, moved out deliberately once we're happy with them. The goal has expanded from "safe orientation docs" to reusable systems: contributor-vs-maintainer paths, local danger-zone checklists, maintainer runbooks, known gaps with safe workarounds, and an initial architecture note for high-churn make/read tooling.
 
-## Files in this folder (read in this order)
+## Files in this folder
 
 0. [`AGENTS.md`](AGENTS.md) — agent-facing rules scoped to *this folder itself* (not the OpenTag3D repo). If you're an agent and this is your working directory, read this one first.
-1. [`notes-repo-rundown.md`](notes-repo-rundown.md) — raw research on what the OpenTag3D repo actually is (site structure, tech stack, spec-as-data-source, CI, gotchas). Read this next for repo context; it's the source material everything else is built from.
-2. [`notes-spec-json-extensibility.md`](notes-spec-json-extensibility.md) — deeper follow-up research specifically on `_data/spec.json`'s field model: how new fields get added today, how much byte budget is left, and confirmation that no schema validation exists. Feeds the "editing the spec" safety notes in the draft and a few new items in `gaps.md`.
-3. [`notes-automation-opportunities.md`](notes-automation-opportunities.md) — research pass over `index.md`, `getting-started.md`, and `articles/` looking for manual/duplicated work and CI/testing/community-engagement gaps (e.g. `getting-started.md`'s supporter tables duplicating `_data/supporters.yml` by hand). Feeds several new items in `gaps.md`; nothing here is in scope for the current draft.
-4. [`notes-spec-maintenance-workflow.md`](notes-spec-maintenance-workflow.md) — research pass mapping the actual PR/review/merge pattern, the (undocumented, fully manual) version-bump-and-tag process, and the OpenTag3D Consortium governance model in `about.md` — plus where the two disconnect (a merged spec change has no visible link to a consortium vote). Feeds new items in `gaps.md`; out of scope for the current draft.
-5. [`draft-AGENTS.md`](draft-AGENTS.md) — the working draft of the file we intend to place at the OpenTag3D repo root. This is the actual deliverable.
-6. [`gaps.md`](gaps.md) — scaffolding gaps noticed along the way that are deliberately **out of scope** for this first `AGENTS.md` pass (no tests, no CONTRIBUTING.md, spec.json schema validation, supporter-table duplication, no proposal→vote pipeline, etc.) — don't try to solve these now, just don't rediscover them either.
-7. [`reflow-plan.md`](reflow-plan.md) — the plan for moving everything in this folder into the repo proper: target layout (`/AGENTS.md`, nested `AGENTS.md` files, `_docs/`), a source→destination map for every notes section, execution steps, and the resolved decisions (D1–D7). **This is now the controlling document for the project.**
+1. [`reflow-plan.md`](reflow-plan.md) — the controlling plan for moving everything in this folder into the repo proper: target layout (`/AGENTS.md`, nested `AGENTS.md` files, `_docs/`), source→destination map, execution steps, acceptance criteria, and resolved decisions (D1–D7).
+2. [`notes-repo-rundown.md`](notes-repo-rundown.md) — raw research on what the OpenTag3D repo actually is (site structure, tech stack, spec-as-data-source, CI, gotchas). Read this next for repo context; it's the source material everything else is built from.
+3. [`notes-spec-json-extensibility.md`](notes-spec-json-extensibility.md) — deeper follow-up research specifically on `_data/spec.json`'s field model: how new fields get added today, how much byte budget is left, and confirmation that no schema validation exists. Feeds the "editing the spec" safety notes in the draft and a few new items in `gaps.md`.
+4. [`notes-automation-opportunities.md`](notes-automation-opportunities.md) — research pass over `index.md`, `getting-started.md`, and `articles/` looking for manual/duplicated work and CI/testing/community-engagement gaps (e.g. `getting-started.md`'s supporter tables duplicating `_data/supporters.yml` by hand). Feeds several new items in `gaps.md`; nothing here is in scope for the current draft.
+5. [`notes-spec-maintenance-workflow.md`](notes-spec-maintenance-workflow.md) — research pass mapping the actual PR/review/merge pattern, the (undocumented, fully manual) version-bump-and-tag process, and the OpenTag3D Consortium governance model in `about.md` — plus where the two disconnect (a merged spec change has no visible link to a consortium vote). Feeds new items in `gaps.md`; out of scope for the current draft.
+6. [`draft-AGENTS.md`](draft-AGENTS.md) — the working draft of the file we intend to place at the OpenTag3D repo root. Treat it as source material, not the final deliverable by itself.
+7. [`gaps.md`](gaps.md) — scaffolding gaps noticed along the way that move to `_docs/known-gaps.md`; don't treat them as unprompted work.
+8. [`notes-make-read-tools.md`](notes-make-read-tools.md) — fresh architecture pass over `make.html`, `read.html`, `assets/scripts/opentag3d.js`, and `assets/scripts/site.js`; source for `_docs/make-read-tools.md` and shared-script danger-zone notes.
+9. [`draft-doc-skeletons.md`](draft-doc-skeletons.md) — planning skeletons/sample prose for contributor guidance, maintainer runbooks, and make/read docs; use as shape, not final copy.
+10. [`routing-duplication-audit.md`](routing-duplication-audit.md) — reviews duplicated facts, weak routes, and ownership boundaries; treat as execution constraint.
+11. [`cold-start-tests.md`](cold-start-tests.md) — future acceptance tests for the finished scaffolding; run after the reflow, before deleting this folder.
 
 ## Current state & next steps
 

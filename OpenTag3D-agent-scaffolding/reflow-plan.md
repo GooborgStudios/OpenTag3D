@@ -8,9 +8,9 @@ This plan is revised for reusable future workflows, not just safe orientation do
 
 ## 1. Summary
 
-The research in this folder is good, but it is organised by *when it was researched*: five files, with
-the same facts repeated three or four times. The reflow reorganises it by **what kind of content it is**
-and **when an agent needs it**:
+The research in this folder is good, but it is organised by *when it was researched*: original notes,
+later draft skeletons, architecture notes, audits, and acceptance-test prompts. The same facts now appear
+in several places. The reflow reorganises it by **what kind of content it is** and **when an agent needs it**:
 
 | Kind of content | Question it answers | Home in the repo |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ checklist.
 
 | File | Commits | What that means for context |
 | --- | --- | --- |
-| `make.html` | 59 | **The hottest file, and the draft barely covers it.** Promote the "architecture note" gap (§9) |
+| `make.html` | 59 | **The hottest file.** Use `notes-make-read-tools.md` as the source for the initial architecture note |
 | `_data/spec.json` | 29 | Spec edits are **frequent**, not rare, but most are descriptions or `web_api` additions, not `core` layout. The rules must tell the edit classes apart (§5.2) |
 | `spec.md` | 22 | Moves with `spec.json` (the changelog) |
 | `about.md`, `index.md`, `supporters.yml`, `getting-started.md` | 10–16 each | The routine content path; supporter data is duplicated by hand across two files |
@@ -143,8 +143,10 @@ Jekyll's data reader only loads `yml/yaml/json/csv/tsv`.
 
 ## 4. Source → destination map
 
-Every section of every file in this folder, and where it goes. **Retire** means it's fully absorbed
-elsewhere or is research narrative. It stays retrievable in git.
+Every source file in this folder, and where it goes. **Retire** means it's fully absorbed elsewhere or is
+research narrative. It stays retrievable in git. Newer planning files (`notes-make-read-tools.md`,
+`draft-doc-skeletons.md`, `routing-duplication-audit.md`, and `cold-start-tests.md`) are authoritative for
+their narrow topics where they are more specific than the older notes.
 
 ### `draft-AGENTS.md` → `/AGENTS.md`
 
@@ -194,6 +196,39 @@ It's a backlog, not working context, with two exceptions that are **active rules
   **update both** → `/AGENTS.md` gotchas + co-change map, and `_data/AGENTS.md`.
 - `index.md`'s `announcement:` string is version-linked → a step in the `spec-change-process.md` runbook.
 - New articles aren't auto-listed and must be linked by hand → co-change map.
+
+### `notes-make-read-tools.md` → `_docs/make-read-tools.md` + `assets/scripts/AGENTS.md`
+
+This is the freshest source for the make/read architecture. Harvest the boot sequence, file responsibility
+map, user flows, danger zones, and verification matrix into `_docs/make-read-tools.md`. Move only the
+protocol-code checklist and Node-verification details into `assets/scripts/AGENTS.md`. Do not copy line
+numbers or speculative open questions into final docs unless re-verified and still useful.
+
+### `draft-doc-skeletons.md` → `_docs/contributor-agent-guide.md`, `_docs/maintainer-runbooks.md`, `_docs/make-read-tools.md`
+
+Use as shape and sample prose, not as final text. Its key contribution is the ownership split:
+contributor guidance owns outside-contributor posture, maintainer runbooks own trusted workflows, and
+make/read docs own page architecture. Keep unknown maintainer process details labelled unknown.
+
+### `routing-duplication-audit.md` → execution constraints across all deliverables
+
+Treat this audit as part of the plan, not optional commentary. During execution, give each final doc a
+one-sentence ownership boundary and collapse duplicated facts into one authoritative home:
+
+- root `/AGENTS.md` owns routing, hard boundaries, the co-change map, and the minimal verification router;
+- `_data/AGENTS.md` owns spec/supporter data edit checklists;
+- `assets/scripts/AGENTS.md` owns protocol-code danger zones and the Node round-trip recipe;
+- `_docs/known-gaps.md` owns backlog safety and the "not a work queue" rule;
+- `_docs/make-read-tools.md` owns page architecture and browser/Web NFC verification expectations;
+- `_docs/maintainer-runbooks.md` owns suspected-bug triage and trusted maintainer workflows.
+
+Other docs should link to those homes instead of repeating their tables.
+
+### `cold-start-tests.md` → acceptance tests, not final repo content
+
+Do not copy this file into the repo-root scaffolding. Use it after the reflow as the cold-start acceptance
+suite in §7.1: a fresh agent should route to the right doc, classify the work, and stop at the right
+boundary before editing. If a test fails, fix the docs rather than weakening the test.
 
 ### `gaps.md` → `_docs/known-gaps.md`
 
@@ -426,16 +461,18 @@ still works, but its router links break, so in that case follow up by inlining t
 
 Then:
 
-1. **Write the content.** Dedupe, convert line numbers to function names, add verification stamps, and
-   write `known-gaps.md` in the gap / why / meanwhile / status format with the D3 tone rules (§4).
-   Re-verify every claim carried over from the draft against current `main`.
+1. **Write the content.** Dedupe aggressively using `routing-duplication-audit.md` as a constraint, convert
+   line numbers to function names, add verification stamps, and write `known-gaps.md` in the gap / why /
+   meanwhile / status format with the D3 tone rules (§4). Re-verify every claim carried over from the draft
+   against current `main`.
 2. **Verify:**
    - Run `bundle exec jekyll build` and confirm `_site/` has no `AGENTS.md`, `CLAUDE.md`, `_docs` or
      `OpenTag3D-agent-scaffolding`. This needs Ruby (WSL or a Codespace), since this machine has none.
    - `npm run format:check`.
    - Every relative link in the new files resolves.
    - The byte-budget command and the Node recipe both run clean.
-3. **Cold-start test.** Give a fresh agent session one realistic task per router row (e.g. "SpoolFlux now
+3. **Cold-start test.** Use `OpenTag3D-agent-scaffolding/cold-start-tests.md` as the acceptance suite before
+   deleting this folder. Give a fresh agent session one realistic task per router row (e.g. "SpoolFlux now
    supports v2.004", "add a `web_api` field", "add a `core` field for X") with no other briefing. Check it
    finds the right file, classifies the edit correctly, and stops at the right boundary. Fix the docs where
    it stumbles. This is the acceptance test for the context, the same way CI is the acceptance test for code.
@@ -457,7 +494,7 @@ Then:
 
 The reflow is successful only if the finished scaffolding changes agent behaviour, not just file count:
 
-- **Routing works:** in a cold-start prompt for each router row in `/AGENTS.md`, a fresh agent names the correct first doc/checklist before editing.
+- **Routing works:** using `OpenTag3D-agent-scaffolding/cold-start-tests.md`, a fresh agent names the correct first doc/checklist before editing.
 - **Boundaries hold:** agents stop, ask, or draft a proposal before changing `core` layout, spec `version`, write-path/config-page code, release tags, governance/consortium records, workflows, `Gemfile`, or `package.json`.
 - **Maintainer runbooks are useful:** `_docs/maintainer-runbooks.md` gives an actionable path for PR review, suspected protocol-bug triage, release/version bump checks, and keeping agent context current after review.
 - **Make/read context is useful:** before editing `make.html` or `read.html`, a future agent can explain the high-level flow, what is page-local versus shared code, and what verification is expected.
