@@ -38,6 +38,18 @@ Governance: an **OpenTag3D Consortium** (industry + community voting members, se
 2. If it's a **major** version bump, add a new frozen `assets/json/spec_v{N}.json` snapshot of the *old* layout before changing it (the legacy-version reader depends on this file existing).
 3. Treat this as a spec/standards change, not just a code edit — flag it clearly rather than folding it silently into an unrelated fix, since the consortium governs the spec itself.
 
+**Nothing validates a `core` field edit — be your own schema check.** There's no automated check
+beyond "is this valid JSON that Jekyll can build" (see gaps.md). Concretely, when adding/editing a
+`core` field:
+- `type` must be one of the values `encodeFieldValue`/`decodeTagBuffer` in
+  [opentag3d.js](assets/scripts/opentag3d.js) actually branch on (`int`, `utf8`, `ascii`, `rgba`,
+  `date`, `time`) — an unrecognized type fails **silently** (the field just never decodes, no
+  error thrown), not loudly.
+- New fields must use a `start`/`length` that doesn't overlap any existing field — there is no
+  overlap check anywhere, automated or otherwise. As of spec v2.003 the `0x00`–`0xDF` address
+  range has only ~24 unused bytes left, split across a few small gaps (largest is 13 bytes) — do
+  the byte-map arithmetic by hand before picking an address.
+
 ## Directory map
 
 | Path | Purpose |
@@ -70,9 +82,3 @@ New supporters (companies implementing the spec) are meant to be added via the G
 - `spec.json` (root) vs `_data/spec.json`: same data, different roles. Edit `_data/spec.json`; the root `spec.json` is generated output (and is in `.prettierignore` for that reason).
 - Field `description`s in `_data/spec.json` have previously needed clarification after real confusion (e.g. clarifying that "measured length/weight" fields are production-time measurements, not realtime values) — when adding/editing a field, err toward an unambiguous description.
 - `read.html` and `make.html` both assume `globalThis.OpenTag3D.spec` is populated by the page (from `site.data.spec` via Jekyll) before `opentag3d.js` runs — check the inline `<script>` at the top of those pages if `SPEC` seems to come from nowhere.
-
----
-
-**Open questions before this is finalized (see also gaps.md):**
-- Do we want a short "environment" note about Windows dev-server limitations, or leave that out since AGENTS.md should describe the repo, not any one contributor's machine?
-- Any house style/PR conventions from the maintainer (Vinyl Da.i'gyu-Kazotetsu) we should capture that aren't visible from the code alone?
