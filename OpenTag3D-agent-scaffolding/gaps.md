@@ -1,0 +1,9 @@
+# Scaffolding gaps (out of scope for the first AGENTS.md pass)
+
+Things noticed while researching the repo that would help agents (and human contributors) but aren't being tackled yet. Tracked here so they don't get lost, and so we can decide deliberately whether/when each becomes its own follow-up PR against OpenTag3D.
+
+- **No CONTRIBUTING.md.** No documented PR process, branch naming, or review expectations beyond what CI enforces (build + format). Would help clarify things like: who merges supporter-list PRs, whether spec.json changes need consortium sign-off before a PR is even opened, etc.
+- **No automated tests for `opentag3d.js`.** The byte-level encode/decode/NDEF-packing logic (spec field parsing, NTAG page dumps, Flipper/Proxmark3/NFC-Tools import/export) has no unit tests — correctness currently rests on manual browser verification. Even a handful of pure-function tests (encode → decode round-trip per field type) would catch regressions cheaply, since none of that logic touches the DOM or Web NFC.
+- **No CODE_OF_CONDUCT.md** or explicit license-header/contribution norms beyond the repo-level `LICENSE` (GPLv3).
+- **No architecture note for `make.html`/`read.html`.** Both are large (~700-1000 line) single-file pages mixing inline `<style>`, form-generation-from-spec JS, and imports from `opentag3d.js`/`site.js`. The draft AGENTS.md covers the shared modules but not how the page-local form-building code works; worth a deeper note if agents start editing those pages often.
+- **Windows dev-server story is undocumented beyond "unsupported."** Deliberately left out of the draft AGENTS.md body (that file should describe the repo, not any one contributor's machine) — but if this keeps coming up, it may be worth a short doc on a WSL-based workaround, or confirming `bundle exec jekyll build` (no SSL, no serve) is sufficient for most content changes.
