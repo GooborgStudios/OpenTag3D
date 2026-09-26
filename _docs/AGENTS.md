@@ -1,6 +1,6 @@
 # Agent reference docs
 
-These docs are unpublished working context for contributors and AI coding agents. Start at root `AGENTS.md` once it exists; use this index when a task needs deeper context.
+These docs are unpublished working context for contributors and AI coding agents. Start at root `AGENTS.md`; use this index when a task needs deeper context.
 
 - [`contributor-agent-guide.md`](contributor-agent-guide.md): outside-contributor safety model and escalation rules.
 - [`maintainer-runbooks.md`](maintainer-runbooks.md): trusted maintainer workflows for review, triage, releases, and context upkeep.
