@@ -166,6 +166,15 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
 <main>
   <div id="controls" class="flex">
+    <button class="btn btn--warning" id="readUsbNFC" disabled>
+      <img
+        class="control-icon"
+        src="{{ '/assets/images/icons/mdi-usb.svg' | relative_url }}"
+        alt=""
+        aria-hidden="true"
+      />
+      Read via USB NFC
+    </button>
     <button class="btn btn--warning" id="loadFileBtn">
       <img
         class="control-icon"
@@ -194,7 +203,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
   <div id="tagEmptyState" class="muted">
     No tag data loaded yet.<br />You can load a tag dump from a file or from the
-    clipboard, or scan a tag using Web NFC (if your device supports it).
+    clipboard, or scan a tag using Web NFC or a compatible USB NFC reader.
   </div>
 
   <div id="tagDisplay" hidden>
@@ -445,6 +454,8 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
   /* prettier-ignore-end */
 </script>
 
+<script src="{{ '/assets/scripts/chrome-nfc.js' | relative_url }}"></script>
+
 <script type="module">
   import { msg } from "{{ '/assets/scripts/site.js' | relative_url }}";
   import {
@@ -454,6 +465,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     hexdump,
     parseImportedText,
     parseProxmark3Bin,
+    readViaUsbNFC,
     startAutomaticWebNFC,
     urlParams,
   } from "{{ '/assets/scripts/opentag3d.js' | relative_url }}";
@@ -641,6 +653,16 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
   window.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("error", (e) => {
       msg("Error: " + e.message, true);
+    });
+
+    const readUsbNfcButton = document.getElementById("readUsbNFC");
+    readUsbNfcButton.disabled = !navigator.usb;
+    readUsbNfcButton.addEventListener("click", () => {
+      readViaUsbNFC((buf, startAddr) =>
+        loadBufferIntoDisplay(buf, startAddr).catch((e) =>
+          msg("Import error: " + e.message, true),
+        ),
+      ).catch((e) => msg("USB NFC error: " + e.message, true));
     });
 
     document

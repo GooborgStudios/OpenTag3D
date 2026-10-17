@@ -174,6 +174,15 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
           />
           Read via Web NFC
         </button>
+        <button class="btn" id="readUsbNFC" disabled>
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/mdi-usb.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          Read via USB NFC
+        </button>
         <button class="btn" id="loadFileBtn">
           <img
             class="control-icon"
@@ -205,6 +214,15 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
             aria-hidden="true"
           />
           Write via Web NFC
+        </button>
+        <button class="btn" id="writeUsbNFC" disabled>
+          <img
+            class="control-icon"
+            src="{{ '/assets/images/icons/mdi-usb.svg' | relative_url }}"
+            alt=""
+            aria-hidden="true"
+          />
+          Write via USB NFC
         </button>
         <button class="btn" id="downloadBin">
           <img
@@ -331,7 +349,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     <p>
       This utility is designed to help you create OpenTag3D tag data to be
       written onto RFID tags, which can then be written directly with Web NFC
-      (on Android) or via a number of tools.
+      (on Android), a compatible USB NFC reader, or via a number of tools.
     </p>
     <h3>Generating Tag Data</h3>
     <p>
@@ -340,8 +358,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       and must be filled out. All other fields are optional.
     </p>
     <p>
-      You can also import existing tag data, either by reading it via Web NFC
-      (on Android) or loading a previously exported file.
+      You can also import existing tag data by reading it via Web NFC (on
+      Android), a compatible USB NFC reader, or a previously exported file.
     </p>
     <h3>Exporting Tag Data</h3>
     <p>
@@ -350,6 +368,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     </p>
     <ul>
       <li>Direct Write via Web NFC</li>
+      <li>Direct Write via a compatible USB NFC reader</li>
       <li>Proxmark3-Ready .bin</li>
       <li>Flipper Zero .nfc</li>
       <li>NFC Tools for Desktop</li>
@@ -411,6 +430,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   /* prettier-ignore-end */
 </script>
 
+<script src="{{ '/assets/scripts/chrome-nfc.js' | relative_url }}"></script>
+
 <script type="module">
   import { h, msg } from "{{ '/assets/scripts/site.js' | relative_url }}";
   import {
@@ -435,9 +456,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     parseImportedText,
     parseProxmark3Bin,
     readViaWebNFC,
+    readViaUsbNFC,
     rgbaFromHex,
     urlParams,
     writeViaWebNFC,
+    writeViaUsbNFC,
   } from "{{ '/assets/scripts/opentag3d.js' | relative_url }}";
 
   const SPEC = globalThis.OpenTag3D.spec;
@@ -804,6 +827,14 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       ).catch((e) => finishWebNfcAction(e.message, true));
     });
 
+    document.getElementById("readUsbNFC").addEventListener("click", () => {
+      readViaUsbNFC((buf, startAddr) =>
+        loadBufferIntoForm(buf, startAddr).catch((e) =>
+          finishWebNfcAction(e.message, true),
+        ),
+      ).catch((e) => finishWebNfcAction(e.message, true));
+    });
+
     document
       .getElementById("helpDialogClose")
       .addEventListener("click", () => helpDialog.close());
@@ -946,6 +977,14 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       }
     });
 
+    document.getElementById("writeUsbNFC").addEventListener("click", () => {
+      if (!checkMissing()) {
+        writeViaUsbNFC(tagState.buffer).catch((e) =>
+          finishWebNfcAction(e.message, true),
+        );
+      }
+    });
+
     document
       .getElementById("copyToClipboard")
       .addEventListener("click", async () => {
@@ -991,5 +1030,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     // Enable explicit Web NFC actions when Web NFC is available.
     document.getElementById("writeWebNFC").disabled = !("NDEFReader" in window);
     document.getElementById("readWebNFC").disabled = !("NDEFReader" in window);
+    document.getElementById("writeUsbNFC").disabled = !navigator.usb;
+    document.getElementById("readUsbNFC").disabled = !navigator.usb;
   });
 </script>

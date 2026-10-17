@@ -11,6 +11,7 @@ const allFields = SPEC.core.fields;
 const urlParams = new URLSearchParams(window.location.search);
 
 let nfcController;
+let usbNfcDevice;
 
 const NFC_INFO = {
   ntag: {
@@ -409,9 +410,108 @@ const startAutomaticWebNFC = (onPayload) => {
   readViaWebNFC(action, { silent: true }).catch(() => {});
 };
 
+const getUsbNfcDevice = () =>
+  new Promise((resolve, reject) => {
+    if (!navigator.usb || !globalThis.chrome?.nfc) {
+      reject(new Error("WebUSB is not supported in this browser"));
+      return;
+    }
+    globalThis.chrome.nfc.findDevices((devices) => {
+      if (!devices?.length) {
+        reject(
+          new Error(
+            "The USB NFC reader could not be opened. Its interface may be protected by the browser, which WebUSB cannot bypass. Try another reader or use Web NFC.",
+          ),
+        );
+        return;
+      }
+      resolve(devices[0]);
+    });
+  });
+
+const closeUsbNfcDevice = (device) => {
+  if (!device || usbNfcDevice !== device) return;
+  usbNfcDevice = null;
+  device.close();
+};
+
+const readViaUsbNFC = async (onPayload) => {
+  cancelWebNFC();
+  showWebNfcDialog("Select a USB NFC reader, then place a tag on it...");
+  let device;
+  try {
+    device = await getUsbNfcDevice();
+    usbNfcDevice = device;
+    const ndef = await new Promise((resolve, reject) => {
+      globalThis.chrome.nfc.read(device, { timeout: 15 }, (type, result) => {
+        if (!result) {
+          reject(new Error("Could not read an NDEF tag"));
+          return;
+        }
+        resolve(result);
+      });
+    });
+    const record = ndef.ndef.find(
+      (item) => item.type === "MIME" && item.mime_type === SPEC.mime_type,
+    );
+    if (!record) {
+      throw new Error("Read tag does not have any OpenTag3D records");
+    }
+    const payload = Uint8Array.from(record.payload, (character) =>
+      character.charCodeAt(0),
+    );
+    closeUsbNfcDevice(device);
+    finishWebNfcAction("Found and loaded OpenTag3D record");
+    await onPayload(payload.buffer, 0x00);
+  } finally {
+    closeUsbNfcDevice(device);
+  }
+};
+
+const writeViaUsbNFC = async (buf) => {
+  cancelWebNFC();
+  showWebNfcDialog("Select a USB NFC reader, then place a tag on it...");
+  let device;
+  try {
+    device = await getUsbNfcDevice();
+    usbNfcDevice = device;
+    const payload = String.fromCharCode(...new Uint8Array(buf));
+    await new Promise((resolve, reject) => {
+      globalThis.chrome.nfc.write(
+        device,
+        {
+          ndef: [
+            {
+              type: "MIME",
+              mime_type: SPEC.mime_type,
+              payload,
+            },
+          ],
+        },
+        (result) => {
+          if (result) {
+            reject(new Error(`USB NFC write failed (${result})`));
+            return;
+          }
+          resolve();
+        },
+        15,
+      );
+    });
+    closeUsbNfcDevice(device);
+    finishWebNfcAction("Wrote OpenTag3D record to tag");
+  } finally {
+    closeUsbNfcDevice(device);
+  }
+};
+
 const cancelWebNFC = () => {
   nfcController?.abort();
   nfcController = null;
+  if (usbNfcDevice) {
+    const device = usbNfcDevice;
+    closeUsbNfcDevice(device);
+  }
 };
 
 // Builds a full NTAG page dump (Capability Container + NDEF TLV wrapping
@@ -845,7 +945,9 @@ export {
   parseImportedText,
   parseProxmark3Bin,
   readViaWebNFC,
+  readViaUsbNFC,
   rgbaFromHex,
   startAutomaticWebNFC,
+  writeViaUsbNFC,
   writeViaWebNFC,
 };
