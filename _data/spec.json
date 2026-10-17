@@ -494,8 +494,8 @@
         "description": "MFI test temperature, divided by 5. For example, `42` = `210ºC`."
       },
       {
-        "name": "MFI Load",
-        "id": "mfi_load",
+        "name": "MFI Load (Deprecated Reservation)",
+        "id": "deprecated_mfi_load",
         "required": false,
         "added": "1.000",
         "unit": "kg",
@@ -505,7 +505,7 @@
         "length": 1,
         "usage": "operational",
         "examples": [216],
-        "description": "MFI test load in tens of grams. For example, `216` = `2.16kg`."
+        "description": "**This version of the field is deprecated; for new tags, please use the new field at 0xAB. If both fields are specified, prefer the new field.** MFI test load in tens of grams. For example, `216` = `2.16kg`."
       },
       {
         "name": "MFI Value",
@@ -519,6 +519,20 @@
         "usage": "operational",
         "examples": [63],
         "description": "MFI value."
+      },
+      {
+        "name": "MFI Load",
+        "id": "mfi_load",
+        "required": false,
+        "added": "2.004",
+        "unit": "kg",
+        "type": "int",
+        "scaling": 0.0001,
+        "start": "0xAB",
+        "length": 2,
+        "usage": "operational",
+        "examples": [2160],
+        "description": "MFI test load in tenths of grams. For example, `2160` = `2.16kg`, `10000` = `10kg`, `325` = `0.325kg`."
       },
       {
         "name": "Online Data URL",

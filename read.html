@@ -603,11 +603,11 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
     const mfiTemp = v("mfi_temp");
     setText("tagMfiTemp", mfiTemp ? `${mfiTemp}°C` : "—");
-    const mfiLoad = v("mfi_load"),
-      mfiValue = v("mfi_value");
+    const mfiLoad = v("mfi_load") || v("deprecated_mfi_load");
+    const mfiValue = v("mfi_value");
     setText(
       "tagMfiLoadValue",
-      [mfiLoad ? `${mfiLoad}g load` : "", mfiValue ? `${mfiValue}g/min` : ""]
+      [mfiLoad ? `${mfiLoad}kg load` : "", mfiValue ? `${mfiValue}g/min` : ""]
         .filter(Boolean)
         .join(" — "),
     );
