@@ -162,6 +162,10 @@ These are topics that were heavily discussed during the development of OpenTag3D
 
 ## Changelog
 
+- 2.004
+  - Created a new `mfi_load` field and deprecated the old one
+    - This reassignment was necessary as the original MFI Load field could not handle a wide range of common MFI Load values
+    - The original field assignment is still valid, but discouraged from use in favor of the new field assignment
 - 2.003
   - Added a `qa_status` property to the web API
 - 2.002

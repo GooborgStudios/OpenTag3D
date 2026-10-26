@@ -472,7 +472,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     const box = h("div", { class: `grid` });
     for (const f of allFields) {
+      // Tag version is filled in automatically
       if (f.id === "tag_version") continue;
+      // Ignore any deprecated fields
+      if (f.id.startsWith("deprecated_")) continue;
       const row = h("div", {
         class: "field-row",
         "data-field": f.id,
