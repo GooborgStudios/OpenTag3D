@@ -101,21 +101,21 @@ set of data they can use to build features such as:
 
 This is the easiest route: buy a tagged spool, then use it with a compatible printer, accessory, slicer, or community project.
 
+For more details on the filament brands, projects, and companies that support the standard, see the current [supporters and implementation status](/about#supporters).
+
 ##### Supported Printers
 
 <!-- prettier-ignore-start -->
 
-| Logo | Printer | Support | Link | Notes |
-| ---- | ------- | ------- | ---- | ----- |
-| <img class="support-logo" src="/assets/images/logos/bambu-lab.png" alt="Bambu Lab logo"> | Bambu Lab Series Printers | Via Community Mods | BambuTagger ([queengooborg's fork](https://github.com/queengooborg/BambuTagger-AMS-C))<br />OpenSpool (with [custom firmware](https://github.com/spuder/OpenSpool/pull/80))<br />[SpoolSense](https://spoolsense.org/installation/bambu-ams/) | |
-| <img class="support-logo" src="/assets/images/logos/snapmaker.svg" alt="Snapmaker logo"> | Snapmaker U1 | Via Community Mods | [paxx12 Extended Firmware](https://snapmakeru1-extended-firmware.pages.dev/) (by [enabling OpenRFID](https://snapmakeru1-extended-firmware.pages.dev/design/rfid#enabling-openrfid))<br />[SpoolSense](https://spoolsense.org/installation/snapmaker-u1/) | |
-| <img class="support-logo" src="/assets/images/logos/prusa.png" alt="Prusa logo"> | Prusa MK4 / MMU3 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/) | |
-| <img class="support-logo" src="/assets/images/logos/klipper.svg" alt="Klipper logo"> | Other Klipper-based Printers | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/) | |
+| Logo | Printer | Support | Link |
+| ---- | ------- | ------- | ---- |
+| <img class="support-logo" src="/assets/images/logos/bambu-lab.png" alt="Bambu Lab logo"> | Bambu Lab Series Printers | Via Community Mods | BambuTagger ([queengooborg's fork](https://github.com/queengooborg/BambuTagger-AMS-C))<br />OpenSpool (with [custom firmware](https://github.com/spuder/OpenSpool/pull/80))<br />[SpoolSense](https://spoolsense.org/installation/bambu-ams/) |
+| <img class="support-logo" src="/assets/images/logos/snapmaker.svg" alt="Snapmaker logo"> | Snapmaker U1 | Via Community Mods | [paxx12 Extended Firmware](https://snapmakeru1-extended-firmware.pages.dev/) (by [enabling OpenRFID](https://snapmakeru1-extended-firmware.pages.dev/design/rfid#enabling-openrfid))<br />[SpoolSense](https://spoolsense.org/installation/snapmaker-u1/) |
+| <img class="support-logo" src="/assets/images/logos/prusa.png" alt="Prusa logo"> | Prusa MK4 / MMU3 | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/prusa/) |
+| <img class="support-logo" src="/assets/images/logos/klipper.svg" alt="Klipper logo"> | Other Klipper-based Printers | Via Community Mods | [SpoolSense](https://spoolsense.org/installation/middleware/) |
 {: .support-table}
 
 <!-- prettier-ignore-end -->
-
-For more details on the filament brands, projects, and companies that support the standard, see the current [supporters and implementation status](/about#supporters).
 
 > [!NOTE]
 > If you are not sure how to get started with a community mod, please feel free to ask for help in our [Discord](https://discord.opentag3d.info).
@@ -138,7 +138,7 @@ Buy compatible NFC tags, enter the spool information in
 specification is designed around **NTAG215** tags; **NTAG216** tags are also
 supported.
 
-If the filament manufacturer offers an online OpenTag3D export, use it to fill
+If the filament manufacturer offers an online OpenTag3D export (see above for a list), use it to fill
 in the product data automatically. Otherwise, you can enter the information
 yourself.
 
