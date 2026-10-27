@@ -205,3 +205,7 @@ hosted by the manufacturer or another provider. OpenTag3D is both open source
 and decentralized.
 
 Please feel free to [contact the project maintainers](/about#contact) to discuss implementation. We can walk through the getting-started documentation, answer integration questions, and help you avoid common hardware and data-format pitfalls.
+
+## Help?
+
+Not sure where to get started? Join our community [Discord](https://discord.opentag3d.info) or [contact the project maintainers](/about#contact) and we'll be happy to provide assistance!
