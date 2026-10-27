@@ -24,11 +24,11 @@ feature_row:
     image_path: /assets/images/icons/icons8-request_money.svg
     alt: ""
   - title: "Compact Format, Complete Data"
-    excerpt: "All the critical data a 3D printer needs, including manufacturer, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in a quarter of a kilobyte. Dynamic data, such as current filament price, can also be provided via a web API."
+    excerpt: "All the critical data a 3D printer needs, including manufacturer, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in a quarter of a kilobyte. Dynamic data, such as current filament price, can also be provided via a web API. No wasted space by adding keys to each value or requiring database updates for lookup tables."
     image_path: /assets/images/icons/icons8-archive.svg
     alt: ""
   - title: "Open Standard, Open To All"
-    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone can build, read, and write compatible tags. All of the critical data is 100% offline, with a web API standard for extremely advanced or realtime data (such as current price)."
+    excerpt: "OpenTag3D is 100% open source and designed to work across 3D printer brands, filament makers, accessories, and hobbyist projects. The memory map is openly documented, with no encryption or vendor lock-in, so anyone can build, read, and write compatible tags. All of the critical data and most of the advanced data is 100% offline, with a web API standard for super-nerdy stats or realtime data (such as current price)."
     image_path: assets/images/icons/icons8-open_source.svg
     alt: ""
 ---
@@ -45,6 +45,8 @@ OpenTag3D defines standards for the following:
 - **Mechanical Requirements** - Positioning of tag on the spool
 - **Data Structure** - What data should be stored on the RFID tag, and how that data should be formatted
 - **Web API** - How extended data should be formatted when an optional online spool lookup is requested
+
+---
 
 OpenTag3D is supported by the following projects/companies:
 
@@ -68,10 +70,6 @@ OpenTag3D is supported by the following projects/companies:
 
 <!-- prettier-ignore-end -->
 
-## Add RFID support to your printer
+## Get Started
 
-This standard was designed to be simple to implement in firmware. You will need to add custom firmware and potentially an RFID reader (if your printer doesn't already have one). Make sure to read the [reader implementation guidelines](./spec.md#reader-implementation-guidelines)!
-
-RFID support can theoretically be added to any printer using off-the-shelf RFID Modules such as the PN532 (as low as $3). This module communicates over SPI.
-
-Did you make a design to add RFID to your printer? Let us know so we can link to it here! Designs can be 3D models, or firmware.
+Ready to use OpenTag3D or implement it into your project? Check out the [Getting Started](./getting-started.md) page for details on the filament manufacturers and printers that support OpenTag3D, how to write your own tags, and/or how to start implementing reader/writer support in your own project.
