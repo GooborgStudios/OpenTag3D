@@ -293,13 +293,13 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       style="display: none"
     />
   </div>
-  <spoolman-search
-    id="spoolSearch"
+  <filament-search
+    id="filamentSearch"
     label="Search for Existing Filament"
     placeholder="e.g. Polar Filament PLA Marine Blue"
     max-results="20"
     search-fields="manufacturer material name"
-  ></spoolman-search>
+  ></filament-search>
   <details class="scroll" id="hexdumpBox">
     <summary>Show hex dump</summary>
     <pre id="hexdump" class="mono"></pre>
@@ -419,7 +419,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 </script>
 
 <script type="module">
-  import "{{ '/assets/scripts/spoolman-search.js' | relative_url }}";
+  import "{{ '/assets/scripts/filament-search.js' | relative_url }}";
   import { h, msg } from "{{ '/assets/scripts/site.js' | relative_url }}";
   import {
     allFields,
@@ -1007,11 +1007,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     renderForm();
     buildMemory();
 
-    const spoolSearch = document.getElementById("spoolSearch");
-    spoolSearch.addEventListener("search-select", (event) =>
+    const filamentSearch = document.getElementById("filamentSearch");
+    filamentSearch.addEventListener("search-select", (event) =>
       applySpoolmanDBData(event.detail.item),
     );
-    spoolSearch.addEventListener("search-error", (event) =>
+    filamentSearch.addEventListener("search-error", (event) =>
       msg(
         `Could not load SpoolmanDB: ${event.detail.error.message}. Try searching again.`,
         true,

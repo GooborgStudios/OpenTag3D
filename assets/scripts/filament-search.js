@@ -36,7 +36,7 @@ const loadFilaments = (url) => {
   return dataCache.get(url);
 };
 
-class SpoolmanSearch extends HTMLElement {
+class FilamentSearch extends HTMLElement {
   constructor() {
     super();
     this.renderOptionCallback = null;
@@ -154,4 +154,4 @@ class SpoolmanSearch extends HTMLElement {
   }
 }
 
-customElements.define("spoolman-search", SpoolmanSearch);
+customElements.define("filament-search", FilamentSearch);
