@@ -13,7 +13,7 @@ header:
       url: "/getting-started/"
     - label: "View Spec"
       url: "/spec"
-  announcement: "The Make page [now supports filament lookup](./articles/filament-lookup.html) for faster tag creation!"
+  announcement: "The Make page [now supports filament lookup](./articles/filament-lookup) for faster tag creation!"
   caption: "Placeholder Background by [**morgaannn23**](https://wallpapercave.com/w/wp6945227)"
 excerpt: "An open source standard for 3D printer filament RFID tags. Designed from the ground up for compatibility between printers, filament manufacturers, and accessories, implementation is simple and low-cost."
 intro:
