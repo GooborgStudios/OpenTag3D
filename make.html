@@ -29,6 +29,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   textarea:focus {
     border-color: var(--accent);
   }
+  input.autofilled {
+    border-color: var(--accent);
+    box-shadow: inset 3px 0 var(--accent);
+  }
   input[data-unit="RGBA"] {
     background-size: cover;
     text-shadow:
@@ -441,6 +445,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   } from "{{ '/assets/scripts/opentag3d.js' | relative_url }}";
 
   const SPEC = globalThis.OpenTag3D.spec;
+  const MATERIAL_DENSITIES = {{ site.data.material_densities | jsonify }};
   const tagState = {
     values: new Map(),
     buffer: null,
@@ -448,6 +453,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     filename: "",
   };
 
+  let autoFilledDensity = null;
   const inputSynchronizers = new WeakMap();
 
   const hexdumpElement = document.getElementById("hexdump");
@@ -484,7 +490,23 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       const label = h("label", {}, `${f.name}`);
       if (f.required) label.append(h("span", { class: "text--danger" }, "*"));
       left.append(label);
-      left.append(renderInputForField(f, includeUrlParams));
+      const input = renderInputForField(f, includeUrlParams);
+      if (f.id === "material") {
+        input.setAttribute("list", "materialOptions");
+        const materialField = allFields.find((field) => field.id === "material");
+        const options = Object.keys(MATERIAL_DENSITIES)
+          .filter(
+            (material) =>
+              new TextEncoder().encode(material).length <= materialField.length,
+          )
+          .map((material) => h("option", { value: material }));
+        left.append(
+          input,
+          h("datalist", { id: "materialOptions" }, ...options),
+        );
+      } else {
+        left.append(input);
+      }
       row.append(left);
       const meta = h(
         "div",
@@ -500,6 +522,15 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       row.append(meta);
       if (f.description) {
         row.append(h("div", { class: "help" }, f.description));
+      }
+      if (f.id === "density") {
+        row.append(
+          h(
+            "div",
+            { class: "help" },
+            "Density is auto-filled for known materials, but can be overridden if needed.",
+          ),
+        );
       }
       box.append(row);
     }
@@ -522,6 +553,39 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     if (!input) return;
     input.value = value;
     inputSynchronizers.get(input)?.();
+  };
+
+  const updateDensityFromMaterial = (onlyIfEmpty = false) => {
+    const materialInput = document.getElementById("material");
+    const densityInput = document.getElementById("density");
+    if (!materialInput || !densityInput) return;
+
+    const material = Object.keys(MATERIAL_DENSITIES).find(
+      (name) => name.toLowerCase() === materialInput.value.trim().toLowerCase(),
+    );
+    const density = material ? MATERIAL_DENSITIES[material] : undefined;
+    if (density !== undefined) {
+      if (
+        densityInput.value !== "" &&
+        (onlyIfEmpty || autoFilledDensity !== densityInput.value)
+      ) {
+        return;
+      }
+      setInputValue(densityInput, density);
+      autoFilledDensity = densityInput.value;
+      densityInput.classList.add("autofilled");
+      densityInput.title = "Auto-filled from the selected material";
+      buildMemory();
+    } else if (
+      autoFilledDensity !== null &&
+      densityInput.value === autoFilledDensity
+    ) {
+      setInputValue(densityInput, "");
+      autoFilledDensity = null;
+      densityInput.classList.remove("autofilled");
+      densityInput.removeAttribute("title");
+      buildMemory();
+    }
   };
 
   const renderInputForField = (f, includeUrlParams = true) => {
@@ -793,6 +857,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     buildMemory();
 
     document
+      .getElementById("material")
+      .addEventListener("input", () => updateDensityFromMaterial());
+    document.getElementById("density").addEventListener("input", () => {
+      autoFilledDensity = null;
+      document.getElementById("density").classList.remove("autofilled");
+      document.getElementById("density").removeAttribute("title");
+    });
+    updateDensityFromMaterial(true);
+
+    document
       .getElementById("webNfcDialogClose")
       .addEventListener("click", () => webNfcDialog.close());
     webNfcDialog.addEventListener("close", () => {
@@ -828,6 +902,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     document.getElementById("resetBtn").addEventListener("click", () => {
       tagState.values = new Map();
+      autoFilledDensity = null;
       renderForm(false);
       buildMemory();
       msg("Form has been reset to defaults");
