@@ -156,10 +156,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   }
 </style>
 
-<p>This is a utility to create RFID tag data to be written to your tags.</p>
-
 <p>
-  See the
+  This is a utility to create RFID tag data to be written to your tags. See the
   <a href="/getting-started#2-write-your-own-tags">Getting Started</a> guide for
   how to write tag data to NFC tags.
 </p>
@@ -295,6 +293,13 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       style="display: none"
     />
   </div>
+  <spoolman-search
+    id="spoolSearch"
+    label="Search for Existing Filament"
+    placeholder="e.g. Polar Filament PLA Marine Blue"
+    max-results="20"
+    search-fields="manufacturer material name"
+  ></spoolman-search>
   <details class="scroll" id="hexdumpBox">
     <summary>Show hex dump</summary>
     <pre id="hexdump" class="mono"></pre>
@@ -339,6 +344,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     <p>
       You can also import existing tag data, either by reading it via Web NFC
       (on Android) or loading a previously exported file.
+    </p>
+    <p>
+      To start a tag from an existing filament, use the search bar at the top of
+      the page and select a result. You can then edit the populated fields.
+      Search results are pulled from SpoolmanDB.
     </p>
     <h3>Exporting Tag Data</h3>
     <p>
@@ -409,6 +419,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 </script>
 
 <script type="module">
+  import "{{ '/assets/scripts/spoolman-search.js' | relative_url }}";
   import { h, msg } from "{{ '/assets/scripts/site.js' | relative_url }}";
   import {
     allFields,
@@ -579,6 +590,153 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       densityInput.removeAttribute("title");
       buildMemory();
     }
+  };
+
+  const truncateUtf8 = (value, maxBytes) => {
+    const encoder = new TextEncoder();
+    let result = "";
+    for (const character of value) {
+      if (encoder.encode(result + character).length > maxBytes) break;
+      result += character;
+    }
+    return result;
+  };
+
+  const splitSpoolMaterial = (material) => {
+    const encoder = new TextEncoder();
+    if (encoder.encode(material).length <= 5) {
+      return { material, modifier: "" };
+    }
+
+    const separator = material.search(/[+-]/);
+    if (separator > 0) {
+      const base = material.slice(0, separator);
+      const modifier = material.slice(separator + 1);
+      if (
+        encoder.encode(base).length <= 5 &&
+        encoder.encode(modifier).length <= 5
+      ) {
+        return { material: base, modifier };
+      }
+    }
+
+    return {
+      material: truncateUtf8(material, 5),
+      modifier: "",
+      truncated: true,
+    };
+  };
+
+  const spoolColorValue = (color) => {
+    if (typeof color !== "string") return null;
+    const hexColor = color.replace(/^#/, "");
+    if (!/^(?:[0-9a-f]{6}|[0-9a-f]{8})$/i.test(hexColor)) return null;
+    return `#${hexColor.length === 6 ? `${hexColor}FF` : hexColor}`;
+  };
+
+  const setSpoolField = (id, value) => {
+    const input = document.getElementById(id);
+    if (!input) return;
+    setInputValue(input, value);
+  };
+
+  const applySpoolmanDBData = (filament) => {
+    const material = splitSpoolMaterial(filament.material);
+    const warnings = [];
+    const setTextField = (id, value, maxBytes) => {
+      const text = typeof value === "string" ? value : "";
+      const truncated = truncateUtf8(text, maxBytes);
+      if (truncated !== text) warnings.push(`${id} was shortened to fit`);
+      setSpoolField(id, truncated);
+    };
+
+    setTextField("manufacturer", filament.manufacturer, 16);
+    setTextField("material", material.material, 5);
+    setTextField("material_mod", material.modifier, 5);
+    if (material.truncated) warnings.push("material type was shortened to fit");
+    setTextField("color_name", filament.name, 32);
+
+    const colors = Array.isArray(filament.color_hexes)
+      ? filament.color_hexes
+      : filament.color_hex
+        ? [filament.color_hex]
+        : [];
+    const colorFieldIds = ["color_1", "color_2", "color_3", "color_4"];
+    const colorValues = colors.slice(0, colorFieldIds.length);
+    for (const [index, fieldId] of colorFieldIds.entries()) {
+      const color = spoolColorValue(colorValues[index]);
+      if (color) {
+        setSpoolField(fieldId, color);
+      } else if (index === 0) {
+        setSpoolField(fieldId, "#FFFFFFFF");
+        warnings.push("no valid primary color was available");
+      } else {
+        setSpoolField(fieldId, "#00000000");
+      }
+    }
+    if (colors.length > colorFieldIds.length) {
+      warnings.push("only the first four colors were used");
+    }
+
+    const setNumericSpoolField = (id, value, { required = false } = {}) => {
+      if (value === undefined || value === null) {
+        setSpoolField(id, "");
+        if (required) {
+          warnings.push(`no valid ${id} value was available`);
+        }
+        return;
+      }
+
+      const input = document.getElementById(id);
+      if (!Number.isFinite(value) || value <= 0 || value > Number(input.max)) {
+        setSpoolField(id, "");
+        warnings.push(`no valid ${id} value was available`);
+        return;
+      }
+
+      const field = allFields.find((candidate) => candidate.id === id);
+      const scale = field.scaling || 1;
+      const decimalPlaces =
+        scale < 1 ? String(scale).split(".")[1].length : 0;
+      const roundedValue = Number(
+        (Math.round(value / scale) * scale).toFixed(decimalPlaces),
+      );
+      setSpoolField(id, roundedValue);
+    };
+
+    setNumericSpoolField("density", filament.density, { required: true });
+    setNumericSpoolField("diameter", filament.diameter, { required: true });
+    setNumericSpoolField("weight", filament.weight, { required: true });
+    setNumericSpoolField("empty_spool_weight", filament.spool_weight);
+    setNumericSpoolField("td", filament.transmission_distance);
+    setNumericSpoolField("print_temp", filament.extruder_temp, {
+      required: true,
+    });
+    setNumericSpoolField("bed_temp", filament.bed_temp, { required: true });
+
+    const extruderTempRange = filament.extruder_temp_range;
+    if (Array.isArray(extruderTempRange)) {
+      setNumericSpoolField("min_print_temp", extruderTempRange[0]);
+      setNumericSpoolField("max_print_temp", extruderTempRange[1]);
+    }
+
+    const bedTempRange = filament.bed_temp_range;
+    if (Array.isArray(bedTempRange)) {
+      setNumericSpoolField("min_bed_temp", bedTempRange[0]);
+      setNumericSpoolField("max_bed_temp", bedTempRange[1]);
+    }
+
+    const densityInput = document.getElementById("density");
+    autoFilledDensity = null;
+    densityInput.classList.remove("autofilled");
+    densityInput.removeAttribute("title");
+
+    buildMemory();
+    const materialType = `${material.material}${material.modifier ? ` ${material.modifier}` : ""}`;
+    const message = warnings.length
+      ? `Loaded ${filament.manufacturer} ${materialType} ${filament.name}. Note: ${warnings.join(", ")}.`
+      : `Loaded ${filament.manufacturer} ${materialType} ${filament.name}.`;
+    msg(message);
   };
 
   const renderInputForField = (f, includeUrlParams = true) => {
@@ -848,6 +1006,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     renderForm();
     buildMemory();
+
+    const spoolSearch = document.getElementById("spoolSearch");
+    spoolSearch.addEventListener("search-select", (event) =>
+      applySpoolmanDBData(event.detail.item),
+    );
+    spoolSearch.addEventListener("search-error", (event) =>
+      msg(
+        `Could not load SpoolmanDB: ${event.detail.error.message}. Try searching again.`,
+        true,
+      ),
+    );
 
     document
       .getElementById("material")
