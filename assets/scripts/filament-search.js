@@ -117,9 +117,8 @@ class FilamentSearch extends HTMLElement {
       <dialog aria-labelledby="polar-lookup-title">
         <h2 id="polar-lookup-title">Look Up a Polar Filament Spool</h2>
         <p>
-          Enter the serial number printed on your spool. On the lookup page,
-          select "View on OpenTag3D.info" to open this tool in a new tab with
-          the spool data loaded automatically.
+          Enter the serial number printed on your spool to import its tag data
+          directly from Polar Filament's OpenTag3D Web API.
         </p>
         <form action="https://pfil.us/opentag3d.php" method="get" target="_blank" rel="noopener">
           <label for="polar-serial">Serial number</label>
@@ -132,15 +131,19 @@ class FilamentSearch extends HTMLElement {
             required
           />
           <div class="actions">
-            <button type="submit">Look Up Spool</button>
+            <button type="submit">Import Spool Data</button>
             <button type="button" data-close>Cancel</button>
           </div>
+          <p role="status" aria-live="polite" data-status></p>
         </form>
       </dialog>
     `;
     this.searchBox = this.shadowRoot.querySelector("search-box");
     this.polarLookupDialog = this.shadowRoot.querySelector("dialog");
     this.polarSerialInput = this.shadowRoot.querySelector("#polar-serial");
+    this.polarLookupForm = this.polarLookupDialog.querySelector("form");
+    this.polarLookupStatus =
+      this.polarLookupDialog.querySelector("[data-status]");
     this.searchBox.search = (query) => this.search(query);
     this.searchBox.renderOption = (filament, index) =>
       this.renderOptionCallback
@@ -156,9 +159,13 @@ class FilamentSearch extends HTMLElement {
     this.searchBox.addEventListener("search-select", (event) =>
       this.handleSearchSelect(event.detail.item),
     );
-    this.polarLookupDialog
-      .querySelector("form")
-      .addEventListener("submit", () => this.polarLookupDialog.close());
+    this.polarLookupForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      this.polarLookupStatus.textContent = "";
+      this.loadPolarFilament().catch((error) => {
+        this.polarLookupStatus.textContent = error.message;
+      });
+    });
     this.polarLookupDialog
       .querySelector("[data-close]")
       .addEventListener("click", () => this.polarLookupDialog.close());
@@ -265,6 +272,70 @@ class FilamentSearch extends HTMLElement {
         composed: true,
       }),
     );
+  }
+
+  async loadPolarFilament() {
+    const serial = this.polarSerialInput.value.trim();
+    if (!serial) {
+      this.polarSerialInput.focus();
+      return;
+    }
+
+    const submitButton = this.polarLookupForm.querySelector(
+      'button[type="submit"]',
+    );
+    submitButton.disabled = true;
+    this.polarLookupStatus.textContent = "Looking up spool…";
+
+    try {
+      const url = new URL("https://pfil.us/ot3dWebApi.php");
+      url.searchParams.set("i", serial);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Polar Filament API returned HTTP ${response.status}`);
+      }
+
+      const apiResponse = await response.json();
+      if (
+        !apiResponse ||
+        typeof apiResponse.opentag_version !== "string" ||
+        !apiResponse.tag_data ||
+        typeof apiResponse.tag_data !== "object" ||
+        Array.isArray(apiResponse.tag_data)
+      ) {
+        throw new Error(
+          "Polar Filament API returned an unexpected data format",
+        );
+      }
+
+      const eventAccepted = this.dispatchEvent(
+        new CustomEvent("filament-load", {
+          detail: {
+            source: "Polar Filament",
+            serial,
+            apiVersion: apiResponse.opentag_version,
+            tagData: apiResponse.tag_data,
+          },
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+        }),
+      );
+      if (!eventAccepted) {
+        throw new Error(
+          "The API data could not be applied. See the page notification for details.",
+        );
+      }
+      this.polarLookupDialog.close();
+    } catch (error) {
+      const message =
+        error instanceof TypeError
+          ? "Could not reach the Polar Filament API. Check your connection and whether CORS is enabled for this site."
+          : error.message;
+      throw new Error(message, { cause: error });
+    } finally {
+      submitButton.disabled = false;
+    }
   }
 
   defaultRenderOption(filament) {
