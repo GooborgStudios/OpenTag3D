@@ -741,7 +741,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     msg(message);
   };
 
-  const applyWebApiTagData = (tagData, source, serial) => {
+  const applyOpenTagWebApiData = (tagData, source, serial) => {
     const entries = [];
     const missingRequired = [];
     if (
@@ -1173,7 +1173,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     );
     filamentSearch.addEventListener("filament-load", (event) => {
       try {
-        applyWebApiTagData(
+        applyOpenTagWebApiData(
           event.detail.tagData,
           event.detail.source,
           event.detail.serial,

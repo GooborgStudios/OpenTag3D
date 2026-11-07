@@ -1,13 +1,30 @@
 import "./search-box.js";
 
 const DEFAULT_DATA_URL = "https://donkie.github.io/SpoolmanDB/filaments.json";
-const POLAR_FILAMENT_QUERY = /\b(polar[\s-]+fil|pfil)/i;
 const dataCache = new Map();
 
-export const MANUFACTURER_SHORTNAMES = new Map([
-  ["polar filament", "pfil"],
-  ["prusament", "prusa"],
-]);
+const MANUFACTURERS = [
+  {
+    id: "polar-filament",
+    name: "Polar Filament",
+    shortnames: ["pfil"],
+    lookup: {
+      queryPattern: /\b(polar[\s-]+fil|pfil)/i,
+      apiUrl: "https://pfil.us/ot3dWebApi.php",
+      serialParameter: "i",
+      serialPlaceholder: "e.g. 50017-FYG5",
+    },
+  },
+  {
+    id: "prusament",
+    name: "Prusament",
+    shortnames: ["prusa"],
+  },
+];
+
+const LOOKUP_PROVIDERS = MANUFACTURERS.filter(
+  (manufacturer) => manufacturer.lookup,
+);
 
 const loadFilaments = (url) => {
   if (!dataCache.has(url)) {
@@ -114,19 +131,17 @@ class FilamentSearch extends HTMLElement {
         <a slot="help" href="https://donkie.github.io/SpoolmanDB/" target="_blank" rel="noopener noreferrer">SpoolmanDB</a>
         <span slot="help">. Some manufacturers offer spool lookup services; search for their name to see if one is available.</span>
       </search-box>
-      <dialog aria-labelledby="polar-lookup-title">
-        <h2 id="polar-lookup-title">Look Up a Polar Filament Spool</h2>
+      <dialog aria-labelledby="lookup-title">
+        <h2 id="lookup-title"></h2>
         <p>
           Enter the serial number printed on your spool to import its tag data
-          directly from Polar Filament's OpenTag3D Web API.
+          directly from the manufacturer's OpenTag3D Web API.
         </p>
-        <form action="https://pfil.us/opentag3d.php" method="get" target="_blank" rel="noopener">
-          <label for="polar-serial">Serial number</label>
+        <form>
+          <label for="lookup-serial">Serial number</label>
           <input
             type="text"
-            id="polar-serial"
-            name="id"
-            placeholder="e.g. 50017-FYG5"
+            id="lookup-serial"
             autocomplete="off"
             required
           />
@@ -139,11 +154,12 @@ class FilamentSearch extends HTMLElement {
       </dialog>
     `;
     this.searchBox = this.shadowRoot.querySelector("search-box");
-    this.polarLookupDialog = this.shadowRoot.querySelector("dialog");
-    this.polarSerialInput = this.shadowRoot.querySelector("#polar-serial");
-    this.polarLookupForm = this.polarLookupDialog.querySelector("form");
-    this.polarLookupStatus =
-      this.polarLookupDialog.querySelector("[data-status]");
+    this.lookupDialog = this.shadowRoot.querySelector("dialog");
+    this.lookupTitle = this.shadowRoot.querySelector("#lookup-title");
+    this.lookupSerialInput = this.shadowRoot.querySelector("#lookup-serial");
+    this.lookupForm = this.lookupDialog.querySelector("form");
+    this.lookupStatus = this.lookupDialog.querySelector("[data-status]");
+    this.activeLookupProvider = null;
     this.searchBox.search = (query) => this.search(query);
     this.searchBox.renderOption = (filament, index) =>
       this.renderOptionCallback
@@ -152,23 +168,23 @@ class FilamentSearch extends HTMLElement {
     this.searchBox.getOptionLabel = (filament, index) =>
       this.getOptionLabelCallback
         ? this.getOptionLabelCallback(filament, index)
-        : filament.type === "polar-filament-lookup"
-          ? "Look up a Polar Filament spool"
+        : filament.type === "manufacturer-lookup"
+          ? `Look up a spool from ${filament.manufacturer}`
           : `${filament.manufacturer} ${filament.material} ${filament.name}`;
 
     this.searchBox.addEventListener("search-select", (event) =>
       this.handleSearchSelect(event.detail.item),
     );
-    this.polarLookupForm.addEventListener("submit", (event) => {
+    this.lookupForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      this.polarLookupStatus.textContent = "";
-      this.loadPolarFilament().catch((error) => {
-        this.polarLookupStatus.textContent = error.message;
+      this.lookupStatus.textContent = "";
+      this.loadManufacturerFilament().catch((error) => {
+        this.lookupStatus.textContent = error.message;
       });
     });
-    this.polarLookupDialog
+    this.lookupDialog
       .querySelector("[data-close]")
-      .addEventListener("click", () => this.polarLookupDialog.close());
+      .addEventListener("click", () => this.lookupDialog.close());
     this.searchBox.addEventListener("search-error", (event) => {
       this.dispatchEvent(
         new CustomEvent("search-error", {
@@ -220,15 +236,19 @@ class FilamentSearch extends HTMLElement {
   async search(query) {
     const terms = query.toLocaleLowerCase().trim().split(/\s+/);
     const fields = this.searchFields;
-    const polarFilamentLookup = POLAR_FILAMENT_QUERY.test(query)
-      ? { type: "polar-filament-lookup" }
-      : null;
+    const lookupOptions = LOOKUP_PROVIDERS.filter(({ lookup }) =>
+      lookup.queryPattern.test(query),
+    ).map((manufacturer) => ({
+      type: "manufacturer-lookup",
+      manufacturer: manufacturer.name,
+      providerId: manufacturer.id,
+    }));
 
     let filaments;
     try {
       filaments = await loadFilaments(this.dataUrl);
     } catch (error) {
-      if (!polarFilamentLookup) throw error;
+      if (!lookupOptions.length) throw error;
       this.dispatchEvent(
         new CustomEvent("search-error", {
           detail: { error },
@@ -236,7 +256,7 @@ class FilamentSearch extends HTMLElement {
           composed: true,
         }),
       );
-      return [polarFilamentLookup];
+      return lookupOptions;
     }
 
     const matches = filaments.filter((filament) => {
@@ -247,21 +267,30 @@ class FilamentSearch extends HTMLElement {
           Array.isArray(value) ? value.join(" ") : String(value),
         );
       if (fields.includes("manufacturer")) {
-        const shortname = MANUFACTURER_SHORTNAMES.get(
-          filament.manufacturer.toLocaleLowerCase(),
+        const manufacturer = MANUFACTURERS.find(
+          (entry) =>
+            entry.name.toLocaleLowerCase() ===
+            filament.manufacturer.toLocaleLowerCase(),
         );
-        if (shortname) searchableValues.push(shortname);
+        if (manufacturer) {
+          searchableValues.push(...(manufacturer.shortnames || []));
+        }
       }
       const searchableText = searchableValues.join(" ").toLocaleLowerCase();
       return terms.every((term) => searchableText.includes(term));
     });
-    return polarFilamentLookup ? [polarFilamentLookup, ...matches] : matches;
+    return [...lookupOptions, ...matches];
   }
 
   handleSearchSelect(item) {
-    if (item.type === "polar-filament-lookup") {
-      this.polarLookupDialog.showModal();
-      this.polarSerialInput.focus();
+    if (item.type === "manufacturer-lookup") {
+      const provider = LOOKUP_PROVIDERS.find(
+        ({ id }) => id === item.providerId,
+      );
+      if (!provider) {
+        throw new Error(`Unknown filament lookup provider: ${item.providerId}`);
+      }
+      this.openLookupDialog(provider);
       return;
     }
 
@@ -274,25 +303,41 @@ class FilamentSearch extends HTMLElement {
     );
   }
 
-  async loadPolarFilament() {
-    const serial = this.polarSerialInput.value.trim();
+  openLookupDialog(provider) {
+    this.activeLookupProvider = provider;
+    this.lookupTitle.textContent = `Look Up a ${provider.name} Spool`;
+    this.lookupSerialInput.placeholder =
+      provider.lookup.serialPlaceholder || "Enter serial number";
+    this.lookupSerialInput.value = "";
+    this.lookupStatus.textContent = "";
+    this.lookupDialog.showModal();
+    this.lookupSerialInput.focus();
+  }
+
+  async loadManufacturerFilament() {
+    const provider = this.activeLookupProvider;
+    if (!provider?.lookup) {
+      throw new Error("No filament lookup provider is selected");
+    }
+
+    const serial = this.lookupSerialInput.value.trim();
     if (!serial) {
-      this.polarSerialInput.focus();
+      this.lookupSerialInput.focus();
       return;
     }
 
-    const submitButton = this.polarLookupForm.querySelector(
-      'button[type="submit"]',
-    );
+    const submitButton = this.lookupForm.querySelector('button[type="submit"]');
     submitButton.disabled = true;
-    this.polarLookupStatus.textContent = "Looking up spool…";
+    this.lookupStatus.textContent = "Looking up spool…";
 
     try {
-      const url = new URL("https://pfil.us/ot3dWebApi.php");
-      url.searchParams.set("i", serial);
+      const url = new URL(provider.lookup.apiUrl);
+      url.searchParams.set(provider.lookup.serialParameter, serial);
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Polar Filament API returned HTTP ${response.status}`);
+        throw new Error(
+          `${provider.name} API returned HTTP ${response.status}`,
+        );
       }
 
       const apiResponse = await response.json();
@@ -304,14 +349,14 @@ class FilamentSearch extends HTMLElement {
         Array.isArray(apiResponse.tag_data)
       ) {
         throw new Error(
-          "Polar Filament API returned an unexpected data format",
+          `${provider.name} API returned an unexpected data format`,
         );
       }
 
       const eventAccepted = this.dispatchEvent(
         new CustomEvent("filament-load", {
           detail: {
-            source: "Polar Filament",
+            source: provider.name,
             serial,
             apiVersion: apiResponse.opentag_version,
             tagData: apiResponse.tag_data,
@@ -326,11 +371,11 @@ class FilamentSearch extends HTMLElement {
           "The API data could not be applied. See the page notification for details.",
         );
       }
-      this.polarLookupDialog.close();
+      this.lookupDialog.close();
     } catch (error) {
       const message =
         error instanceof TypeError
-          ? "Could not reach the Polar Filament API. Check your connection and whether CORS is enabled for this site."
+          ? `Could not reach the ${provider.name} API. Check your connection and whether CORS is enabled for this site.`
           : error.message;
       throw new Error(message, { cause: error });
     } finally {
@@ -339,14 +384,14 @@ class FilamentSearch extends HTMLElement {
   }
 
   defaultRenderOption(filament) {
-    if (filament.type === "polar-filament-lookup") {
+    if (filament.type === "manufacturer-lookup") {
       const option = document.createElement("span");
       const title = document.createElement("span");
       title.className = "option__title";
-      title.textContent = "Look up a Polar Filament spool";
+      title.textContent = `Look up a ${filament.manufacturer} spool`;
       const details = document.createElement("span");
       details.className = "option__details";
-      details.textContent = "Enter the spool's serial number";
+      details.textContent = "Import tag data using its serial number";
       option.append(title, details);
       return option;
     }
