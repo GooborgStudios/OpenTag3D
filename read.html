@@ -46,6 +46,13 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
   .tag-header .material-mod {
     color: var(--muted);
   }
+  .tag-header .material-specs {
+    text-align: right;
+  }
+  .tag-header .material-tolerance {
+    color: var(--muted);
+    font-size: 0.85em;
+  }
   .tag-id-list {
     display: grid;
     gap: 6px;
@@ -211,6 +218,11 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
           <span id="tagMaterial"></span>
           <span id="tagMaterialMod" class="material-mod"></span>
         </div>
+        <div class="material-specs">
+          <span id="tagWeight"></span> —
+          <strong id="tagDiameter"></strong>
+          <em id="tagTolerance" class="material-tolerance"></em>
+        </div>
         <div class="tag-id-list">
           <div class="tag-id-row">
             <span class="tag-stat-label">OpenTag3D Version</span>
@@ -233,34 +245,6 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
             <span id="tagBarcode"></span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="tag-grid tag-grid--2col">
-      <div class="tag-panel">
-        <div class="tag-panel__heading">
-          <img
-            class="tag-panel__icon"
-            src="{{ '/assets/images/icons/icons8-diameter.svg' | relative_url }}"
-            alt=""
-            aria-hidden="true"
-          />
-          <div class="tag-stat-label">Diameter</div>
-        </div>
-        <span id="tagDiameter" class="tag-stat-value"></span>
-        <span id="tagTolerance" class="tag-stat-subvalue"></span>
-      </div>
-      <div class="tag-panel">
-        <div class="tag-panel__heading">
-          <img
-            class="tag-panel__icon"
-            src="{{ '/assets/images/icons/icons8-weight.svg' | relative_url }}"
-            alt=""
-            aria-hidden="true"
-          />
-          <div class="tag-stat-label">Target Weight</div>
-        </div>
-        <span id="tagWeight" class="tag-stat-value"></span>
       </div>
     </div>
 
@@ -330,7 +314,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
           />
           <div class="tag-stat-label">Recommended Drying Time + Temp</div>
         </div>
-        <span id="tagDryTime" class="tag-stat-value"></span>
+        <span id="tagDryTime" class="tag-stat-value"></span> —
         <span id="tagDryTemp" class="tag-stat-value"></span>
       </div>
       <div class="tag-panel">
@@ -503,6 +487,13 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     setText("tagManufacturer", v("manufacturer") || "Unknown Brand");
     setText("tagColorName", v("color_name") || "Unknown Color");
 
+    const weight = v("weight");
+    const formattedWeight = weight
+      ? Number(weight) >= 1000
+        ? `${Number(weight) / 1000}kg`
+        : `${weight}g`
+      : "—";
+    setText("tagWeight", formattedWeight);
     setText("tagMaterial", v("material") || "Unknown Material");
     setText(
       "tagMaterialMod",
@@ -545,8 +536,6 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
     const tolerance = v("tolerance");
     setText("tagTolerance", tolerance ? `±${tolerance}mm` : "");
 
-    const weight = v("weight");
-    setText("tagWeight", weight ? `${weight}g` : "—");
     const density = v("density");
     setText("tagDensity", density ? `${density}g/cm³` : "");
 
