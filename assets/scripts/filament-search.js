@@ -3,6 +3,11 @@ import "./search-box.js";
 const DEFAULT_DATA_URL = "https://donkie.github.io/SpoolmanDB/filaments.json";
 const dataCache = new Map();
 
+export const MANUFACTURER_SHORTNAMES = new Map([
+  ["polar filament", "pfil"],
+  ["prusament", "prusa"],
+]);
+
 const loadFilaments = (url) => {
   if (!dataCache.has(url)) {
     const request = fetch(url)
@@ -122,14 +127,19 @@ class FilamentSearch extends HTMLElement {
     const terms = query.toLocaleLowerCase().trim().split(/\s+/);
     const fields = this.searchFields;
     return filaments.filter((filament) => {
-      const searchableText = fields
+      const searchableValues = fields
         .map((field) => filament[field])
         .filter((value) => value !== undefined && value !== null)
         .map((value) =>
           Array.isArray(value) ? value.join(" ") : String(value),
-        )
-        .join(" ")
-        .toLocaleLowerCase();
+        );
+      if (fields.includes("manufacturer")) {
+        const shortname = MANUFACTURER_SHORTNAMES.get(
+          filament.manufacturer.toLocaleLowerCase(),
+        );
+        if (shortname) searchableValues.push(shortname);
+      }
+      const searchableText = searchableValues.join(" ").toLocaleLowerCase();
       return terms.every((term) => searchableText.includes(term));
     });
   }
