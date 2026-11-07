@@ -527,12 +527,12 @@
         "added": "2.004",
         "unit": "kg",
         "type": "int",
-        "scaling": 0.0001,
+        "scaling": 0.001,
         "start": "0xAB",
         "length": 2,
         "usage": "operational",
         "examples": [2160],
-        "description": "MFI test load in tenths of grams. For example, `2160` = `2.16kg`, `10000` = `10kg`, `325` = `0.325kg`."
+        "description": "MFI test load in grams. For example, `2160` = `2.16kg`, `10000` = `10kg`, `325` = `0.325kg`."
       },
       {
         "name": "Online Data URL",
