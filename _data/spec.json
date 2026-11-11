@@ -43,7 +43,7 @@
         "description": "Material subcategory or modifier in plain text. Long modifiers may need to be abbreviated."
       },
       {
-        "name": "Filament Manufacturer",
+        "name": "Filament Brand",
         "id": "manufacturer",
         "required": true,
         "added": "1.000",
@@ -52,7 +52,7 @@
         "length": 16,
         "usage": "display",
         "examples": ["Example Brand", "Polar Filament"],
-        "description": "Name of filament manufacturer. Long names should be abbreviated or truncated."
+        "description": "Name of filament brand (such as the manufacturer or product family). Long names should be abbreviated or truncated."
       },
       {
         "name": "Color Name",
@@ -128,7 +128,7 @@
         "length": 32,
         "usage": "inventory",
         "examples": ["1234-ABCD", "2024-01-23-1234"],
-        "description": "Manufacturer's identifier for a spool batch or serial number."
+        "description": "Brand's identifier for a spool batch or serial number."
       },
       {
         "name": "SKU",
@@ -610,7 +610,7 @@
           {
             "us": [
               "https://www.amazon.com/dp/*",
-              "https://example.com/filament-manufacturer-website"
+              "https://example.com/filament-brand-website"
             ],
             "eu": ["https://example.com"]
           }

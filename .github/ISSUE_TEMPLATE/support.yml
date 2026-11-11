@@ -36,7 +36,7 @@ body:
       label: Backer Category
       description: Select the category that best describes your role in 3D printing.
       options:
-        - Filament Manufacturer
+        - Filament Brand
         - Printer / Accessory Hardware
         - Website / Application
         - Other (please specify in "Additional Information")

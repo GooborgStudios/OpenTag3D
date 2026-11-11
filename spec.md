@@ -23,7 +23,7 @@ In particular, the standard is tailored towards the NTAG215 13.56MHz NFC chips. 
 > [!NOTE]
 > In OpenTag3D v1.0, the NTAG213 and SLIX2 were listed as compatible tags. These two tag types are no longer supported by the OpenTag3D specification.
 
-Usable memory excludes manufacturer data, configuration data, lock bytes, and the capability container. The maximum OpenTag3D payload also accounts for the required NDEF record overhead.
+Usable memory excludes tag manufacturer data, configuration data, lock bytes, and the capability container. The maximum OpenTag3D payload also accounts for the required NDEF record overhead.
 
 <img src="./assets/images/ntag-sticker.jpg" width="200">
 
@@ -85,7 +85,7 @@ The Web API complements the data stored on the tag in two ways:
    - Slicer print profiles
    - Purchase links and current prices
    - Advanced manufacturing data, such as diameter and ovality graphs
-2. **Keep tag data up to date.** The API can provide an online copy of the data stored on the tag. A reader can compare the two sources and update the tag when the manufacturer:
+2. **Keep tag data up to date.** The API can provide an online copy of the data stored on the tag. A reader can compare the two sources and update the tag when the filament brand:
    - Changes its recommended settings
    - Adds specification data for parameters that were previously left blank
 
@@ -171,7 +171,7 @@ These are topics that were heavily discussed during the development of OpenTag3D
 - 2.002
   - Added a `tag_data` property to the web API to provide ability for tag data corrections
   - Added a `product_photos` property to the web API
-  - Added a property to the web API for manufacturer notes
+  - Added a property to the web API for brand notes
 - 2.001
   - Added an implementers' note that missing bytes in a payload should be treated as 0x00
 - 2.000
@@ -183,7 +183,7 @@ These are topics that were heavily discussed during the development of OpenTag3D
   - Add `sku`, `barcode`, `chamber_temp` and `nozzle_diameter` fields to memory mapping
   - Double serial number field size from 16 bytes to 32 bytes
   - Reduce Transmission Distance from 2 bytes to 1 byte
-    - After discussion with filament manufacturers and users, 25.0mm of TD seems to be a reasonable upper limit
+    - After discussion with filament brands and users, 25.0mm of TD seems to be a reasonable upper limit
 - 1.003
   - Made all fields (except for `opentag_version`) in the web API optional
 - 1.002

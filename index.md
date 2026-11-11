@@ -15,7 +15,7 @@ header:
       url: "/spec"
   announcement: "The Make page [now supports filament lookup](./articles/filament-lookup) for faster tag creation!"
   caption: "Placeholder Background by [**morgaannn23**](https://wallpapercave.com/w/wp6945227)"
-excerpt: "An open source standard for 3D printer filament RFID tags. Designed from the ground up for compatibility between printers, filament manufacturers, and accessories, implementation is simple and low-cost."
+excerpt: "An open source standard for 3D printer filament RFID tags. Designed from the ground up for compatibility between printers, filament brands, and accessories, implementation is simple and low-cost."
 intro:
   - excerpt: "Proprietary locks you in. Open sets you free. [Tim Berners-Lee](https://www.w3.org/People/Berners-Lee/)"
 feature_row:
@@ -24,7 +24,7 @@ feature_row:
     image_path: /assets/images/icons/icons8-request_money.svg
     alt: ""
   - title: "Compact Format, Complete Data"
-    excerpt: "All the critical data a 3D printer needs, including manufacturer, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in a quarter of a kilobyte. Dynamic data, such as current filament price, can also be provided via a web API. No wasted space by adding keys to each value or requiring database updates for lookup tables."
+    excerpt: "All the critical data a 3D printer needs, including brand, material and print settings, and the optional data that helps, like serial number, melt flow index and transmission distance, fits in a quarter of a kilobyte. Dynamic data, such as current filament price, can also be provided via a web API. No wasted space by adding keys to each value or requiring database updates for lookup tables."
     image_path: /assets/images/icons/icons8-archive.svg
     alt: ""
   - title: "Open Standard, Open To All"
@@ -72,4 +72,4 @@ OpenTag3D is supported by the following projects/companies:
 
 ## Get Started
 
-Ready to use OpenTag3D or implement it into your project? Check out the [Getting Started](./getting-started.md) page for details on the filament manufacturers and printers that support OpenTag3D, how to write your own tags, and/or how to start implementing reader/writer support in your own project.
+Ready to use OpenTag3D or implement it into your project? Check out the [Getting Started](./getting-started.md) page for details on the filament brands and printers that support OpenTag3D, how to write your own tags, and/or how to start implementing reader/writer support in your own project.

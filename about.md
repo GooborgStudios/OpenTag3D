@@ -57,8 +57,8 @@ This balanced structure ensures that no single group dominates decision-making, 
 The current voting members are as follows:
 
 - Industry:
-  - Mitch (Polar Filament) - Filament Manufacturer
-  - Josh (Push Plastic) - Filament Manufacturer
+  - Mitch (Polar Filament) - Filament Brand
+  - Josh (Push Plastic) - Filament Brand
 - Community:
   - Vinyl Da.i'gyu (Gooborg Studios) - Spec Host/Author
   - Grant (3D Musketeers) - YouTube Content Creator

@@ -2,7 +2,7 @@
 title: Getting Started
 layout: single
 permalink: /getting-started/
-description: Learn what OpenTag3D can do and how users, developers, and filament manufacturers can get started.
+description: Learn what OpenTag3D can do and how users, developers, filament brands and printer manufacturers can get started.
 ---
 
 <p class="getting-started__lede">
@@ -138,7 +138,7 @@ Buy compatible NFC tags, enter the spool information in
 specification is designed around **NTAG215** tags; **NTAG216** tags are also
 supported.
 
-If the filament manufacturer offers an online OpenTag3D export (see above for a list), use it to fill
+If the filament brand offers an online OpenTag3D export (see above for a list), use it to fill
 in the product data automatically. Otherwise, you can enter the information
 yourself.
 
