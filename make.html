@@ -640,11 +640,16 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     };
   };
 
-  const spoolColorValue = (color) => {
+  const spoolColorValue = (color, translucent) => {
     if (typeof color !== "string") return null;
     const hexColor = color.replace(/^#/, "");
     if (!/^(?:[0-9a-f]{6}|[0-9a-f]{8})$/i.test(hexColor)) return null;
-    return `#${hexColor.length === 6 ? `${hexColor}FF` : hexColor}`;
+    const alpha = hexColor.length === 8
+      ? hexColor.slice(6)
+      : translucent
+        ? "80"
+        : "FF";
+    return `#${hexColor.slice(0, 6)}${alpha}`;
   };
 
   const setSpoolField = (id, value) => {
@@ -678,7 +683,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     const colorFieldIds = ["color_1", "color_2", "color_3", "color_4"];
     const colorValues = colors.slice(0, colorFieldIds.length);
     for (const [index, fieldId] of colorFieldIds.entries()) {
-      const color = spoolColorValue(colorValues[index]);
+      const color = spoolColorValue(
+        colorValues[index],
+        filament.translucent === true,
+      );
       if (color) {
         setSpoolField(fieldId, color);
       } else if (index === 0) {
