@@ -560,6 +560,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     inputSynchronizers.get(input)?.();
   };
 
+  const resetFormFields = () => {
+    tagState.values.clear();
+    autoFilledDensity = null;
+    document
+      .querySelectorAll(".field-row input:not([type=hidden])")
+      .forEach((input) => {
+        setInputValue(input, input.dataset.resetValue);
+        input.classList.remove("autofilled");
+        input.removeAttribute("title");
+      });
+  };
+
   const updateDensityFromMaterial = (onlyIfEmpty = false) => {
     const materialInput = document.getElementById("material");
     const densityInput = document.getElementById("density");
@@ -642,6 +654,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   };
 
   const applySpoolmanDBData = (filament) => {
+    resetFormFields();
     const material = splitSpoolMaterial(filament.material);
     const warnings = [];
     const setTextField = (id, value, maxBytes) => {
@@ -760,10 +773,17 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     const paramValue = includeUrlParams ? urlParams.get(f.id) || "" : "";
     if (paramValue) tagState.values.set(f.id, paramValue);
+    const resetValue =
+      f.type === "rgba"
+        ? f.id === "color_1"
+          ? "#FFFFFFFF"
+          : "#00000000"
+        : "";
 
     const commonParams = {
       id: f.id,
       "data-unit": f.unit,
+      "data-reset-value": resetValue,
       placeholder,
       value: paramValue,
     };
@@ -774,12 +794,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     // Generic by type
     if (f.type === "rgba") {
-      const placeholderValue = f.id === "color_1" ? "#FFFFFFFF" : "#00000000";
-
       const input = h("input", {
         ...commonParams,
         type: "text",
-        value: paramValue ? fixHexRgba(paramValue) : placeholderValue,
+        value: paramValue ? fixHexRgba(paramValue) : resetValue,
       });
 
       const setBackground = (value) => {
@@ -1064,9 +1082,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       .addEventListener("click", () => fillExamples(true));
 
     document.getElementById("resetBtn").addEventListener("click", () => {
-      tagState.values = new Map();
-      autoFilledDensity = null;
-      renderForm(false);
+      resetFormFields();
       buildMemory();
       msg("Form has been reset to defaults");
     });
