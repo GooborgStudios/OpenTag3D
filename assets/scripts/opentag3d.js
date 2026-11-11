@@ -317,6 +317,30 @@ const decodeTagBuffer = async (buf, startAddr = 0x00) => {
     }
   }
 
+  const deprecatedMfiLoad = values.get("deprecated_mfi_load");
+  const mfiLoad = values.get("mfi_load");
+  if (
+    deprecatedMfiLoad &&
+    deprecatedMfiLoad.raw !== 0 &&
+    (!mfiLoad || mfiLoad.raw === undefined || mfiLoad.raw === 0)
+  ) {
+    const deprecatedField = fields.find(
+      (field) => field.id === "deprecated_mfi_load",
+    );
+    const mfiLoadField = allFields.find((field) => field.id === "mfi_load");
+    if (deprecatedField && mfiLoadField) {
+      const deprecatedScale = deprecatedField.scaling || 1;
+      const mfiLoadScale = mfiLoadField.scaling || 1;
+      const raw = (deprecatedMfiLoad.raw * deprecatedScale) / mfiLoadScale;
+      values.set("mfi_load", {
+        raw,
+        display: raw * mfiLoadScale,
+      });
+      values.delete("deprecated_mfi_load");
+      warnings.push("Tag data uses the deprecated MFI load field");
+    }
+  }
+
   return { values, warnings };
 };
 

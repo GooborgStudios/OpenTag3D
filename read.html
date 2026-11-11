@@ -592,7 +592,7 @@ description: A tool to read and display the data stored on an OpenTag3D tag.
 
     const mfiTemp = v("mfi_temp");
     setText("tagMfiTemp", mfiTemp ? `${mfiTemp}°C` : "—");
-    const mfiLoad = v("mfi_load") || v("deprecated_mfi_load");
+    const mfiLoad = v("mfi_load");
     const mfiValue = v("mfi_value");
     setText(
       "tagMfiLoadValue",
