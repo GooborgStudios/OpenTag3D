@@ -998,7 +998,10 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
     for (const [id, { display }] of values) {
       if (id === "tag_version") continue;
-      setInputValue(document.getElementById(id), display);
+      if (id.startsWith("deprecated_")) continue;
+      const el = document.getElementById(id);
+      if (!display && !el.required) continue;
+      setInputValue(el, display);
     }
 
     buildMemory();
