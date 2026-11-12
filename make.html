@@ -626,20 +626,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
   const splitSpoolMaterial = (material) => {
     const encoder = new TextEncoder();
-    if (encoder.encode(material).length <= 5) {
-      return { material, modifier: "" };
-    }
-
-    const separator = material.search(/[+-]/);
+    const separator = material.search(/[+\- ]/);
     if (separator > 0) {
       const base = material.slice(0, separator);
-      const modifier = material.slice(separator + 1);
-      if (
-        encoder.encode(base).length <= 5 &&
-        encoder.encode(modifier).length <= 5
-      ) {
-        return { material: base, modifier };
-      }
+      const modifier =
+        material[separator] === "+" && separator === material.length - 1
+          ? "Plus"
+          : material.slice(separator + 1);
+      return { material: base, modifier };
+    }
+
+    if (encoder.encode(material).length <= 5) {
+      return { material, modifier: "" };
     }
 
     return {
