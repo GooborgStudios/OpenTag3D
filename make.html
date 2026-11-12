@@ -347,9 +347,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       (on Android) or loading a previously exported file.
     </p>
     <p>
-      To start a tag from an existing filament, use the search bar at the top of
-      the page and select a result. You can then edit the populated fields.
-      Search results are pulled from SpoolmanDB.
+      To start a tag from an existing filament, search by brand, material, or
+      color and select a SpoolmanDB result. Some manufacturers offer spool
+      lookup services; search for the manufacturer's name to show a lookup
+      option when one is available. Enter the spool's serial number in the
+      lookup dialog to import its tag data automatically.
     </p>
     <h3>Exporting Tag Data</h3>
     <p>
@@ -784,6 +786,164 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     msg(message);
   };
 
+  const applyOpenTagWebApiData = (tagData, source, serial) => {
+    const entries = [];
+    const missingRequired = [];
+    if (
+      !Number.isInteger(tagData.tag_version) ||
+      tagData.tag_version < 0 ||
+      tagData.tag_version > 65535
+    ) {
+      throw new Error("API returned an invalid tag_version value");
+    }
+
+    const formatDate = (value, fieldId) => {
+      if (
+        !Array.isArray(value) ||
+        value.length !== 3 ||
+        !value.every(Number.isInteger)
+      ) {
+        throw new Error(`API returned an invalid ${fieldId} value`);
+      }
+      const [year, month, day] = value;
+      const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+      const daysInMonth = [
+        31,
+        leapYear ? 29 : 28,
+        31,
+        30,
+        31,
+        30,
+        31,
+        31,
+        30,
+        31,
+        30,
+        31,
+      ][month - 1];
+      if (
+        year < 1 ||
+        year > 65535 ||
+        month < 1 ||
+        month > 12 ||
+        day < 1 ||
+        day > daysInMonth
+      ) {
+        throw new Error(`API returned an invalid ${fieldId} value`);
+      }
+      return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    };
+    const formatTime = (value, fieldId) => {
+      if (
+        !Array.isArray(value) ||
+        value.length !== 3 ||
+        !value.every(Number.isInteger)
+      ) {
+        throw new Error(`API returned an invalid ${fieldId} value`);
+      }
+      const [hours, minutes, seconds] = value;
+      if (
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59 ||
+        seconds < 0 ||
+        seconds > 59
+      ) {
+        throw new Error(`API returned an invalid ${fieldId} value`);
+      }
+      return [hours, minutes, seconds]
+        .map((part) => String(part).padStart(2, "0"))
+        .join(":");
+    };
+
+    for (const field of allFields) {
+      if (field.id === "tag_version" || field.id.startsWith("deprecated_")) {
+        continue;
+      }
+      let value = tagData[field.id];
+      let scale = field.scaling || 1;
+      if (field.id === "mfi_load") {
+        if (value !== undefined && Number(tagData.tag_version) < 2004) {
+          scale = 0.01;
+        } else if (value === undefined && tagData.deprecated_mfi_load != null) {
+          value = tagData.deprecated_mfi_load;
+          scale = 0.01;
+        }
+      }
+      if (value === undefined || value === null) {
+        if (field.required) missingRequired.push(field.id);
+        entries.push([
+          field.id,
+          field.type === "rgba"
+            ? field.id === "color_1"
+              ? "#FFFFFFFF"
+              : "#00000000"
+            : "",
+        ]);
+        continue;
+      }
+
+      if (field.type === "int") {
+        if (
+          !Number.isInteger(value) ||
+          value < 0 ||
+          value > 256 ** field.length - 1
+        ) {
+          throw new Error(`API returned an invalid ${field.id} value`);
+        }
+        entries.push([field.id, value * scale]);
+      } else if (field.type === "rgba") {
+        if (
+          !Array.isArray(value) ||
+          value.length !== 4 ||
+          !value.every(
+            (channel) =>
+              Number.isInteger(channel) && channel >= 0 && channel <= 255,
+          )
+        ) {
+          throw new Error(`API returned an invalid ${field.id} value`);
+        }
+        entries.push([
+          field.id,
+          `#${value.map((channel) => hex(channel)).join("")}`,
+        ]);
+      } else if (field.type === "date") {
+        entries.push([field.id, formatDate(value, field.id)]);
+      } else if (field.type === "time") {
+        entries.push([field.id, formatTime(value, field.id)]);
+      } else if (
+        typeof value === "string" &&
+        new TextEncoder().encode(value).length <= field.length &&
+        (field.type !== "ascii" || /^[\x00-\x7F]*$/.test(value))
+      ) {
+        if (field.required && !value.trim()) {
+          missingRequired.push(field.id);
+        }
+        entries.push([field.id, value]);
+      } else {
+        throw new Error(`API returned an invalid ${field.id} value`);
+      }
+    }
+
+    if (missingRequired.length) {
+      throw new Error(
+        `API response is missing required tag data: ${missingRequired.join(", ")}`,
+      );
+    }
+
+    for (const [fieldId, value] of entries) {
+      setSpoolField(fieldId, value);
+    }
+
+    const densityInput = document.getElementById("density");
+    autoFilledDensity = null;
+    densityInput.classList.remove("autofilled");
+    densityInput.removeAttribute("title");
+    buildMemory();
+    msg(`Loaded ${tagData.manufacturer || source} spool ${serial}.`);
+  };
+
   const renderInputForField = (f, includeUrlParams = true) => {
     // Calculate placeholder
     let placeholder = "";
@@ -1059,6 +1219,18 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     filamentSearch.addEventListener("search-select", (event) =>
       applySpoolmanDBData(event.detail.item),
     );
+    filamentSearch.addEventListener("filament-load", (event) => {
+      try {
+        applyOpenTagWebApiData(
+          event.detail.tagData,
+          event.detail.source,
+          event.detail.serial,
+        );
+      } catch (error) {
+        event.preventDefault();
+        msg(`Could not import ${event.detail.source} data: ${error.message}`, true);
+      }
+    });
     filamentSearch.addEventListener("search-error", (event) =>
       msg(
         `Could not load SpoolmanDB: ${event.detail.error.message}. Try searching again.`,
