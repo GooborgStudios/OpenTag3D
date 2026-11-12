@@ -560,6 +560,15 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     inputSynchronizers.get(input)?.();
   };
 
+  const roundToScale = (value, scale) => {
+    if (scale === 1) return value;
+    const decimalPlaces =
+      scale < 1 ? String(scale).split(".")[1].length : 0;
+    return Number(
+      (Math.round(value / scale) * scale).toFixed(decimalPlaces),
+    );
+  };
+
   const resetFormFields = () => {
     tagState.values.clear();
     autoFilledDensity = null;
@@ -652,28 +661,50 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     return `#${hexColor.slice(0, 6)}${alpha}`;
   };
 
-  const setSpoolField = (id, value) => {
-    const input = document.getElementById(id);
-    if (!input) return;
-    setInputValue(input, value);
-  };
-
   const applySpoolmanDBData = (filament) => {
     resetFormFields();
     const material = splitSpoolMaterial(filament.material);
     const warnings = [];
-    const setTextField = (id, value, maxBytes) => {
-      const text = typeof value === "string" ? value : "";
-      const truncated = truncateUtf8(text, maxBytes);
-      if (truncated !== text) warnings.push(`${id} was shortened to fit`);
-      setSpoolField(id, truncated);
+    const setSpoolField = (
+      id,
+      value,
+      { required = false, allowZero = false } = {},
+    ) => {
+      const input = document.getElementById(id);
+      if (!input) return;
+      const field = allFields.find((candidate) => candidate.id === id);
+
+      if (field?.type === "int") {
+        if (value === undefined || value === null) {
+          value = "";
+          if (required) {
+            warnings.push(`no valid ${id} value was available`);
+          }
+        } else if (
+          !Number.isFinite(value) ||
+          (value <= 0 && !(allowZero && value === 0)) ||
+          value > Number(input.max)
+        ) {
+          value = "";
+          warnings.push(`no valid ${id} value was available`);
+        } else {
+          const scale = field.scaling || 1;
+          value = roundToScale(value, scale);
+        }
+      } else if (field?.type === "utf8" || field?.type === "ascii") {
+        const text = typeof value === "string" ? value : "";
+        value = truncateUtf8(text, field.length);
+        if (value !== text) warnings.push(`${id} was shortened to fit`);
+      }
+
+      setInputValue(input, value);
     };
 
-    setTextField("manufacturer", filament.manufacturer, 16);
-    setTextField("material", material.material, 5);
-    setTextField("material_mod", material.modifier, 5);
+    setSpoolField("manufacturer", filament.manufacturer);
+    setSpoolField("material", material.material);
+    setSpoolField("material_mod", material.modifier);
     if (material.truncated) warnings.push("material type was shortened to fit");
-    setTextField("color_name", filament.name, 32);
+    setSpoolField("color_name", filament.name);
 
     const colors = Array.isArray(filament.color_hexes)
       ? filament.color_hexes
@@ -700,31 +731,6 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       warnings.push("only the first four colors were used");
     }
 
-    const setNumericSpoolField = (id, value, { required = false } = {}) => {
-      if (value === undefined || value === null) {
-        setSpoolField(id, "");
-        if (required) {
-          warnings.push(`no valid ${id} value was available`);
-        }
-        return;
-      }
-
-      const input = document.getElementById(id);
-      if (!Number.isFinite(value) || value <= 0 || value > Number(input.max)) {
-        setSpoolField(id, "");
-        warnings.push(`no valid ${id} value was available`);
-        return;
-      }
-
-      const field = allFields.find((candidate) => candidate.id === id);
-      const scale = field.scaling || 1;
-      const decimalPlaces =
-        scale < 1 ? String(scale).split(".")[1].length : 0;
-      const roundedValue = Number(
-        (Math.round(value / scale) * scale).toFixed(decimalPlaces),
-      );
-      setSpoolField(id, roundedValue);
-    };
     const getTemperature = (temperature, range) => {
       if (temperature !== undefined && temperature !== null) return temperature;
       if (
@@ -739,33 +745,33 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       return Math.ceil(((range[0] + range[1]) / 2) / 5) * 5;
     };
 
-    setNumericSpoolField("density", filament.density, { required: true });
-    setNumericSpoolField("diameter", filament.diameter, { required: true });
-    setNumericSpoolField("weight", filament.weight, { required: true });
-    setNumericSpoolField("empty_spool_weight", filament.spool_weight);
-    setNumericSpoolField("td", filament.transmission_distance);
+    setSpoolField("density", filament.density, { required: true });
+    setSpoolField("diameter", filament.diameter, { required: true });
+    setSpoolField("weight", filament.weight, { required: true });
+    setSpoolField("empty_spool_weight", filament.spool_weight);
+    setSpoolField("td", filament.transmission_distance);
     const extruderTempRange = filament.extruder_temp_range;
-    setNumericSpoolField(
+    setSpoolField(
       "print_temp",
       getTemperature(filament.extruder_temp, extruderTempRange),
       { required: true },
     );
     if (Array.isArray(extruderTempRange)) {
-      setNumericSpoolField("min_print_temp", extruderTempRange[0]);
-      setNumericSpoolField("max_print_temp", extruderTempRange[1]);
+      setSpoolField("min_print_temp", extruderTempRange[0]);
+      setSpoolField("max_print_temp", extruderTempRange[1]);
     }
 
     const bedTempRange = filament.bed_temp_range;
-    setNumericSpoolField(
+    setSpoolField(
       "bed_temp",
       getTemperature(filament.bed_temp, bedTempRange),
       { required: true },
     );
     if (Array.isArray(bedTempRange)) {
-      setNumericSpoolField("min_bed_temp", bedTempRange[0]);
-      setNumericSpoolField("max_bed_temp", bedTempRange[1]);
+      setSpoolField("min_bed_temp", bedTempRange[0]);
+      setSpoolField("max_bed_temp", bedTempRange[1]);
     }
-    setSpoolField("chamber_temp", 0);
+    setSpoolField("chamber_temp", 0, { allowZero: true });
 
     const densityInput = document.getElementById("density");
     autoFilledDensity = null;
@@ -877,12 +883,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
           return "";
         }
 
-        if (scale !== 1) {
-          const decimalPoints =
-            scale < 1 ? String(scale).split(".")[1].length : 0;
-          const rounded = Math.round(num / scale) * scale;
-          num = parseFloat(rounded.toFixed(decimalPoints));
-        }
+        num = roundToScale(num, scale);
 
         if (num < 0) {
           num = 0;
