@@ -725,28 +725,47 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       );
       setSpoolField(id, roundedValue);
     };
+    const getTemperature = (temperature, range) => {
+      if (temperature !== undefined && temperature !== null) return temperature;
+      if (
+        !Array.isArray(range) ||
+        range.length < 2 ||
+        !Number.isFinite(range[0]) ||
+        !Number.isFinite(range[1])
+      ) {
+        return temperature;
+      }
+
+      return Math.ceil(((range[0] + range[1]) / 2) / 5) * 5;
+    };
 
     setNumericSpoolField("density", filament.density, { required: true });
     setNumericSpoolField("diameter", filament.diameter, { required: true });
     setNumericSpoolField("weight", filament.weight, { required: true });
     setNumericSpoolField("empty_spool_weight", filament.spool_weight);
     setNumericSpoolField("td", filament.transmission_distance);
-    setNumericSpoolField("print_temp", filament.extruder_temp, {
-      required: true,
-    });
-    setNumericSpoolField("bed_temp", filament.bed_temp, { required: true });
-
     const extruderTempRange = filament.extruder_temp_range;
+    setNumericSpoolField(
+      "print_temp",
+      getTemperature(filament.extruder_temp, extruderTempRange),
+      { required: true },
+    );
     if (Array.isArray(extruderTempRange)) {
       setNumericSpoolField("min_print_temp", extruderTempRange[0]);
       setNumericSpoolField("max_print_temp", extruderTempRange[1]);
     }
 
     const bedTempRange = filament.bed_temp_range;
+    setNumericSpoolField(
+      "bed_temp",
+      getTemperature(filament.bed_temp, bedTempRange),
+      { required: true },
+    );
     if (Array.isArray(bedTempRange)) {
       setNumericSpoolField("min_bed_temp", bedTempRange[0]);
       setNumericSpoolField("max_bed_temp", bedTempRange[1]);
     }
+    setSpoolField("chamber_temp", 0);
 
     const densityInput = document.getElementById("density");
     autoFilledDensity = null;
