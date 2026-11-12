@@ -25,6 +25,8 @@ Want to provide a financial contribution? Donate to the Gooborg Studios' founder
 
 ## Website Development
 
+Contributor and AI-agent notes: see [`AGENTS.md`](./AGENTS.md) and [`_docs/`](./_docs/).
+
 To start a local version of the website for development, you will need Node.js and Ruby. Run the `setup.sh` script to run the setup commands, and then `npm start` to start the web server.
 
 > [!NOTE]

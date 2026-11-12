@@ -26,6 +26,11 @@ og_image: /assets/images/og_image.jpg
 atom_feed:
   hide: true
 
+exclude:
+  - AGENTS.md
+  - CLAUDE.md
+  - assets/scripts/AGENTS.md
+
 defaults:
   - scope:
       path: ""
