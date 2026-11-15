@@ -413,8 +413,11 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 <script>
   /* prettier-ignore-start */
 
-  // Spec comes from site.data.spec (Jekyll).
-  globalThis.OpenTag3D = { spec: {{site.data.spec | jsonify}} };
+  // Loaded in via Jekyll
+  globalThis.OpenTag3D = {
+    spec: {{site.data.spec | jsonify}},
+    materialDensities: {{ site.data.material_densities | jsonify }}
+  };
 
   /* prettier-ignore-end */
 </script>
@@ -450,7 +453,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
   } from "{{ '/assets/scripts/opentag3d.js' | relative_url }}";
 
   const SPEC = globalThis.OpenTag3D.spec;
-  const MATERIAL_DENSITIES = {{ site.data.material_densities | jsonify }};
+  const MATERIAL_DENSITIES = globalThis.OpenTag3D.materialDensities;
   const tagState = {
     values: new Map(),
     buffer: null,
@@ -498,7 +501,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
       const input = renderInputForField(f, includeUrlParams);
       if (f.id === "material") {
         input.setAttribute("list", "materialOptions");
-        const materialField = allFields.find((field) => field.id === "material");
+        const materialField = allFields.find(
+          (field) => field.id === "material",
+        );
         const options = Object.keys(MATERIAL_DENSITIES)
           .filter(
             (material) =>
@@ -562,11 +567,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
 
   const roundToScale = (value, scale) => {
     if (scale === 1) return value;
-    const decimalPlaces =
-      scale < 1 ? String(scale).split(".")[1].length : 0;
-    return Number(
-      (Math.round(value / scale) * scale).toFixed(decimalPlaces),
-    );
+    const decimalPlaces = scale < 1 ? String(scale).split(".")[1].length : 0;
+    return Number((Math.round(value / scale) * scale).toFixed(decimalPlaces));
   };
 
   const resetFormFields = () => {
@@ -651,11 +653,8 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     if (typeof color !== "string") return null;
     const hexColor = color.replace(/^#/, "");
     if (!/^(?:[0-9a-f]{6}|[0-9a-f]{8})$/i.test(hexColor)) return null;
-    const alpha = hexColor.length === 8
-      ? hexColor.slice(6)
-      : translucent
-        ? "80"
-        : "FF";
+    const alpha =
+      hexColor.length === 8 ? hexColor.slice(6) : translucent ? "80" : "FF";
     return `#${hexColor.slice(0, 6)}${alpha}`;
   };
 
@@ -740,7 +739,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
         return temperature;
       }
 
-      return Math.ceil(((range[0] + range[1]) / 2) / 5) * 5;
+      return Math.ceil((range[0] + range[1]) / 2 / 5) * 5;
     };
 
     setSpoolField("density", filament.density, { required: true });
@@ -760,11 +759,9 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     }
 
     const bedTempRange = filament.bed_temp_range;
-    setSpoolField(
-      "bed_temp",
-      getTemperature(filament.bed_temp, bedTempRange),
-      { required: true },
-    );
+    setSpoolField("bed_temp", getTemperature(filament.bed_temp, bedTempRange), {
+      required: true,
+    });
     if (Array.isArray(bedTempRange)) {
       setSpoolField("min_bed_temp", bedTempRange[0]);
       setSpoolField("max_bed_temp", bedTempRange[1]);
@@ -805,11 +802,7 @@ description: A tool to make the RFID tag data for an OpenTag3D tag.
     const paramValue = includeUrlParams ? urlParams.get(f.id) || "" : "";
     if (paramValue) tagState.values.set(f.id, paramValue);
     const resetValue =
-      f.type === "rgba"
-        ? f.id === "color_1"
-          ? "#FFFFFFFF"
-          : "#00000000"
-        : "";
+      f.type === "rgba" ? (f.id === "color_1" ? "#FFFFFFFF" : "#00000000") : "";
 
     const commonParams = {
       id: f.id,
