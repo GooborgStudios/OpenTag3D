@@ -29,6 +29,19 @@ import {
 
 const SPEC = globalThis.OpenTag3D.spec;
 const MATERIAL_DENSITIES = globalThis.OpenTag3D.materialDensities;
+const MATERIAL_DENSITY_BY_NAME = new Map(
+  Object.entries(MATERIAL_DENSITIES).map(([material, density]) => [
+    material.toLowerCase(),
+    density,
+  ]),
+);
+const materialField = allFields.find((field) => field.id === "material");
+const textEncoder = new TextEncoder();
+const materialOptions = Object.keys(MATERIAL_DENSITIES)
+  .filter(
+    (material) => textEncoder.encode(material).length <= materialField.length,
+  )
+  .map((material) => h("option", { value: material }));
 const tagState = {
   values: new Map(),
   buffer: null,
@@ -41,9 +54,6 @@ const inputSynchronizers = new WeakMap();
 
 const hexdumpElement = document.getElementById("hexdump");
 const webNfcDialog = document.getElementById("webNfcDialog");
-const flipperZeroWarningDialog = document.getElementById(
-  "flipperZeroWarningDialog",
-);
 const helpDialog = document.getElementById("helpDialog");
 
 const checkMissing = () => {
@@ -76,14 +86,10 @@ const renderForm = (includeUrlParams = true) => {
     const input = renderInputForField(f, includeUrlParams);
     if (f.id === "material") {
       input.setAttribute("list", "materialOptions");
-      const materialField = allFields.find((field) => field.id === "material");
-      const options = Object.keys(MATERIAL_DENSITIES)
-        .filter(
-          (material) =>
-            new TextEncoder().encode(material).length <= materialField.length,
-        )
-        .map((material) => h("option", { value: material }));
-      left.append(input, h("datalist", { id: "materialOptions" }, ...options));
+      left.append(
+        input,
+        h("datalist", { id: "materialOptions" }, ...materialOptions),
+      );
     } else {
       left.append(input);
     }
@@ -158,10 +164,9 @@ const updateDensityFromMaterial = (onlyIfEmpty = false) => {
   const densityInput = document.getElementById("density");
   if (!materialInput || !densityInput) return;
 
-  const material = Object.keys(MATERIAL_DENSITIES).find(
-    (name) => name.toLowerCase() === materialInput.value.trim().toLowerCase(),
+  const density = MATERIAL_DENSITY_BY_NAME.get(
+    materialInput.value.trim().toLowerCase(),
   );
-  const density = material ? MATERIAL_DENSITIES[material] : undefined;
   if (density !== undefined) {
     if (
       densityInput.value !== "" &&
@@ -187,17 +192,18 @@ const updateDensityFromMaterial = (onlyIfEmpty = false) => {
 };
 
 const truncateUtf8 = (value, maxBytes) => {
-  const encoder = new TextEncoder();
   let result = "";
+  let byteLength = 0;
   for (const character of value) {
-    if (encoder.encode(result + character).length > maxBytes) break;
+    const characterLength = textEncoder.encode(character).length;
+    if (byteLength + characterLength > maxBytes) break;
     result += character;
+    byteLength += characterLength;
   }
   return result;
 };
 
 const splitSpoolMaterial = (material) => {
-  const encoder = new TextEncoder();
   const separator = material.search(/[+\- ]/);
   if (separator > 0) {
     const base = material.slice(0, separator);
@@ -208,7 +214,7 @@ const splitSpoolMaterial = (material) => {
     return { material: base, modifier };
   }
 
-  if (encoder.encode(material).length <= 5) {
+  if (textEncoder.encode(material).length <= 5) {
     return { material, modifier: "" };
   }
 
@@ -543,7 +549,7 @@ const buildMemory = () => {
   const push = (addr, bytes) => {
     if (addr < 0 || addr + bytes.length > buf.length) {
       throw new Error(
-        `Address ${addr} is out of range (length is ${buf.length}}`,
+        `Address ${addr} is out of range (length is ${buf.length})`,
       );
     }
     buf.set(bytes, addr);
@@ -570,6 +576,15 @@ const buildMemory = () => {
 
 const downloadBin = (buf, name) => {
   downloadFile(buf, "application/octet-stream", name);
+};
+
+const registerExport = (buttonId, extension, exportData) => {
+  const filename = () => `${tagState.filename}${extension}`;
+  document.getElementById(buttonId).addEventListener("click", () => {
+    if (checkMissing()) return;
+    exportData(filename());
+    msg(`Downloaded ${filename()}`);
+  });
 };
 
 const loadImportedText = async (text) => {
@@ -729,63 +744,41 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
   // Save/export actions
-  document.getElementById("downloadBin").addEventListener("click", () => {
-    if (!checkMissing()) {
-      downloadBin(tagState.buffer, `${tagState.filename}.bin`);
-      msg(`Downloaded ${tagState.filename}.bin`);
-    }
-  });
-
-  document.getElementById("downloadFlipper").addEventListener("click", () => {
-    if (!checkMissing()) {
-      downloadFlipperNfc(tagState.buffer, `${tagState.filename}.nfc`);
-      msg(`Downloaded ${tagState.filename}.nfc`);
-    }
-  });
-
-  document
-    .getElementById("downloadProxmark3Bin")
-    .addEventListener("click", () => {
-      if (!checkMissing()) {
-        downloadBin(
-          buildProxmark3Bin(tagState.buffer),
-          `${tagState.filename}.pm3.bin`,
-        );
-        msg(`Downloaded ${tagState.filename}.pm3.bin`);
-      }
-    });
-
-  document
-    .getElementById("downloadNfcToolsDesktopJson")
-    .addEventListener("click", () => {
-      if (!checkMissing()) {
-        downloadFile(
-          buildNfcToolsDesktopJson(
-            tagState.buffer,
-            describeTag(tagState.values, tagState.hash),
-          ),
-          "application/json",
-          `${tagState.filename}.nfctools-desktop.json`,
-        );
-        msg(`Downloaded ${tagState.filename}.nfctools-desktop.json`);
-      }
-    });
-
-  document
-    .getElementById("downloadNfcToolsMobileJson")
-    .addEventListener("click", () => {
-      if (!checkMissing()) {
-        downloadFile(
-          buildNfcToolsMobileJson(
-            tagState.buffer,
-            describeTag(tagState.values, tagState.hash),
-          ),
-          "application/json",
-          `${tagState.filename}.nfctools-mobile.json`,
-        );
-        msg(`Downloaded ${tagState.filename}.nfctools-mobile.json`);
-      }
-    });
+  registerExport("downloadBin", ".bin", (name) =>
+    downloadBin(tagState.buffer, name),
+  );
+  registerExport("downloadFlipper", ".nfc", (name) =>
+    downloadFlipperNfc(tagState.buffer, name),
+  );
+  registerExport("downloadProxmark3Bin", ".pm3.bin", (name) =>
+    downloadBin(buildProxmark3Bin(tagState.buffer), name),
+  );
+  registerExport(
+    "downloadNfcToolsDesktopJson",
+    ".nfctools-desktop.json",
+    (name) =>
+      downloadFile(
+        buildNfcToolsDesktopJson(
+          tagState.buffer,
+          describeTag(tagState.values, tagState.hash),
+        ),
+        "application/json",
+        name,
+      ),
+  );
+  registerExport(
+    "downloadNfcToolsMobileJson",
+    ".nfctools-mobile.json",
+    (name) =>
+      downloadFile(
+        buildNfcToolsMobileJson(
+          tagState.buffer,
+          describeTag(tagState.values, tagState.hash),
+        ),
+        "application/json",
+        name,
+      ),
+  );
 
   document.getElementById("writeWebNFC").addEventListener("click", () => {
     if (!checkMissing()) {
