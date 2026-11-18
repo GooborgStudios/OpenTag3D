@@ -16,9 +16,9 @@ All of the data can be modified after it's been loaded.
 
 ## Powered by community data
 
-Filament search results come from [SpoolmanDB](https://donkie.github.io/SpoolmanDB/), a community-maintained filament database. SpoolmanDB is constantly updated with new filaments.
+Filament search results come from [SpoolmanDB-Community](https://icezaza2543.github.io/SpoolmanDB-Community/), an independently maintained community catalog. Product codes, barcodes, and material fill metadata are added to matching OpenTag3D fields when available.
 
-Not able to find your filament? That's okay! You can file an issue on SpoolmanDB's GitHub repository, or fill in all the details on the make page manually.
+Not able to find your filament? That's okay! You can file an issue on [SpoolmanDB-Community's GitHub repository](https://github.com/Icezaza2543/SpoolmanDB-Community), or fill in all the details on the make page manually.
 
 ## Density is autofilled by default
 
@@ -38,4 +38,10 @@ Head to [Make a Tag](/make.html), search for a filament, and select a result to 
 
 Update November 17, 2026:
 
-The density autofill now uses material modifiers when a modifier-specific density is available! The density data is sourced from [SpoolmanDB-Community](https://icezaza2543.github.io/SpoolmanDB-Community/materials.json).
+The density autofill now uses material modifiers when available! The density data is sourced from [SpoolmanDB-Community](https://icezaza2543.github.io/SpoolmanDB-Community/materials.json).
+
+---
+
+Update ???:
+
+We have switched from the upstream SpoolmanDB that is maintained by the Spoolman author to a compatible community-maintained database, [SpoolmanDB-Community](https://icezaza2543.github.io/SpoolmanDB-Community/). This change was made as SpoolmanDB-Community has a much larger library of filaments, as well as more information that can be stored on OpenTag3D tags.

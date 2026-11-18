@@ -306,7 +306,7 @@ class SearchBox extends HTMLElement {
       option.addEventListener("click", () => {
         this.dispatchEvent(
           new CustomEvent("search-select", {
-            detail: { item },
+            detail: { item, query: this.inputElement.value.trim() },
             bubbles: true,
             composed: true,
           }),

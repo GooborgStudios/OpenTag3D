@@ -259,7 +259,26 @@ const spoolColorValue = (color, translucent) => {
   return `#${hexColor.slice(0, 6)}${alpha}`;
 };
 
-const applySpoolmanDBData = (filament) => {
+const firstString = (values, maxBytes = Number.POSITIVE_INFINITY) =>
+  Array.isArray(values)
+    ? values
+        .find(
+          (value) =>
+            typeof value === "string" &&
+            value.trim() &&
+            textEncoder.encode(value.trim()).length <= maxBytes,
+        )
+        ?.trim()
+    : undefined;
+
+const exactString = (values, expected) =>
+  Array.isArray(values)
+    ? values
+        .find((value) => typeof value === "string" && value.trim() === expected)
+        ?.trim()
+    : undefined;
+
+const applyFilamentData = (filament, query) => {
   resetFormFields();
   const material = splitSpoolMaterial(filament.material);
   const warnings = [];
@@ -303,6 +322,26 @@ const applySpoolmanDBData = (filament) => {
   setSpoolField("material_mod", material.modifier);
   if (material.truncated) warnings.push("material type was shortened to fit");
   setSpoolField("color_name", filament.name);
+  const searchQuery = typeof query === "string" ? query.trim() : "";
+  const codes = Array.isArray(filament.codes) ? filament.codes : [];
+  const matchingCode = exactString(codes, searchQuery);
+  const skuField = allFields.find((field) => field.id === "sku");
+  setSpoolField(
+    "sku",
+    firstString(
+      matchingCode ? [matchingCode, ...codes] : codes,
+      skuField?.length ?? 0,
+    ),
+  );
+  const eans = filament.is_refill ? filament.eans_refill : filament.eans;
+  const ean =
+    exactString(filament.eans, searchQuery) ||
+    exactString(filament.eans_refill, searchQuery) ||
+    firstString(eans);
+  if (ean && /^\d+$/.test(ean)) {
+    const barcode = Number(ean);
+    if (Number.isSafeInteger(barcode)) setSpoolField("barcode", barcode);
+  }
 
   const colors = Array.isArray(filament.color_hexes)
     ? filament.color_hexes
@@ -660,11 +699,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const filamentSearch = document.getElementById("filamentSearch");
   filamentSearch.addEventListener("search-select", (event) =>
-    applySpoolmanDBData(event.detail.item),
+    applyFilamentData(event.detail.item, event.detail.query),
   );
   filamentSearch.addEventListener("search-error", (event) =>
     msg(
-      `Could not load SpoolmanDB: ${event.detail.error.message}. Try searching again.`,
+      `Could not load SpoolmanDB-Community: ${event.detail.error.message}. Try searching again.`,
       true,
     ),
   );

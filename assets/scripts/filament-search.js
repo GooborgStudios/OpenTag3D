@@ -1,6 +1,7 @@
 import "./search-box.js";
 
-const DEFAULT_DATA_URL = "https://donkie.github.io/SpoolmanDB/filaments.json";
+const DEFAULT_DATA_URL =
+  "https://icezaza2543.github.io/SpoolmanDB-Community/filaments.json";
 const dataCache = new Map();
 
 export const MANUFACTURER_SHORTNAMES = new Map([
@@ -13,7 +14,9 @@ const loadFilaments = (url) => {
     const request = fetch(url)
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`SpoolmanDB returned HTTP ${response.status}`);
+          throw new Error(
+            `SpoolmanDB-Community returned HTTP ${response.status}`,
+          );
         }
         return response.json();
       })
@@ -28,7 +31,9 @@ const loadFilaments = (url) => {
               typeof filament.name !== "string",
           )
         ) {
-          throw new Error("SpoolmanDB returned an unexpected data format");
+          throw new Error(
+            "SpoolmanDB-Community returned an unexpected data format",
+          );
         }
         return data;
       })
@@ -50,7 +55,7 @@ class FilamentSearch extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <search-box>
         <span slot="help">Search results come from </span>
-        <a slot="help" href="https://donkie.github.io/SpoolmanDB/" target="_blank">SpoolmanDB</a>
+        <a slot="help" href="https://icezaza2543.github.io/SpoolmanDB-Community/" target="_blank" rel="noopener noreferrer">SpoolmanDB-Community</a>
         <span slot="help">.</span>
       </search-box>
     `;
