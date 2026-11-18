@@ -33,3 +33,9 @@ Continuing the goal of making tag creation easier, the density field is also aut
 ## Give it a try
 
 Head to [Make a Tag](/make.html), search for a filament, and select a result to get started!
+
+---
+
+Update November 17, 2026:
+
+The density autofill now uses material modifiers when a modifier-specific density is available! The density data is sourced from [SpoolmanDB-Community](https://icezaza2543.github.io/SpoolmanDB-Community/materials.json).

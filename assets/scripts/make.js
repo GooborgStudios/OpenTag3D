@@ -30,10 +30,22 @@ import {
 const SPEC = globalThis.OpenTag3D.spec;
 const MATERIAL_DENSITIES = globalThis.OpenTag3D.materialDensities;
 const MATERIAL_DENSITY_BY_NAME = new Map(
-  Object.entries(MATERIAL_DENSITIES).map(([material, density]) => [
-    material.toLowerCase(),
-    density,
-  ]),
+  Object.entries(MATERIAL_DENSITIES).map(([material, densities]) => {
+    const exact = new Map(Object.entries(densities));
+    const byLowercaseModifier = new Map();
+    for (const [modifier, density] of exact) {
+      const key = modifier.toLowerCase();
+      if (byLowercaseModifier.has(key)) {
+        if (byLowercaseModifier.get(key) !== density) {
+          byLowercaseModifier.set(key, null);
+        }
+      } else {
+        byLowercaseModifier.set(key, density);
+      }
+    }
+
+    return [material.toLowerCase(), { exact, byLowercaseModifier }];
+  }),
 );
 const materialField = allFields.find((field) => field.id === "material");
 const textEncoder = new TextEncoder();
@@ -114,7 +126,7 @@ const renderForm = (includeUrlParams = true) => {
         h(
           "div",
           { class: "help" },
-          "Density is auto-filled for known materials, but can be overridden if needed.",
+          "Density is auto-filled for known materials and modifiers, but can be overridden if needed.",
         ),
       );
     }
@@ -161,12 +173,25 @@ const resetFormFields = () => {
 
 const updateDensityFromMaterial = (onlyIfEmpty = false) => {
   const materialInput = document.getElementById("material");
+  const modifierInput = document.getElementById("material_mod");
   const densityInput = document.getElementById("density");
-  if (!materialInput || !densityInput) return;
+  if (!materialInput || !modifierInput || !densityInput) return;
 
-  const density = MATERIAL_DENSITY_BY_NAME.get(
+  const densities = MATERIAL_DENSITY_BY_NAME.get(
     materialInput.value.trim().toLowerCase(),
   );
+  const modifier = modifierInput.value.trim();
+  let density = densities?.exact.get(modifier);
+  if (density === undefined) {
+    const normalizedDensity = densities?.byLowercaseModifier.get(
+      modifier.toLowerCase(),
+    );
+    if (normalizedDensity !== null) density = normalizedDensity;
+  }
+  if (density === undefined || density === null) {
+    density = densities?.exact.get("");
+  }
+
   if (density !== undefined) {
     if (
       densityInput.value !== "" &&
@@ -177,7 +202,7 @@ const updateDensityFromMaterial = (onlyIfEmpty = false) => {
     setInputValue(densityInput, density);
     autoFilledDensity = densityInput.value;
     densityInput.classList.add("autofilled");
-    densityInput.title = "Auto-filled from the selected material";
+    densityInput.title = "Auto-filled from the selected material and modifier";
     buildMemory();
   } else if (
     autoFilledDensity !== null &&
@@ -646,6 +671,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
   document
     .getElementById("material")
+    .addEventListener("input", () => updateDensityFromMaterial());
+  document
+    .getElementById("material_mod")
     .addEventListener("input", () => updateDensityFromMaterial());
   document.getElementById("density").addEventListener("input", () => {
     autoFilledDensity = null;
