@@ -31,6 +31,7 @@ Still run the relevant verification and say what you checked in the PR notes.
 Open a proposal or stop for maintainer direction before:
 
 - Changing `core` field layout, field sizes, requiredness, or the spec `version`.
+- Changing `web_api` field layout, including edits existing fields or adding new fields.
 - Editing Web NFC write behavior or NTAG config pages.
 - Editing legacy snapshots in `assets/json/spec_v*.json`.
 - Making the web API required for tag interpretation; offline tag data is authoritative.
