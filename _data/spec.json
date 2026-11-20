@@ -551,13 +551,13 @@
   "web_api": {
     "fields": [
       {
-        "name": "OpenTag Version",
+        "name": "OpenTag3D Version",
         "id": "opentag_version",
         "required": true,
         "added": "1.000",
         "type": "string",
         "examples": ["2.001"],
-        "description": "Must be set as the current OpenTag3D version the API has been updated to support. This field is required."
+        "description": "Must be set as the current OpenTag3D version the API has been updated to support. This field is the only required web API field, if a web API is implemented."
       },
       {
         "name": "Has UI",
