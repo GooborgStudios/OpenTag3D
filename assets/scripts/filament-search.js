@@ -156,6 +156,9 @@ class FilamentSearch extends HTMLElement {
       filament.color_name || filament.name,
       Number.isFinite(filament.weight) ? `${filament.weight} g` : "",
       Number.isFinite(filament.diameter) ? `${filament.diameter} mm` : "",
+      filament.spool_type
+        ? `${String(filament.spool_type).charAt(0).toUpperCase()}${String(filament.spool_type).slice(1)} spool`
+        : "",
     ]
       .filter(Boolean)
       .join(" · ");
