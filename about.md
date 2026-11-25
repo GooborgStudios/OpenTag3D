@@ -11,10 +11,6 @@ The OpenTag3D protocol, initially called "Open 3D-RFID", was originally drafted 
 
 As the OpenTag3D protocol began to reach maturity, it was later moved to its own repository, hosted by Gooborg Studios, where it continues to incubate to this day.
 
-### OpenTag3D vs. OpenPrintTag
-
-In late October 2025, after the announcement and development of OpenTag3D, Prusa announced a new open source standard for 3D printer filament RFID tags called OpenPrintTag. We wrote a [post](/articles/response-to-openprinttag.md) explaining what this meant for OpenTag3D, but in summary, we will be continuing development and aim to provide the best standard.
-
 ## Why RFID?
 
 What is the benefit of adding RFID chips to filament?
@@ -28,6 +24,10 @@ What is the benefit of adding RFID chips to filament?
 - Every Printer
   - **Filament Remaining Estimation:** Using the RFID tag as an encoder, printers can measure how long it takes for one rotation of a spool of filament, and use this to estimate how much filament is remaining.
   - **Print Profiles**: Each spool can contain print/bed temps, as well as other settings like retraction settings. This makes it much easier to use different brands/colors/materials without worrying about creating a bunch of different slicer profiles.
+
+### OpenTag3D vs. OpenPrintTag
+
+In late October 2025, after the announcement and development of OpenTag3D, Prusa announced a new open source standard for 3D printer filament RFID tags called OpenPrintTag. We wrote a [post](/articles/response-to-openprinttag.md) explaining what this meant for OpenTag3D, but in summary, we will be continuing development and aim to provide the best standard.
 
 ## Supporters
 
