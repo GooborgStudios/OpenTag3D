@@ -126,6 +126,11 @@
       ><input type="checkbox" data-memory-map-option="showSystemMemory" /> Show
       system memory</label
     >
+
+    <label
+      ><input type="checkbox" data-memory-map-option="showUnusedMemory" /> Show
+      unused memory</label
+    >
   </fieldset>
 
   <p data-memory-map-status role="status" aria-live="polite">
@@ -231,6 +236,7 @@
         showRawMemoryAddresses: options.showRawMemoryAddresses === true,
         showSystemMemory,
         showNdefHeader: showSystemMemory || options.showNdefHeader === true,
+        showUnusedMemory: options.showUnusedMemory === true,
       };
     }
 
@@ -797,7 +803,7 @@
           concepts.some((concept) => concept.kind === "unused");
         if (
           !containsDisplayedData &&
-          !isUnusedUserPage &&
+          !(displayOptions.showUnusedMemory && isUnusedUserPage) &&
           !(displayOptions.showSystemMemory && isSystemPage)
         ) {
           continue;
@@ -849,6 +855,10 @@
       caption.textContent = `${model.tag.name} ${model.tag.format} memory map`;
       table.append(caption);
 
+      const showMemTypeColumn =
+        model.displayOptions.showUnusedMemory ||
+        model.displayOptions.showNdefHeader;
+
       const header = table.createTHead().insertRow();
       [
         "Raw Mem Addr",
@@ -860,6 +870,9 @@
         "Mem Type",
       ].forEach((label, index) => {
         if (index === 0 && !model.displayOptions.showRawMemoryAddresses) {
+          return;
+        }
+        if (index === 6 && !showMemTypeColumn) {
           return;
         }
         const cell = document.createElement("th");
@@ -909,17 +922,19 @@
           }
         });
 
-        const typeCell = tableRow.insertCell();
-        typeCell.className = "opentag3d-memory-map-metadata";
-        typeCell.append(document.createTextNode(row.memoryType.label));
-        row.memoryType.details.forEach((detail) => {
-          typeCell.append(document.createElement("br"));
-          const detailElement = document.createElement(
-            detail.strong ? "strong" : "small",
-          );
-          detailElement.textContent = detail.text;
-          typeCell.append(detailElement);
-        });
+        if (showMemTypeColumn) {
+          const typeCell = tableRow.insertCell();
+          typeCell.className = "opentag3d-memory-map-metadata";
+          typeCell.append(document.createTextNode(row.memoryType.label));
+          row.memoryType.details.forEach((detail) => {
+            typeCell.append(document.createElement("br"));
+            const detailElement = document.createElement(
+              detail.strong ? "strong" : "small",
+            );
+            detailElement.textContent = detail.text;
+            typeCell.append(detailElement);
+          });
+        }
       });
 
       return table;
