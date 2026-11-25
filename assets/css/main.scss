@@ -37,6 +37,14 @@ $sans-serif:
   --accent: #7aa2ff;
 }
 
+html {
+  background-image: linear-gradient(
+    150deg,
+    $background-color,
+    color.adjust($background-color, $lightness: 5%)
+  );
+}
+
 [hidden] {
   display: none;
 }
@@ -90,6 +98,11 @@ a[href^="http"]:not([href^="https://0.0.0.0"]):not(
 
 #footer {
   text-align: center;
+}
+
+.masthead {
+  background-color: $background-color;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 50%);
 }
 
 .archive__item-teaser {
