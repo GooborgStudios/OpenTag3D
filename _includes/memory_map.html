@@ -119,17 +119,16 @@
       Show raw memory addresses</label
     >
     <label
+      ><input type="checkbox" data-memory-map-option="showUnusedMemory" /> Show
+      unused memory</label
+    >
+    <label
       ><input type="checkbox" data-memory-map-option="showNdefHeader" /> Show
       NDEF header</label
     >
     <label
       ><input type="checkbox" data-memory-map-option="showSystemMemory" /> Show
       system memory</label
-    >
-
-    <label
-      ><input type="checkbox" data-memory-map-option="showUnusedMemory" /> Show
-      unused memory</label
     >
   </fieldset>
 
@@ -232,11 +231,13 @@
 
     function normalizeDisplayOptions(options = {}) {
       const showSystemMemory = options.showSystemMemory === true;
+      const showNdefHeader =
+        showSystemMemory || options.showNdefHeader === true;
       return {
         showRawMemoryAddresses: options.showRawMemoryAddresses === true,
         showSystemMemory,
-        showNdefHeader: showSystemMemory || options.showNdefHeader === true,
-        showUnusedMemory: options.showUnusedMemory === true,
+        showNdefHeader,
+        showUnusedMemory: showNdefHeader || options.showUnusedMemory === true,
       };
     }
 
@@ -1022,6 +1023,9 @@
           const ndefHeaderInput = widget.querySelector(
             '[data-memory-map-option="showNdefHeader"]',
           );
+          const unusedMemoryInput = widget.querySelector(
+            '[data-memory-map-option="showUnusedMemory"]',
+          );
           const specFileInput = widget.querySelector(
             "[data-memory-map-spec-file]",
           );
@@ -1041,6 +1045,14 @@
                 ndefHeaderInput.disabled = true;
               } else {
                 ndefHeaderInput.disabled = false;
+              }
+            }
+            if (unusedMemoryInput) {
+              if (ndefHeaderInput?.checked) {
+                unusedMemoryInput.checked = true;
+                unusedMemoryInput.disabled = true;
+              } else {
+                unusedMemoryInput.disabled = false;
               }
             }
             const displayOptions = Object.fromEntries(
