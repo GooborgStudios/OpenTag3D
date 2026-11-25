@@ -49,18 +49,19 @@ Voting members play a critical role in the governance of the OpenTag3D standard.
 
 To maintain fairness and inclusivity, the voting seats are divided equally between:
 
-- **Industry Representatives**: Voting members representing companies and organizations involved in 3D printing, RFID, and related fields.
-- **Community Representatives**: Voting members from the broader community, including hobbyists, independent developers, and RFID experts.
+- **Printer Manufacturers**: Representatives of companies and organizations involved in designing and manufacturing 3D printers.
+- **Filament Manufacturers**: Representatives of companies and organizations producing and/or distributing filament.
+- **Implementers**: Individuals or groups implementing OpenTag3D into their projects that do not fall into the above two categories.
+- **Community Representatives**: Voting members from the broader community, including hobbyists, independent developers and RFID experts.
 
 This balanced structure ensures that no single group dominates decision-making, fostering a standard that reflects the interests of both professional and grassroots contributors.
 
 The current voting members are as follows:
 
-- Industry:
-  - Mitch (Polar Filament) - Filament Brand
-  - Josh (Push Plastic) - Filament Brand
+- Filament Manufacturers:
+  - Mitch - Polar Filament
+  - Josh - Push Plastic
 - Community:
-  - Vinyl Da.i'gyu (Gooborg Studios) - Spec Host/Author
   - Grant (3D Musketeers) - YouTube Content Creator
   - Blake770
   - MadSciSlack
@@ -68,7 +69,7 @@ The current voting members are as follows:
   - ccatlett1984 (Open Resin Alliance)
 
 > [!NOTE]
-> We are looking for additional members, especially industry members, to join the consortium. Please [contact us](#contact) if you wish to join!
+> We are looking for additional members, especially printer manufacturers, to join the consortium. Please [contact us](#contact) if you wish to join!
 
 ### Non-Voting Members
 
