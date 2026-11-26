@@ -1,6 +1,6 @@
 # `assets/scripts/` agent notes
 
-This file owns local rules for shared browser scripts, especially protocol code in `opentag3d.js`. For page-local tool architecture, read `_docs/make-read-tools.md` too.
+This file owns local rules for browser scripts under `assets/scripts/`, especially protocol code in `opentag3d.js`. For `make.html`/`read.html` architecture, read `_contributing/make-read-tools.md` too.
 
 ## Responsibility map
 
@@ -9,12 +9,18 @@ This file owns local rules for shared browser scripts, especially protocol code 
 - Constants/state: `SPEC`, `allFields`, `urlParams`, `NFC_INFO`, `nfcController`.
 - Web NFC dialogs: `showWebNfcDialog()`, `finishWebNfcAction()`.
 - Byte/encoding utilities: `hex()`, `addrHex()`, `parseHex()`, base64 helpers, `packInt()`, `encodeAscii()`, `encodeUtf8()`, `rgbaFromHex()`, `fixHexRgba()`, `bufferFromText()`, `bufferToHex()`, `hexdump()`, `downloadFile()`, `generateHash()`.
-- Field encode/decode: `encodeFieldValue()`, `decodeTagBuffer()`, `getFieldsForMajorVersion()`.
+- Field encode/decode: `encodeFieldValue()`, `decodeTagBuffer()` (including `deprecated_mfi_load` fallback to `mfi_load`), `getFieldsForMajorVersion()`.
 - Web NFC: `writeViaWebNFC()`, `readViaWebNFC()`, `startAutomaticWebNFC()`, `cancelWebNFC()`.
 - NTAG/NDEF packing: `buildNtagPageDump()`.
 - External formats: Flipper export, Proxmark3 import/export, NFC Tools Desktop/Mobile import/export, and `parseImportedText()`.
 
 `site.js` owns small site-wide UI helpers: `h()`, `msg()`, and dropdown menu behavior.
+
+`make.js` owns the `make.html` page controller. It expects both `globalThis.OpenTag3D.spec` and `globalThis.OpenTag3D.materialDensities` at module evaluation time, imports `filament-search.js`, `site.js`, and `opentag3d.js`, and handles form rendering (`renderForm()`, skipping `tag_version` and `deprecated_*` fields), density autofill (`updateDensityFromMaterial()`), SpoolmanDB population (`applySpoolmanDBData()`), payload assembly (`buildMemory()`), import-to-form (`loadBufferIntoForm()`), share links, and Web NFC/file export wiring.
+
+`search-box.js` defines the generic `<search-box>` Shadow DOM combobox custom element.
+
+`filament-search.js` defines the `<filament-search>` custom element wrapping `<search-box>`, fetching and caching filament profiles from SpoolmanDB (`https://donkie.github.io/SpoolmanDB/filaments.json`) for `make.html`.
 
 ## Danger zones
 
@@ -72,11 +78,13 @@ Caveats:
 
 - Leave `tag_version` undefined/current unless you are explicitly testing legacy decoding.
 - `date` and `time` encoders take strings; `spec.json` examples may be arrays, so convert them.
+- `allFields` includes `deprecated_*` fields alongside their replacements (e.g., `deprecated_mfi_load` and `mfi_load`); filter out `deprecated_` IDs if testing current-tag encoding only.
 - This proves shared encode/decode behavior only. UI changes still need a browser check, and Web NFC writes need a supported real-device check or an explicit "not locally verified" note.
 
 ## Verification expectations
 
-- UI helper changes in `site.js`: browser-check affected pages and menus/messages.
+- All JS edits: run `npm run format:check`.
+- UI/form/search helper changes (`site.js`, `make.js`, `filament-search.js`, `search-box.js`): browser-check affected pages, menus/messages, density autofill, and filament search behavior.
 - Encode/decode changes: run a Node round-trip and browser-check `/make` to `/read` behavior.
 - Import/export changes: test the specific file format changed with sample content.
 - Web NFC/config-page changes: ask first, test with a disposable tag, read back the result, and document the device/browser/tool used.
